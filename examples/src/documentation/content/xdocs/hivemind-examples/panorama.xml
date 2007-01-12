@@ -1,0 +1,341 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//HM//DTD Documentation V1.0//EN" "hm-document.dtd"
+[
+  <!ENTITY projectroot '../'>
+  <!ENTITY % common-links SYSTEM "../links.ent">
+  %common-links;
+]>
+<document>
+
+  <header>
+    <title>Panorama Startup</title>
+  </header> 
+  
+  <body>
+<p>
+Panorama is a disguised version of
+<link href="http://www.webct.com/">WebCT</link>'s <strong>Vista</strong> application.  Vista is
+a truly massive web application, consisting of thousands of Java classes and JSPs and hundreds of EJBs. Vista is
+organized as a large number of somewhat interrelated <em>tools</em> with an underlying substrate of <em>services</em>.
+In fact, HiveMind was originally created to manage the complexity of Vista.
+</p>   
+
+<note>
+The reality is that Vista, a commercial project, has continued with an older version of HiveMind. Panorama
+is based on original code in Vista, but has been altered to take advantage of many features available
+in more recent versions of HiveMind. Keeping the names seperate keeps us honest about the differences between a
+product actually in production (Vista) versus an idealized version used for demonstration and tutorial purposes (Panorama).
+</note> 
+
+<p>
+With all these interrelated tools and services, the simple act of starting up the application was complex.  Many
+tools and services have <em>startup operations</em>, things that need to occur when the application first starts
+up within the application server. For example, the help service reads and caches help text stored within the database.
+The mail service creates periodic jobs to peform database garbage collection of deleted mail items.  All told, Vista had
+over 40 different tasks to perform at startup ... many with subtle dependencies (such as the mail tool
+needing the job scheduler service to be up and running).
+</p>
+
+<p>
+The <em>legacy</em> version of Vista startup consisted of a WebLogic startup class that invoked a 
+central stateless session EJB. The startup EJB was responsible for performing all 40+ startup tasks ... typically
+by invoking a public static method of a class related to the tool.
+</p>
+
+<p>
+This was problematic for several reasons. It created a dependency on WebLogic to manage startup (really, a minor consideration,
+but one nonetheless). More importantly, it created an unnecessary binding between the startup EJB and all the other code
+in all the other tools. These unwanted dependencies created ripple effects throughout the code base that impacted
+refactored efforts, and caused deployment problems that complicated the build (requiring the duplication of
+many common classes inside the startup EJB's JAR, to resolve runtime classloader dependencies).
+</p>
+
+<note>
+It's all about class loaders. The class loader that loaded the startup EJB didn't have visibility to the contents
+of the other EJB JARs deployed within the Vista EAR. To satisfy WebLogic's ejbc command (EJB JAR packaging tool),
+and to succesfully locate the classes at runtime, it was necessary to duplicate many classes from the other EJB JARs into the startup EJB JAR.
+With HiveMind, this issue goes away, since the module deployment descriptors store the class <em>name</em>, and the
+<em>servlet thread's context class loader</em> is used to resolve that name ... and <em>it</em> has visibility
+to all the classes in all the EJB JARs.
+</note>
+
+<section>
+  <title>Enter HiveMind</title>
+  
+<p>
+HiveMind's ultimate purpose was to simplify all aspects of Vista development and create a simpler, faster,
+more robust development environment. The first step on this journey, a trial step, was to rationalize the startup process.
+</p>  
+
+<p>
+Each startup task would be given a unique id, a title and a set of <em>dependencies</em> (on other tasks). How
+the task actually operated was left quite abstract ... with careful support for supporting the existing legacy approach
+(public static methods). What would change would be how these tasks were executed.
+</p>
+
+<p>
+The advantage of HiveMind is that each <em>module</em> can contribute as many or as few startup tasks
+as necessary into the Startup configuration point as needed. This allows the startup logic to be
+properly <em>encapsulated</em> in the module. The startup logic can be easily changed without affecting
+other modules, and without having to change any single contentious resource (such as the legacy approach's
+startup EJB).
+</p>
+
+</section>
+
+<section>
+  <title>Startup task schema</title>
+
+<p>
+The schema for startup tasks contributions must support the explicit ordering of execution based on dependencies.
+With HiveMind, there's no telling in what order modules will be processed, and so no telling in what order
+contributions will appear within a configuration point ... so it is necessary to make ordering explicit
+by giving each task a unique id, and listing dependencies (the ids of tasks that must precede, or must
+follow, any single task).
+</p>
+
+<p>
+Special consideration was given to supporting legacy startup code in the tools and services; code that stays
+in the form of a public static method.  As HiveMind is adopted, these static methods will go away, and be replaced
+with either HiveMind services, or simple objects. In the very long term, much of this startup logic will become uncessary,
+as more of the system will be implemented using HiveMind services, which will lazily initialize just as needed.
+</p>
+  
+<p>
+The schema definition (with desriptions removed, for compactness) follows:
+</p>  
+
+<xmlsource><![CDATA[
+<schema id="Tasks">
+  <element name="task">
+    <attribute name="title" required="true"/>
+    <attribute name="id" required="true"/>
+    <attribute name="before"/>
+    <attribute name="after"/>      
+    <attribute name="executable" required="true" translator="object"/>
+      
+    <conversion class="impl.Task"/>
+  </element>
+  
+  <element name="static-task">
+    <attribute name="title" required="true"/>
+    <attribute name="id" required="true"/>
+    <attribute name="before"/>
+    <attribute name="after"/>           
+    <attribute name="class" translator="class" required="true"/>
+    <attribute name="method"/>
+      
+    <rules>
+      <create-object class="impl.Task"/>
+      <invoke-parent method="addElement"/>
+        
+      <read-attribute attribute="id" property="id"/>
+      <read-attribute attribute="title" property="title"/>
+      <read-attribute attribute="before" property="before"/>
+      <read-attribute attribute="after" property="after"/>
+        
+      <create-object class="impl.ExecuteStatic"/>
+      <invoke-parent method="setExecutable"/>
+        
+      <read-attribute attribute="class" property="targetClass"/>
+      <read-attribute attribute="method" property="methodName"/>       
+    </rules>
+  </element>
+</schema>]]></xmlsource>
+
+<note>
+For more details, see <link href="hivedocs/schema/panorama.startup.Tasks.html">the HiveDoc for
+  the Tasks schema</link>.  Also, class names are abbreviated in excerpts throughout
+  this document (see the description of the package attribute of the &module; element).
+</note>
+
+<p>
+This schema supports contributions in two formats.  The first format allows an arbitrary object or 
+service to be contributed:
+</p>
+
+<source><![CDATA[
+<task id="mail" title="Mail" executable="service:MailStartup"/>]]></source>
+
+<p>
+The <code>executable</code> attribute is converted into an object or service; here the <code>service:</code>
+prefix indicates that the rest of the string, <code>MailStartup</code>, is a service id
+(other prefixes are defined by the &hivemind.ObjectProviders; configuration). If this task
+has dependencies, the <code>before</code> and <code>after</code> attributes can be specified as well.
+</p>
+
+<p>
+To support legacy code, a second option, <code>static-task</code>, is provided:
+</p>
+<source><![CDATA[
+<static-task id="discussions" title="Discussions" after="mail" class="DiscussionsStartup"/>]]></source>
+
+<p>
+The <code>static-task</code> element duplicates the <code>id</code>, <code>title</code>,
+<code>before</code> and <code>after</code> attributes, but replaces <code>executable</code>
+with <code>class</code> (the name of the class containing the method) and
+<code>method</code> (the name of the method to invoke, defaulting to "init").
+</p>
+</section>
+
+
+<section>
+  <title>Startup Service</title>
+
+<p>
+  The schema just defines what contributions <em>look like</em> and how they are converted
+  to objects; we need to define a Startup configuration point using the schema, and
+  a Startup service that uses the configuration point.
+</p>  
+
+<xmlsource><![CDATA[
+<configuration-point id="Startup" schema-id="Tasks"/>
+
+<service-point id="Startup" interface="java.lang.Runnable">
+  <invoke-factory>
+    <construct class="impl.TaskExecutor">
+      <set-configuration property="tasks" configuration-id="Startup"/>
+    </construct>
+  </invoke-factory>
+</service-point>
+
+<contribution id="hivemind.Startup">
+  <startup object="service:Startup"/>
+</contribution>]]></xmlsource>
+  
+
+<p>
+The <code>hivemind.Startup</code> configuration point is used to ensure that the Panorama Startup service is
+executed when the Registry itself is constructed.
+</p>
+
+</section>
+
+<section>
+  <title>Implementation</title>
+  
+<p>
+All that remains is the implementations of the service and task classes.
+</p>  
+
+<section>
+  <title>Executable.java</title>
+
+<javasourcefile file="examples/src/java/org/apache/examples/panorama/startup/Executable.java" />
+
+<p>
+The Executable interface is implemented by tasks, and by services or other objects that need to
+be executed.  It <code>throws Exception</code> so that exception catching and reporting can be
+centralized inside the Startup service.
+</p>
+
+
+</section>
+
+<section>
+  <title>Task.java</title>
+  
+<javasourcefile file="examples/src/java/org/apache/examples/panorama/startup/impl/Task.java" />
+
+<p>
+The Task class is a wrapper around an Executable object; whether that's a service, some arbitrary object,
+or a StaticTask.
+</p>
+
+</section>
+
+<section>
+  <title>ExecuteStatic.java</title>
+
+
+<javasourcefile file="examples/src/java/org/apache/examples/panorama/startup/impl/ExecuteStatic.java" />
+
+<p>
+ExecuteStatic uses Java reflection to invoke a public static method of a particular class.
+</p>
+
+</section>
+
+<section>
+  <title>TaskExecutor.java</title>
+  
+<javasourcefile file="examples/src/java/org/apache/examples/panorama/startup/impl/TaskExecutor.java" />
+  
+<p>
+This class is where it all comes together; it is the core service implementation for the
+<code>panorama.startup.Startup</code>  service.  It is constructed by the &hivemind.BuilderFactory;, which
+autowires the <code>errorHandler</code>, <code>log</code> and <code>messages</code> properties, as
+well as the <code>tasks</code> property (which is explicitly set in the module deployment descriptor).
+</p>  
+
+
+<p>
+  Most of the <code>run()</code> method is concerned with ordering the contributed tasks into
+  execution order and reporting the results. 
+</p>
+  
+</section>
+
+</section>
+
+<section>
+  <title>Unit Testing</title>
+  
+<p>
+Unit testing in HiveMind is accomplished by <em>acting like the container</em>; that is, your code
+is responsible for instantiating the core service implementation and setting its properties.  In many cases,
+you will set the properties to mock objects ... HiveMind uses
+<link href="http://www.easymock.org/">EasyMock</link> extensively, and
+provides a base class, <code>HiveMindTestCase</code>, that contains much support for creating Mock controls
+and objects.
+</p>
+
+<section>
+  <title>TestTaskExcecutor.java</title>
+</section>
+
+<javasourcefile file="examples/src/test/org/apache/examples/panorama/startup/impl/TestTaskExecutor.java" />
+ 
+<p>
+In this listing (which is a paired down version of the real class), you can see how 
+mock objects, including EasyMock objects, are used. The ExecutableFixture classes will invoke
+the <code>addToken()</code> method; the point is to provide, in the tasks List,
+those fixtures wrapped in Task objects and see that they are invoked in the correct order.
+</p>
+
+<p>
+We create a Mock Log object, and check that the correct messages are logged in the correct order.  Once
+we have set the expectations for all the EasyMock controls, we invoke <code>replayControls()</code> and
+continue with our test.  The <code>verifyControls()</code> method ensures that all mock objects
+have had all expected methods invoked on them.
+</p>
+
+<p>
+That's just <em>unit</em> testing; you always want to supplement that with <em>integration</em>
+testing ... to ensure, at the very least, that your schema is valid, the conversion rules work, and the contributions
+are correct.  However, as the <link href="clover/org/apache/examples/panorama/startup/impl/pkg-summary.html">code coverage report</link>
+  shows, you can reach very high levels of code coverage (and code <em>confidence</em>) using unit tests.
+</p>
+  
+  
+</section>
+
+
+  </body>
+</document>

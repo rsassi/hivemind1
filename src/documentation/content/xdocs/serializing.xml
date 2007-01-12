@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>Serializing Services</title>
+	</header>
+	<body>
+   
+<p> 
+It is often useful, especially in a web-based application,
+to serialize services. In HiveMind 1.0, objects that had references to HiveMind services could not
+be serialized ... the services were not serializable.  You could make your service implemention implement
+Serializable, but that's not what client code sees ... client code sees the service <em>proxy</em>, which
+did not implement Serializable. End of story.
+</p>
+
+<note>
+Service proxies are the objects that are obtained from the Registry, or injected into
+other services.  The proxies implement the service interface, but are generated on the fly.
+These service proxies are part of how HiveMind handles just-in-time service instantiation.
+</note>
+
+<p>
+Starting with HiveMind 1.1, service proxies are, themselves, serializable.  If you create objects that
+have references to HiveMind services, those objects can be serialized.  For example:
+</p>
+
+<source>
+public class MyDataObject implements Serializable
+{
+  private MyService _myService;
+  
+  . . .
+}    
+</source>
+
+<p>
+Here, the <code>MyDataObject</code> class has a reference to a HiveMind service in its
+<code>_myService</code> instance variable. An instance of <code>MyDataObject</code>
+may be serialized in one JVM and de-serialized in another.  In the new JVM, 
+the <code>_myService</code> instance variable will point to an <em>equivalent</em>
+HiveMind service.  
+</p>
+
+<note>
+Serialization involves a particular global static variable that stores the Registry. When a service
+proxy is serialized, the Registry manufactures a <em>service token</em> to take its place. It is this token
+that is actually serialized and deserialized -- not the service proxy itself.
+When the token is later deserialized, it accesses the Registry through the global variable to get 
+the service proxy (in the new JVM) back. This causes a problem if you have multiple Registry instances ... they will
+try to overwrite each other.  If you have multiple web applications that all use HiveMind, you need to ensure
+that the HiveMind framework JARs exist in each WAR's WEB-INF/lib folder ... that will ensure that each
+is loaded by a different class loader, and each will have its own static variable.
+</note>
+
+<p>
+It is the <em>service proxy</em> that is serializable, not the
+<em>service implementation</em>.  That means that a stateful service (one that uses
+the threaded or pooled service model) will likely <strong>not</strong>
+be in the same state in the new JVM.  Again, the internal state of the service is <strong>not</strong>
+serialized ... just the service's id.
+</p>
+
+<p>
+If your service acts as a factory (or otherwise provides access to itself), you must be careful
+to share the service proxy, not the implementation itself.  For example:
+</p>
+
+<source>
+public class MyServiceImpl implements MyService
+{
+  private void MyService _myProxy;
+  
+  public void setMyProxy(MyService myProxy)
+  {
+    _myProxy = myProxy;
+  }
+  
+  // Service method
+  
+  public MyDataObject newDataObject()
+  {
+    return new MyDataObject(_myProxy);
+  }
+  
+  . . .
+}
+</source>
+
+<p>
+Here, the implementation acts as a factory for <code>MyDataObject</code> instances.
+It connects each data object to the service proxy (
+<code>new MyDataObject(_myProxy)</code> rather than <code>new MyDataObject(this)</code>).
+You will need to use the &hivemind.BuilderFactory; and include a &lt;set-service&gt; element to connect 
+the implementation's <code>myProxy</code> property to the service proxy.
+</p>
+
+<p>
+A final note:  Services using the <em>primitive</em> service model do not have
+service proxies and therefore they are <em>not serializable</em>, even in release 1.1. The other service models
+(including the default
+service model, <em>singleton</em>), do use a proxy and are serializable, as discussed in this
+document.
+</p>
+
+</body>
+</document>

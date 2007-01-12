@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY projectroot '../'>
+	<!ENTITY % common-links SYSTEM "../links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>hivemind.lib.ServicePropertyFactory Service</title>
+	</header>
+	<body>
+		<p>The <link href="&hivedoc;/service/hivemind.lib.ServicePropertyFactory.html">
+			ServicePropertyFactory</link> exposes a property of a service as a new service.
+      The property's type must the same as (or assignable to) the service interface.
+      </p>
+      
+      <p>On each invocation of a service method, the property is re-acquired from
+        the property source service, and the method reinvoked on the active value.
+      This is useful when the value of the property can change at different times ...
+      by using this factory,
+      and not the <code>service-property</code>  <link href="site:hivemind.ObjectProviders">object provider</link>,
+      your code will always access the current value.
+      </p>
+      
+      <p>
+        This can invaluable when a small number of services use the threaded or pooled service models.
+        Other services can access information in those services transparently, without themselves having
+        to be threaded or pooled.
+      </p>
+      
+      <p>
+        A single parameter element is expected:
+      </p>
+      
+      <source>
+<![CDATA[<construct service-id="..." property="..."/>]]>      
+      </source>
+      
+      <p>
+        Both attributes are required. 
+      </p>
+	</body>
+</document>

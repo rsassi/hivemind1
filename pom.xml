@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>hivemind</groupId>
+    <version>1.2-alpha-1-SNAPSHOT</version>
+    <artifactId>hivemind-project</artifactId>
+    <packaging>pom</packaging>
+    <name>HiveMind Services and Configuration Microkernel</name>
+    <modules>
+        <module>framework</module>
+        <module>library</module>
+    </modules>
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>http:/www.apache.org/</url>
+    </organization>
+    <developers>
+        <developer>
+            <id>HLS</id>
+            <email>howard@howardlewisship.com</email>
+            <url>http://howardlewisship.com</url>
+            <roles>
+                <role>dev</role>
+                <role>Evil Genius</role>
+            </roles>
+            <timezone>-8</timezone>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>Apache Software License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <issueManagement>
+        <system>jira</system>
+        <url>http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10500</url>
+    </issueManagement>
+    <distributionManagement>
+        <site>
+            <id>website</id>
+            <url>scp://cvs.apache.org/www/jakarta.apache.org/hivemind/1.2/</url>
+        </site>
+    </distributionManagement>
+    <scm>
+        <connection>svn:http://svn.apache.org/repos/asf/jakarta/hivemind/branches/maven2-dec12-2005/</connection>
+        <url>http://svn.apache.org/viewcvs.cgi/jakarta/hivemind/branches/maven2-dec12-2005/</url>
+    </scm>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>

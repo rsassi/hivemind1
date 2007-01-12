@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN" 
+  "http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+  <!ENTITY projectroot '../'>
+  <!ENTITY % common-links SYSTEM "../links.ent">
+  %common-links;
+  ]>
+<document>
+  <header>
+    <title>Setup JMX Connectors</title>
+  </header>
+  <body>
+  	<p>
+  		Finally you have to decide how you want to access the management
+  		functionality of your application. The JMX specification calls
+  		the responsible components connectors and protocol adaptors.
+  		The HTML protocol adaptors have the big advantage, that no 
+  		additional management console is needed. All that is needed is 
+  		a web browser.<br/>
+  		HiveMind offers preconfigured services for the most common
+  		connectors.
+  	</p>
+		<section>
+			<title>HTML Adaptors</title>
+			<p>HTML Adaptors are provide by MX4J and Sun RI.
+			</p>
+			<section>
+				<title>MX4J HTML Adaptor</title>
+				<p>Enable the MX4J HTML Adaptor by including these lines in 
+					your descriptor:
+				</p>
+				<source><![CDATA[
+<contribution configuration-id="hivemind.management.MBeans">
+   <mbean service-id="hivemind.management.connector.MX4JHttpAdaptorMBean" 
+          start-method="start" />
+</contribution>]]></source> 
+				<p>By default the adaptor listens on port 9000 for incoming
+					HTTP request and renders a HTML user interface.<br/>
+					To change the port, modify the symbol "management.http.Port":
+				</p>
+				<source><![CDATA[
+<contribution configuration-id="hivemind.ApplicationDefaults">
+  <default symbol="management.http.Port" value="9001" />
+</contribution>]]></source>
+			</section>
+			<section>
+				<title>SUN RI HTML Adaptor</title>
+				<p>Enable the SUN HTML Adaptor by including these lines in 
+					your descriptor:
+				</p>
+				<source><![CDATA[
+<contribution configuration-id="hivemind.management.MBeans">
+   <mbean service-id="hivemind.management.connector.SunHttpAdaptorMBean" 
+          start-method="start" />
+</contribution>]]></source> 
+				<p>The default port and configuration of the port correspond
+					to the MX4J description above.
+				</p>
+			</section>
+			<section>
+				<title>J2SE 1.5 and HTML Adaptors</title>
+				<p>There is no HTTP Adaptor provided with J2SE 1.5. 
+					But you can combine the MX4J or Sun RI HTTP Adaptors with 
+					J2SE 1.5. Just include the xxx-tools.jar in the classpath 
+					and setup the adaptor like described above.
+				</p>
+			</section>
+		</section>
+		<section>
+			<title>JSR 160 connectors</title>
+			<p>JSR 160 connectors allow the remote management of the application using any 
+				management console that supports that standard (like JConsole, MC4J). 
+				The connectors are created by a standardized api so there are no implementation 
+				specific MBeans like with HTTP Adaptors. <br/>
+				The standard allows use of different protocols for the remote management (which
+				must be supported by both the JMX implementation and the management console). 
+				Most common is a RMI protocol and this is what HiveMind uses by default. 
+				The protocol requires a running RMI Registry. <br/>
+				Add these lines:
+			</p>
+				<source><![CDATA[
+<contribution configuration-id="hivemind.management.MBeans">
+   <mbean service-id="hivemind.management.connector.NamingServiceMBean" 
+      start-method="start" />
+   <mbean service-id="hivemind.management.connector.JMXConnectorServerMBean" 
+      start-method="start" />
+</contribution>]]></source> 
+				<p>Now you can connect to the application with jconsole or MC4J 
+					using this url: service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jmx .
+				</p>
+				<p>You can change RMI port and the service url this way:
+				</p>
+				<source><![CDATA[
+<contribution configuration-id="hivemind.ApplicationDefaults">
+  <default symbol="management.namingservice.port" value="1099" />
+  <default symbol="management.jmxconnector.ServiceUrl" 
+      value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jmx" />
+</contribution>]]></source> 
+		</section>
+		<section>
+			<title>J2SE 1.5 local connector</title>
+			<p>Local management with jconsole is possible without adding any connector, if
+				your application runs on J2SE 1.5. Simply set the 
+				system property com.sun.management.jmxremote before launching your app:
+			</p>
+				<source><![CDATA[
+java -Dcom.sun.management.jmxremote ...]]></source> 
+		</section>
+  </body>
+</document>

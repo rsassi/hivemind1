@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<module id="hivemind.management.connector" package="org.apache.hivemind.management" version="1.1.0">
+	
+  <service-point id="JMXConnectorServerFactory" interface="org.apache.hivemind.ServiceImplementationFactory" >
+    Used to construct JMXConnectorServer instances (interface JMXConnectorServerMBean).
+    These instances provide jmx remote management capabilities.
+    <parameters-schema>
+      <element name="connector">
+        Specifies parameters needed to construct the JMXConnectorServer.
+        <attribute name="jmx-service-url" required="true">
+        The address of a JMX API connector server. Syntax corresponds to javax.management.remote.JMXServiceURL
+        </attribute>
+        <conversion class="org.apache.hivemind.management.impl.JMXConnectorServerParameter">
+        <map attribute="jmx-service-url" property="jmxServiceURL"/>
+        </conversion>
+      </element>
+    </parameters-schema>
+    <invoke-factory>
+      <construct class="org.apache.hivemind.management.impl.JMXConnectorServerFactory">
+        <service>hivemind.management.MBeanServer</service>
+      </construct>
+    </invoke-factory>
+  </service-point>
+    
+  <!-- Setup mx4j HTMLAdaptor -->
+  
+  <service-point id="MX4JHttpAdaptorMBean" interface="mx4j.tools.adaptor.http.HttpAdaptorMBean">
+  	Mx4j HttpAdaptor service. Allows management of Mbeans via Http Server.
+  	When registered using MBeanRegistry, the method start
+  	must be declared as start-method.
+    <invoke-factory model="primitive">
+      <construct class="mx4j.tools.adaptor.http.HttpAdaptor" 
+      	autowire-services="false">
+        <set property="port" value="${management.http.Port}" />
+        <set property="host" value="localhost" />
+        <set-object property="processor" value="instance:mx4j.tools.adaptor.http.XSLTProcessor" />
+      </construct>
+    </invoke-factory>  	
+  </service-point>
+  
+  <!-- Setup mx4j JSR 160 Adaptor -->
+
+  <service-point id="NamingServiceMBean" interface="org.apache.hivemind.management.mbeans.NamingServiceMBean">
+  	Mx4j MBean that starts an RMI server. Needed for starting an JSR 160 connector
+  	that uses the rmi protocol
+    <invoke-factory model="primitive">
+      <construct class="org.apache.hivemind.management.mbeans.NamingService" >
+        <set property="port" value="${management.namingservice.port}" />
+      </construct>
+    </invoke-factory>  	
+  </service-point>
+
+  <service-point id="JMXConnectorServerMBean" interface="javax.management.remote.JMXConnectorServerMBean">
+    <invoke-factory model="primitive" service-id="JMXConnectorServerFactory">
+      <connector jmx-service-url="${management.jmxconnector.ServiceUrl}" />
+    </invoke-factory>  	
+  </service-point>
+
+  <contribution configuration-id="hivemind.FactoryDefaults">
+    <default symbol="management.namingservice.port" value="1099" />
+    <!-- JMX client must use this url: service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jmx -->
+    <default symbol="management.jmxconnector.ServiceUrl" value="service:jmx:rmi://localhost/jndi/rmi://localhost:1099/jmx" />
+    <default symbol="management.http.Port" value="9000" />
+  </contribution>
+
+  <!-- Setup Sun RI HTML Adaptor -->
+
+  <service-point id="SunHttpAdaptorMBean" interface="javax.management.DynamicMBean">
+    <invoke-factory model="primitive">
+      <construct class="com.sun.jdmk.comm.HtmlAdaptorServer" 
+      	autowire-services="false">
+        <set property="port" value="${management.http.Port}" />
+      </construct>
+    </invoke-factory>  	
+  </service-point>
+
+</module>

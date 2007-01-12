@@ -1,0 +1,375 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//HM//DTD Documentation V1.0//EN" "hm-document.dtd"
+[
+	<!ENTITY projectroot '../'>
+	<!ENTITY % common-links SYSTEM "../links.ent">
+	%common-links;
+]>
+<document>
+
+  <header>
+    <title>Creating a Logging Interceptor</title>
+	</header>
+	
+  <body>
+
+<p>
+One of the most powerful features of HiveMind is the ability to create <em>interceptors</em> for services. Interceptors
+provide additional behavior to a service, often a <em>cross-cutting concern</em> such as logging or transaction management. 
+Interceptors can be thought of as "aspect oriented programming lite".
+</p>
+
+<p>
+This example shows how easy it can be to create an interceptor; it creates a simplified version of the
+standard &hivemind.LoggingInterceptor;.
+</p>
+
+<p>
+The <em>real</em> logging interceptor uses the <link href="http://www.jboss.org/products/javassist">Javassist</link>
+bytecode enhancement framework to create a new class at runtime. This has some minor advantages in terms of runtime performance,
+but is much more complicated to implement and test than this example, which uses 
+<link href="http://java.sun.com/j2se/1.3/docs/guide/reflection/proxy.html">JDK Dynamic Proxies</link>.
+</p>
+
+<section>
+  <title>The Interceptor Factory</title>
+  <p> Interceptors are created by interceptor factories, which are themselves HiveMind services. Interceptor factories 
+    implement the &api.ServiceInterceptorFactory; interface. </p>
+  <p> Our implementation is very simple: </p>
+  <javasource><![CDATA[package org.apache.examples.impl;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.hivemind.InterceptorStack;
+import org.apache.hivemind.ServiceInterceptorFactory;
+import org.apache.hivemind.internal.Module;
+
+public class ProxyLoggingInterceptorFactory implements ServiceInterceptorFactory
+{
+
+    public void createInterceptor(InterceptorStack stack, Module invokingModule, List parameters)
+    {
+        Log log = stack.getServiceLog();
+
+        InvocationHandler handler = new ProxyLoggingInvocationHandler(log, stack.peek());
+
+        Object interceptor =
+            Proxy.newProxyInstance(
+                invokingModule.getClassResolver().getClassLoader(),
+                new Class[] { stack.getServiceInterface()},
+                handler);
+
+        stack.push(interceptor);
+    }
+}]]></javasource>
+  <p> The <code>createInterceptor()</code> method is passed the &api.InterceptorStack;, the &api.Module; of the 
+    invoking module (the module containing the service being created), and any parameters passed to the interceptor 
+    (from inside the &interceptor; element). This example does not make use of parameters, but the real logging 
+    interceptor uses parameters to control which methods are, and are not, logged. </p>
+  <p> An interceptor's job is to <code>peek()</code> at the top object on the stack and create a new object, wrapped 
+    around the top object, that provides new behavior. The top object on the stack may be the core service 
+    implementation, or it may be another interceptor ... all that's known for sure is that it implements the service 
+    interface defined by the &service-point;. </p>
+  <p> The interceptor in this case is a dynamic proxy, provided by <code>Proxy.newProxyInstance()</code>. The key here 
+    is the <em>invocation handler</em>, and object (described shortly) that is notified any time a method on the 
+    interceptor proxy is invoked. </p>
+  <p> Once the interceptor is created, it is pushed onto the stack. More interceptors may build upon it, adding yet 
+    more behavior. </p>
+  <p> In HiveMind, a single <code>Log</code> instance is used when constructing a service as well as by any 
+    interceptors created for the service. In other words, by enabling logging for a particular service id, you will see 
+    log events for every aspect of the construction of that particular service. If you add a logging interceptor, 
+    you'll also see method invocations. To ensure that logging takes place using the single logging instance, neither 
+    the class nor the interceptor factory is responsible for creating the logging instance ... that's the 
+    responsibility of HiveMind. The logging instance to use is provided by the <code>getServiceLog()</code> method of 
+    the &api.InterceptorStack; instance provided to the interceptor factory. </p>
+</section>
+
+<section>
+  <title>Invocation Handler</title>
+
+<p>
+The invocation handler is where the intercepting really takes place; it is invoked every time a method of the
+proxy object is invoked and has a chance to add behavior before, and after (or even instead of!) invoking a method
+on the next object in the stack.  What is the "next object"?  It's the next object in the interceptor stack, and may be
+another interceptor instance, or may be the core service implementation.
+</p>
+
+<javasource><![CDATA[package org.apache.examples.impl;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.apache.commons.logging.Log;
+import org.apache.hivemind.service.impl.LoggingUtils;
+
+public class ProxyLoggingInvocationHandler implements InvocationHandler
+{
+    private Log _log;
+    private Object _delegate;
+
+    public ProxyLoggingInvocationHandler(Log log, Object delegate)
+    {
+        _log = log;
+        _delegate = delegate;
+    }
+
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+    {
+        boolean debug = _log.isDebugEnabled();
+
+        if (debug)
+            LoggingUtils.entry(_log, method.getName(), args);
+
+        try
+        {
+            Object result = method.invoke(_delegate, args);
+
+            if (debug)
+            {
+                if (method.getReturnType() == void.class)
+                    LoggingUtils.voidExit(_log, method.getName());
+                else
+                    LoggingUtils.exit(_log, method.getName(), result);
+            }
+
+            return result;
+        }
+        catch (InvocationTargetException ex)
+        {
+            Throwable targetException = ex.getTargetException();
+
+            if (debug)
+                LoggingUtils.exception(_log, method.getName(), targetException);
+
+            throw targetException;
+        }
+    }
+
+}
+]]></javasource>
+
+<p>
+The <code>invoke()</code> method is the key. Using the remembered <code>Log</code> instance,
+and the remembered delegate object (the next object on the interceptor stack ... the object that
+was <code>peek()</code>-ed).  The code for actually generating the logging output is inside static
+methods of the <code>LoggingUtils</code> utility class -- in this way the output from this interceptor is
+identical to the output when using &hivemind.LoggingInterceptor;.
+</p>
+
+<p>
+The <code>invoke()</code> method is invoked for all methods that can be invoked on the proxy ... this includes
+the methods of the service interface, but also includes <code>java.lang.Object</code> methods such
+as <code>hashCode()</code> or <code>toString()</code>.
+</p>
+
+<note>
+The &hivemind.LoggingInterceptor; will typically add its own implementation of <code>toString()</code>, to assist
+in debugging (it clearly identifies itself as an interceptor object, and identifies the service id and service interface). 
+This proxy-based implementation does not, so invoking <code>toString()</code> on the proxy will end up invoking the method
+on the next object.
+</note>
+</section>
+
+<section>
+  <title>Declaring the interceptor factory</title>
+  
+<p>
+Like any other service, an service interceptor factory must appear inside a HiveMind module deployment descriptor:
+</p>  
+
+<xmlsource><![CDATA[
+<service-point id="ProxyLoggingInterceptor" interface="org.apache.hivemind.ServiceInterceptorFactory">
+  <create-instance class="org.apache.examples.impl.ProxyLoggingInterceptorFactory"/>
+</service-point>]]></xmlsource>
+  
+</section>
+
+<section>
+  <title>Using the interceptor</title>
+  
+<p>
+Using the interceptor is the same as using any other interceptor; the &interceptor; element simply has to point at the correct service:
+</p>  
+
+<xmlsource><![CDATA[
+<module id="examples" version="1.0.0" package="org.apache.examples">
+
+    . . . 
+    
+    <service-point id="ProxyLoggingInterceptor" interface="org.apache.hivemind.ServiceInterceptorFactory">
+      <create-instance class="impl.ProxyLoggingInterceptorFactory"/>
+    </service-point>
+    
+    <service-point id="Target" interface="TargetService">
+      <create-instance class="impl.TargetServiceImpl"/>
+      <interceptor service-id="ProxyLoggingInterceptor"/>
+    </service-point>
+</module>]]></xmlsource>
+
+<p>
+The <code>TargetService</code> interface defines three methods used to demonstrate the logging interceptor:
+</p>
+
+<javasource>
+<![CDATA[package org.apache.examples;
+
+import java.util.List;
+
+public interface TargetService
+{
+    public void voidMethod(String string);
+
+    public List buildList(String string, int count);
+
+    public void exceptionThrower();
+}
+]]></javasource>
+
+<p>
+The implementation class is equally inspiring:  
+</p>
+
+<javasource><![CDATA[package org.apache.examples.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.hivemind.ApplicationRuntimeException;
+import org.apache.examples.TargetService;
+
+public class TargetServiceImpl implements TargetService
+{
+
+    public void voidMethod(String string)
+    {
+
+    }
+
+    public List buildList(String string, int count)
+    {
+        List result = new ArrayList();
+        
+        for (int i = 0; i < count; i++)
+            result.add(string);
+
+        return result;
+    }
+
+    public void exceptionThrower()
+    {
+        throw new ApplicationRuntimeException("Some application exception.");
+    }
+}]]></javasource>
+
+</section>
+
+<section>
+  <title>Running the examples</title>
+  
+<p>
+From the <code>examples</code> directory, run <code>ant compile</code>, then run <code>ant -emacs run-logging</code>:
+</p>  
+
+<source><![CDATA[
+bash-2.05b$ ant -emacs run-logging
+Buildfile: build.xml
+
+run-logging:
+Target [DEBUG] Creating SingletonProxy for service examples.Target
+
+*** Void method (no return value):
+
+Target [DEBUG] Constructing core service implementation for service examples.Target
+Target [DEBUG] Applying interceptor factory examples.ProxyLoggingInterceptor
+ProxyLoggingInterceptor [DEBUG] Creating SingletonProxy for service examples.ProxyLoggingInterceptor
+ProxyLoggingInterceptor [DEBUG] Constructing core service implementation for service examples.ProxyLoggingInterceptor
+Target [DEBUG] BEGIN voidMethod(Hello)
+Target [DEBUG] END voidMethod()
+
+*** Ordinary method (returns a List):
+
+Target [DEBUG] BEGIN buildList(HiveMind, 4)
+Target [DEBUG] END buildList() [[HiveMind, HiveMind, HiveMind, HiveMind]]
+
+*** Exception method (throws an exception):
+
+Target [DEBUG] BEGIN exceptionThrower()
+Target [DEBUG] EXCEPTION exceptionThrower() -- org.apache.hivemind.ApplicationRuntimeException
+org.apache.hivemind.ApplicationRuntimeException: Some application exception.
+        at org.apache.examples.impl.TargetServiceImpl.exceptionThrower(TargetServiceImpl.java:35)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:324)
+        at org.apache.examples.impl.ProxyLoggingInvocationHandler.invoke(ProxyLoggingInvocationHandler.java:38)
+        at $Proxy0.exceptionThrower(Unknown Source)
+        at $SingletonProxy_fe67f7e0ae_12.exceptionThrower($SingletonProxy_fe67f7e0ae_12.java)
+        at org.apache.examples.LoggingMain.main(LoggingMain.java:27)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:324)
+        at org.apache.tools.ant.taskdefs.ExecuteJava.run(ExecuteJava.java:193)
+        at org.apache.tools.ant.taskdefs.ExecuteJava.execute(ExecuteJava.java:130)
+        at org.apache.tools.ant.taskdefs.Java.run(Java.java:705)
+        at org.apache.tools.ant.taskdefs.Java.executeJava(Java.java:177)
+        at org.apache.tools.ant.taskdefs.Java.execute(Java.java:83)
+        at org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:275)
+        at org.apache.tools.ant.Task.perform(Task.java:364)
+        at org.apache.tools.ant.Target.execute(Target.java:341)
+        at org.apache.tools.ant.Target.performTasks(Target.java:369)
+        at org.apache.tools.ant.Project.executeTarget(Project.java:1214)
+        at org.apache.tools.ant.Project.executeTargets(Project.java:1062)
+        at org.apache.tools.ant.Main.runBuild(Main.java:673)
+        at org.apache.tools.ant.Main.startAnt(Main.java:188)
+        at org.apache.tools.ant.launch.Launcher.run(Launcher.java:196)
+        at org.apache.tools.ant.launch.Launcher.main(Launcher.java:55)
+
+BUILD SUCCESSFUL
+Total time: 3 seconds
+]]></source>
+
+<p>
+The <code>log4j.properties</code> file for the examples has enabled debug logging for the entire module; thus we see
+some output about the construction of the <code>ProxyLoggingInterceptor</code> service as it is employed to construct the 
+interceptor for the <code>Target</code> service.
+</p>
+
+</section>
+
+<section>
+  <title>Conclusion</title>
+  
+<p>
+Implementing a basic interceptor using HiveMind is very simple when using JDK Dynamic Proxies. You can easily provide code that slips
+right into the calling sequence for the methods of your services with surprisingly little code. In addition, the APIs do not force you
+to use any single approach; you can use JDK proxies as here, use Javassist, or use any approach that works for you.  And because interceptor
+factories are themselves HiveMind services, you have access to the entire HiveMind environment to implement your interceptor factories.
+</p>  
+
+
+</section>
+
+
+  </body>
+</document>

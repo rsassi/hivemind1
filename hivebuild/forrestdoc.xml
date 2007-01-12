@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<project name="forrestdoc">
+	
+		<property name="jhighlight.lib" value="${external.lib.dir}/jhighlight-1.0rc.jar" />
+
+		<fail unless="ant.file.hivebuild" message="Must import hivebuild.xml first."/>
+		<fail unless="ant.file.dependency" message="Must import dependency.xml first."/>
+
+	  <!-- compile additional transformers (sourceHighlighter) -->
+		<target name="-compileForrestTransformer" description="">
+			<!-- jhighlight is currently not available on ibiblio but this will change soon ... -->  
+			<antcall target="-display-download-warning"/>
+			<grab-file dest="${jhighlight.lib}"
+				src="http://www.yagni.de/download/jhighlight-1.0rc.jar" />
+				
+      <mkdir dir="${hivebuild.classes.dir}"/>
+      <property environment="env"/>
+      <javac srcdir="${hivebuild.dir}/../tools/forrest/src"
+        destdir="${hivebuild.classes.dir}" debug="on" debuglevel="lines,vars,source">
+				<classpath>
+					<pathelement location="${jhighlight.lib}"/>
+					<fileset dir="${env.FORREST_HOME}" id="id">
+					    <include name="**/*.jar"/>
+					</fileset>
+				</classpath>
+      </javac>
+			<!-- Create a jar in forrest optional lib folder -->
+			<jar destfile="${env.FORREST_HOME}/lib/optional/hivemindTransformers.jar"
+						update="false">
+				<fileset dir="${hivebuild.classes.dir}">
+			  	<include name="**/*.class"/>
+				</fileset>
+			</jar>
+			<copy todir="${env.FORREST_HOME}/lib/optional" file="${jhighlight.lib}">
+			</copy>
+	  </target>
+	
+	  <!-- macro for launching forrest (0.7) -->
+		<macrodef name="forrest">
+			<attribute name="target" default="run" description="target for forrest to execute"/>
+			<sequential>
+	      <property environment="env"/>
+				<property name="forrest.home" location="${env.FORREST_HOME}" />
+			  <property name="forrest.ant.home" location="${forrest.home}/tools/ant" />
+			  <java classname="org.apache.tools.ant.Main" fork="true" failonerror="true" maxmemory="128M">
+			    <classpath>
+						<pathelement location="${jhighlight.lib}"/>
+			      <fileset dir="${forrest.ant.home}/lib">
+			        <include name="*.jar" />
+			      </fileset>
+			      <pathelement path="${java.home}/../lib/tools.jar" />
+			    </classpath>
+			    <sysproperty key="ant.home" value="${forrest.ant.home}" />
+			    <sysproperty key="forrest.home" value="${forrest.home}" />
+			    <sysproperty key="basedir" value="${basedir}" />
+			    <sysproperty key="java.endorsed.dirs" value="${forrest.home}/lib/endorsed" />
+			    <arg line="-f ${forrest.home}/main/forrest.build.xml @{target}" />
+			  </java>
+			</sequential>
+		</macrodef>
+
+ 		<target name="run-forrest" description="Runs Forrest to generate final site documentation.">
+			<announce message="Invoking Forrest ..."/>
+      
+      <antcall target="-compileForrestTransformer" />
+ 			
+      <forrest target="site" />
+ 
+		</target>
+    
+    <target name="live-forrest" description="Runs Forrest interactively.">
+      <announce message="Invoking Forrest.  Open a browser to http://localhost:8888 ..."/>
+      
+      <forrest target="run" />
+    </target>
+		
+		<macrodef name="add-report-to-menu">
+			<attribute name="element" default="report" description="Element name to use inside site.xml, useful when creating a link to the report."/>
+			<attribute name="label" description="The label to use in the menus."/>
+			<attribute name="file" description="The relative path to the report file (relative to the documentation root)."/>
+			
+			<sequential>
+				<echo file="${forrest.report-menu.file}" append="true">
+<![CDATA[ <@{element} label="@{label}" href="@{file}"/> ]]>	
+				</echo>	
+			</sequential>	
+		</macrodef>
+		
+		<target name="-initialize-report-menu-file">
+		
+      <dirname property="report-menu.dir" file="${forrest.report-menu.file}"/>
+			<mkdir dir="${report-menu.dir}"/>
+			
+			<echo message="" file="${forrest.report-menu.file}"/>
+		</target>  
+        
+		<target name="marshall-documentation"
+			depends="-initialize-report-menu-file"
+			description="Copy static content into the forrest composite, and generate dynamic reports.">
+	
+			<antcall target="copy-documentation-to-composite"/>
+			<antcall target="run-reports"/>
+			
+		</target>
+			
+		<target name="run-reports" description="Overridden in project or module to run dynamic reports."/>
+		
+		<available file="${forrest.documentation.dir}" type="dir" property="exists-forrest-documentation-dir"/>
+		
+		<target name="copy-documentation-to-composite" if="exists-forrest-documentation-dir">
+			<copy todir="${project.forrest.composite.dir}" includeEmptyDirs="no">
+				<fileset dir="${forrest.documentation.dir}"/>	
+			</copy>
+		</target>
+		
+</project>

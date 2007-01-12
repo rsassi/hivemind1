@@ -1,0 +1,357 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//HM//DTD Documentation V1.0//EN" "hm-document.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>Introduction to HiveMind</title>
+	</header>
+	<body>
+		<p><strong>HiveMind</strong> is a services and configuration microkernel:</p>
+		<ul>
+			<li><strong><link href="site:services">Services</link></strong>: HiveMind
+				services are <em>POJOs</em> (Plain Old Java Objects) that can be easily
+				accessed and combined. Each service ideally defines a Java interface it
+				implements (but this is no longer mandatory). HiveMind takes care of instantiating and configuring each
+				service just as necessary. HiveMind lets services collaborate with each
+				other via <link href="site:ioc">dependency injection</link>.</li>
+			<li> <strong><link href="site:configurations">Configuration</link></strong>: 
+				HiveMind allows you to provide complex configuration data to your
+				services in a format <em>you</em> define. HiveMind will integrate the
+				contributions of such data from multiple modules and convert it all into
+				data objects for you. HiveMind configurations allow for powerful,
+				data-driven solutions which combine seemlessly with the service
+				architecture.</li>
+			<li><strong>Microkernel</strong>: HiveMind is a framework for creating applications, not
+				an application, or even an application server, itself. The 'core' of HiveMind
+				is the <link href="site:bootstrap">startup logic</link>
+			  that knows how to parse and understand the
+				<link href="site:descriptor">module deployment descriptors</link>, and use that
+				information to <link href="site:ioc">instantiate and initialize</link>
+				all those services and configurations.
+				</li>
+		</ul>
+		<p>In HiveMind, a service is an implementation of a Java interface. Unlike
+			other SOAs (Service Oriented Architectures, such as a SOAP, or EJBs),
+			HiveMind is explicitly about combining Java code within a single JVM.
+			HiveMind uses a <link href="site:descriptor">descriptor</link> to describe
+			different services, their lifecycles, and how they are combined. HiveMind
+			takes care of thread-safe, just-in-time creation of singleton service
+			objects so your code doesn't have to.</p>
+      
+    <p>
+      HiveMind sits between your application code and the underlying J2EE or other APIs:
+    </p>
+    
+    <figure src="images/FrameworkStack.png" alt="[Framework Stack]"/>
+    
+    <p>
+     In this diagram, the application accesses key HiveMind services (the small circles). These services
+     acts as facades; the implementations of 
+     the services are dependent on many other services, as well as configurations (the blue stacks of blocks).
+     Service implementations make use of Java and J2EE APIs, and may even "bridge" into other systems such
+     as EJB session beans.     
+    </p>
+      
+		<p>HiveMind is organized around <em>modules</em>: individual building
+			blocks, each providing a particular set of services and configurations.
+			Each module is deployed as its own JAR file, containing its own <link
+			href="site:descriptor">descriptor</link>. At runtime, HiveMind combines 
+			<em>all</em> the modules and their descriptors together ... seemlessly
+			combining the services specific to your application with the services
+			provided by HiveMind and by other third-party libraries.</p>
+		<p>HiveMind is designed with particular attention to J2EE. Because J2EE
+			applications are multi-threaded, everything in HiveMind is thread-safe.
+			That's one less thing for you to be concerned about.</p>
+		<p>HiveMind allows you to create more complex applications, yet keep the
+			individual pieces (the individual services) simple and testable. HiveMind enourages the use
+      of common best practices, such as coding to interfaces, seperation of concerns, and keeping
+      code highly testable without a special container. </p>
+		<section>
+			<title>Status</title>
+        <p>HiveMind now requires Ant 1.6.<strong>2</strong> to build.</p>
+        <p>James Carman and Achim Huegen have been voted on as HiveMind committers.</p>
+<warning>
+  This documentation describes HiveMind 1.1, which is currently in an late beta state.
+  You may <link href="site:downloads">download HiveMind 1.0</link> to get stable
+  features and matching documentation.
+</warning>          
+    <p>You can now omit the package name (generally) when specifying class name in a module descriptor.
+      The &module; element's package attribute provides the package name to use.</p>
+      
+      <p>
+        The locale (used for localized messages) is no longer fixed, as it was in 1.0.  You can change
+        the locale using the &hivemind.ThreadLocale; service.
+      </p>
+      
+      <p>
+        The interface for a &service-point; may now be  <link href="services.html#Bean+Services">an ordinary class, not an interface</link>. You may now
+        use HiveMind quick-and-dirty without defining an interface for each service.
+      </p>
+
+		</section>
+    <section>
+      <title>Upgrade warnings (release 1.0 to release 1.1)</title>
+      
+      <p>For the most part, code that works with HiveMind 1.0 will work with HiveMind 1.1 as well.  There have been a small number
+        of incompatible changes between releases that will not affect the vast majority of users:</p>
+        <ul>
+          <li>The &api.ServiceImplementationFactory; interface has been been simplified, replacing a long list of 
+            parameters with a single &api.ServiceImplementationFactoryParameters; object.</li>
+          <li>The &api.ClassFactory;'s newClass() method has been simplified; the module parameter has been 
+            removed.</li>
+          <li>The module parameter has also been removed from the DefaultImplementationBuilder's 
+            buildDefaultImplementation() method.</li>
+          <li>The <link href="site:hivemind.lib.SpringLookupFactory">SpringLookupFactory</link> and its parameters
+            now specify a Spring BeanFactory instance, rather than a SpringBeanFactorySource.</li>
+        </ul>
+      
+    </section>
+		<section>
+			<title>Acknowledgments</title>
+			<p>HiveMind represents a generous donation of code to the Apache Software
+				Foundation by <fork href="http://www.webct.com">WebCT</fork>.</p>
+			<p>HiveMind originated from internal requirements for a flexible,
+				loosely-coupled configuration management and services framework for
+				WebCT's industry-leading flagship enterprise e-learning product, Vista.</p>
+			<p>Several individuals in WebCT's research and development team, in
+				addition to Howard Lewis Ship, contributed to the requirements and
+				concepts behind HiveMind's initial set of functionality. These include
+				Martin Bayly, Diane Bennett, Bill Bilic, Michael Kerr, Prashant Nayak,
+				Bill Richard and Ajay Sharda. HiveMind is already in use as a
+				significant part of Vista.</p>
+		</section>
+		<section>
+			<title>Coding</title>
+			<p>Coding using HiveMind is designed to be as succinct and painless as
+				possible. Since services are, ultimately, simple objects (POJOs -- plain
+				old java objects) within the same JVM, all the complexity of J2EE falls
+				away ... no more JNDI lookups, no more RemoteExceptions, no more home
+				and remote interfaces. Of course, you can still use HiveMind to 
+				<link href="site:hivemind.lib.EJBProxyFactory">front your 
+				EJBs</link>, in which case the service is
+				responsible for performing the JNDI lookup and so forth (which in itself
+				has a lot of value), before forwarding the request to the EJB.</p>
+			<p>In any case, the code should be short. To external objects (objects
+				that are not managed by HiveMind, such as a servlet) the code for
+				accessing a service is quite streamlined:</p>
+			<javasource><![CDATA[
+Registry registry = RegistryBuilder.constructDefaultRegistry();
+MyService service = (MyService) registry.getService("com.mypackage.MyService", MyService.class);
+
+service.perform(...);
+    ]]></javasource>
+			<p>You code is responsible for:</p>
+			<ul>
+				<li>Obtaining a reference to the Registry singleton</li>
+				<li>Knowing the complete id of the service to access</li>
+				<li>Passing in the interface class</li>
+			</ul>
+			<p>HiveMind is responsible for:</p>
+			<ul>
+				<li>Finding the service, creating it as needed</li>
+				<li>Checking the type of the service against your code's expections</li>
+				<li>Operating in a completely thread-safe manner</li>
+				<li>Reporting any errors in a useful, verbose fashion</li>
+			</ul>
+      
+      <note>
+        In the not-unusual case that only a single service within the entire Registry
+        implements a particular service interface, 
+        then you may omit the service id, i.e. <code>getService(MyService.class)</code>.
+      </note>
+      
+			<p>However, a much more common case is for services to collaborate: that's
+				much simpler, since HiveMind will connect the two services together for
+				you. You'll just need to provide an instance variable and either a
+				setter method or a constructor argument.</p>
+		</section>
+		<section>
+			<title>Documentation</title>
+			<p>An important part of the HiveMind picture is documentation.
+				Comprehensive documentation about a HiveMind application, <link
+				href="site:hivedoc">HiveDoc</link>, can be automatically generated by
+				your build process. This documentation lists all modules, all extension
+				points (both service and configuration), all contributions (of service
+				constructors, service interceptors and configuration elements) and cross
+				links all extension points to their contributions.</p>
+			<p>Modules and extension points include a description which is
+				incorporated into the generated documentation.</p>
+			<p>HiveMind is used to construct very complex systems using a large number
+				of small parts. HiveDoc is an important tool for developers to
+				understand and debug the application.</p>
+		</section>
+    
+    <section>
+      <title>Why should you use HiveMind?</title>
+      <p>The concept behind HiveMind, and most other dependency-injection microkernels, is to reduce the amount of code 
+        in your application and at the same time, make your application more testable. If your applications are like my 
+        applications, there is an awful lot of code in place that deals just with creating objects and hooking them 
+        together, and reading and processing configuration files.</p>
+      <p>HiveMind moves virtually all of that logic into the framework, driven by the module deployment descriptors. 
+        Inside the descriptor, you describe your services, your configuration data, and how everything is hooked 
+        together within and between modules.</p>
+      <p>HiveMind can do all the grunt work for you; using HiveMind makes it so that <em>the easiest approach is also 
+        the correct approach.</em> </p>
+      <section>
+        <title>Task: Log method entry and exit</title>
+        <section>
+          <title>Typical Approach</title>
+          <javasource> <![CDATA[ 
+public String myMethod(String param)
+{
+  if (LOG.isDebugEnabled()) 
+    LOG.debug("myMethod(" + param + ")");
+    
+  String result = // . . . 
+  
+  if (LOG.isDebugEnabled())
+    LOG.debug("myMethod() returns " + result); 
+    
+  return result;
+}]]> </javasource>
+          <p>This approach doesn't do a good or consistent job when a method has multiple return points. It also 
+            creates many more branch points within the code ... basically, a lot of clutter. Finally, it doesn't report 
+            on exceptions thrown from within the method.</p>
+        </section>
+        <section>
+          <title>HiveMind Approach</title>
+          <p>Let HiveMind add a <link href="site:hivemind.LoggingInterceptor"> logging interceptor</link> to your 
+            service. It will consistently log method entry and exit, and log any exceptions thrown by the method.</p>
+          <p>The following descriptor snippet defines a service, provides a core service implementation (using 
+            &_create-instance;), and adds method logging (using &_interceptor;):</p>
+          <xmlsource><![CDATA[
+<service-point id="MyService" interface="com.myco.MyServiceInterface">
+  <create-instance class="com.myco.impl.MyServiceImpl"/>
+  <interceptor service-id="hivemind.LoggingInterceptor"/>
+</service-point>]]> </xmlsource>
+        </section>
+      </section>
+      <section>
+        <title>Task: Reference another service</title>
+        <section>
+          <title>Typical Approach</title>
+          <javasource><![CDATA[
+private SomeOtherService _otherService;
+
+public String myMethod(String param)
+{
+  if (_otherService == null)
+    _otherService = // Lookup other service . . .
+
+  _otherService.doSomething(. . .);
+  
+  . . .
+}]]> </javasource>
+          <p>How the other service is looked up is specified to the environment; it might be a JNDI lookup for an EJB. 
+            For other microkernels, such as Avalon, there will be calls to a specific API.</p>
+          <p>In addition, this code is not thread-safe; multiple threads could execute it simultaneously, causing 
+            unwanted (and possibly destructive) multiple lookups of the other service.</p>
+        </section>
+        <section>
+          <title>HiveMind Approach</title>
+          <p>Let HiveMind assign the other service as a property. This is <link 
+            href="http://www.martinfowler.com/articles/injection.html"> dependency injection</link>. HiveMind can 
+            inject dependencies using JavaBeans properties or constructor arguments.</p>
+          <javasource><![CDATA[
+private SomeOtherService _otherService;
+
+public void setOtherService(SomeOtherService otherService)
+{
+  _otherService = otherService;
+}
+
+public String myMethod(String param)
+{
+  _otherService.doSomething(. . .);
+  
+  . . .
+}]]> </javasource>
+          <p>HiveMind uses a system of proxies to defer creation of services until actually needed. The proxy object 
+            assigned to the otherService property will cause the actual service implementation to be instantiated and 
+            configured the first time a service method is invoked ... and all of this is done in a thread-safe 
+            manner.</p>
+        </section>
+      </section>
+      <section>
+        <title>Task: Read configuration data</title>
+        <section>
+          <title>Typical Approach</title>
+          <p>Find a properties file or XML file (on the classpath? in the filesystem?) and read it, then write code to 
+            intepret the raw data and possibly convert it to Java objects.</p>
+          <p>The lack of a standard approach means that data-driven solutions are often more trouble than they are 
+            worth, leading to code bloat and a loss of flexibility.</p>
+          <p>Even when XML files are used for configuration, the code that reads the content is often inefficient, 
+            incompletely tested, and lacking the kind of error detection built into HiveMind.</p>
+        </section>
+        <section>
+          <title>HiveMind Approach</title>
+          <javasource><![CDATA[
+private List _configuration;
+
+public void setConfiguration(List configuration)
+{
+  _configuration = configuration;
+}
+
+public void myMethod()
+{
+  Iterator i = _configuration.iterator();
+  while (i.hasNext())
+  {
+    MyConfigItem item = (MyConfigItem)i.next();
+    
+    item.doStuff(. . .);
+  }
+}]]> </javasource>
+          <p>HiveMind will set the <code>configuration</code> property from a <link 
+            href="site:configurations">configuration point</link> you specify. The objects in the list are constructed 
+            from configuration point contributions and converted, by HiveMind, into objects. As with services, a 
+            thread-safe, just-in-time conversion takes place.</p>
+          <p>The type and number of extension points and how and when your code makes use of them is entirely up to 
+            you, configured in the module deployment descriptor.</p>
+        </section>
+      </section>
+      <section>
+        <title>Task: Test your services</title>
+        <section>
+          <title>Typical Approach</title>
+          <p>In complex environments, such as EJB containers, you will often have to deploy your code and then test it 
+            from the outside. EJB code in particular is hard to test because collaborating EJBs make use of JNDI to 
+            access each other. It is very difficult to "stub out" part of the overall application for testing 
+            purposes.</p>
+        </section>
+        <section>
+          <title>HiveMind Approach</title>
+          <p>Making code testable is a key concern of HiveMind, and shows up in its general testing strategy:</p>
+          <ul>
+            <li>Because HiveMind services are simply POJOs, your unit tests can simply instantiate them directly.</li>
+            <li>HiveMind services are always identified by <em>interface</em>, so it's easy to provide a mocked-up 
+              implementation of the interface.</li>
+            <li>Services collaborate via <link href="ioc.html">dependency injection</link>, so it's easy for a unit 
+              test to wire a service to real or mock implementations of collaborating services.</li>
+            <li>Because configuration data is just lists of Java objects, unit tests can easily create objects suitable 
+              for testing.</li>
+          </ul>
+        </section>
+      </section>
+    </section>
+	</body>
+</document>

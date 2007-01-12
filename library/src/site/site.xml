@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="HiveMind Standard Library">
+    <bannerLeft>
+        <name>HiveMind</name>
+        <src>images/HiveMind-logo.png</src>
+        <href>../</href>
+    </bannerLeft>
+    <bannerRight>
+        <name>Jakarta Project</name>
+        <src>images/jakarta-logo.gif</src>
+        <href>http://jakarta.apache.org/</href>
+    </bannerRight>
+    <body>
+        <links>
+            <item name="Jakarta" href="http://jakarta.apache.org/" />
+            <item name="HiveMind" href=".."/>
+        </links>
+        
+        ${reports}
+        
+    </body>
+</project>

@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE site
+[
+<!ENTITY project-report-menu.ent SYSTEM "project-report-menu.ent">
+<!ENTITY hivemind-report-menu.ent SYSTEM "hivemind-report-menu.ent">
+<!ENTITY hivemind-lib-report-menu.ent SYSTEM "hivemind-lib-report-menu.ent">
+<!ENTITY hivemind-jmx-report-menu.ent SYSTEM "hivemind-jmx-report-menu.ent">
+<!ENTITY hivemind-examples-report-menu.ent SYSTEM "hivemind-examples-report-menu.ent">
+]
+>
+<site xmlns="http://apache.org/forrest/linkmap/1.0">
+  <project label="HiveMind">
+    <project-index label="Overview" href="index.html"/>
+    <reference label="Reference">
+      <services label="Services" href="services.html"/>
+      <configurations label="Configurations" href="configurations.html"/>
+      <hivedoc label="HiveDoc" href="hivedoc.html"/>
+      <descriptor label="Module  Descriptor" href="descriptor.html"/>
+      <rules label="Contribution Processing Rules" href="rules.html"/>
+      <dependencies label="Dependencies" href="dependencies.html"/>
+      <conditional label="Conditional Contributions" href="conditional.html"/>
+      <serial label="Serializing Services" href="serializing.html"/>
+      <instance-initialization label="Instance Initialization" href="instance-initialization.html"/>
+    </reference>
+    <project-info label="Project Information">
+      <changes label="Change Log" href="changes.html"/>
+      <todo label="TODO" href="todo.html"/>
+      <mailinglists label="Mailing Lists" href="http://jakarta.apache.org/site/mail2.html#HiveMind"/>
+      <downloads href="downloads.html" label="Downloads"/>
+      <bugs href="http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10500" label="Bugs"/>
+      <subversion href="subversion.html" label="Subversion Access"/>
+    </project-info>
+    <tutorials label="Tutorials and Information">
+      <bootstrap label="Bootstrapping the Registry" href="bootstrap.html"/>
+      <ioc label="Inversion Of Control" href="ioc.html"/>
+      <localization label="Localization" href="localization.html"/>
+      <multithreading label="Multi-Threading" href="multithreading.html"/>
+      <filter label="Servlets" href="filter.html"/>
+      <override label="Overriding Services" href="override.html"/>
+      <groovy label="Groovy Support" href="groovy.html"/>
+      <!-- quickref label="Quick Reference Sheet" href="HiveMind-QuickReference.doc"/ -->
+    </tutorials>
+    <reports label="Reports"> &project-report-menu.ent; <developers label="Developers" href="developers.html"/>
+    </reports>
+  </project>
+  <hivemind label="Framework" href="hivemind/">
+    <index label="Overview" href="index.html"/>
+    <services label="Services">
+      <hivemind.BuilderFactory label="BuilderFactory" href="BuilderFactory.html"/>
+      <hivemind.LoggingInterceptor label="LoggingInterceptor" href="LoggingInterceptor.html"/>
+      <hivemind.ShutdownCoordinator label="ShutdownCoordinator" href="ShutdownCoordinator.html"/>
+      <hivemind.ThreadLocale label="ThreadLocale" href="ThreadLocale.html"/>
+      <hivemind.ThreadLocalStorage label="ThreadLocalStorage" href="ThreadLocalStorage.html"/>
+    </services>
+    <configs label="Configurations">
+      <hivemind.ApplicationDefaults label="ApplicationDefaults" href="ApplicationDefaults.html"/>
+      <hivemind.EagerLoad label="EagerLoad" href="EagerLoad.html"/>
+      <hivemind.FactoryDefaults label="FactoryDefaults" href="FactoryDefaults.html"/>
+      <hivemind.ObjectProviders label="ObjectProviders" href="ObjectProviders.html"/>
+      <hivemind.ServiceModels label="ServiceModels" href="ServiceModels.html"/>
+      <hivemind.SymbolSources label="SymbolSources" href="SymbolSources.html"/>
+      <hivemind.Translators label="Translators" href="Translators.html"/>
+    </configs>
+    <anttasks label="Ant Tasks">
+      <ConstructRegistry label="ConstructRegistry" href="ant/ConstructRegistry.html"/>
+      <ManifestClassPath label="ManifestClassPath" href="ant/ManifestClassPath.html"/>
+    </anttasks>
+    <reports label="Reports"> &hivemind-report-menu.ent; </reports>
+  </hivemind>
+  <hivemind-lib label="Library" href="hivemind-lib/">
+    <index label="Overview" href="index.html"/>
+    <services label="Services">
+      <hivemind.lib.BeanFactoryBuilder label="BeanFactoryBuilder" href="BeanFactoryBuilder.html"/>
+      <hivemind.lib.ChainBuilder label="ChainBuilder" href="ChainBuilder.html"/>
+      <hivemind.lib.ChainFactory label="ChainFactory" href="ChainFactory.html"/>
+      <hivemind.lib.DefaultImplementationBuilder label="DefaultImplementationBuilder"
+        href="DefaultImplementationBuilder.html"/>
+      <hivemind.lib.EJBProxyFactory label="EJBProxyFactory" href="EJBProxyFactory.html"/>
+      <hivemind.lib.MethodInterceptorFactory label="MethodInterceptorFactory" href="MethodInterceptorFactory.html"/>
+      <hivemind.lib.NameLookup label="NameLookup" href="NameLookup.html"/>
+      <hivemind.lib.PlaceholderFactory label="PlaceholderFactory" href="PlaceholderFactory.html"/>
+      <hivemind.lib.PipelineFactory label="PipelineFactory" href="PipelineFactory.html"/>
+      <hivemind.lib.RemoteExceptionCoordinator label="RemoteExceptionCoordinator" href="RemoteExceptionCoordinator.html"/>
+      <hivemind.lib.ServicePropertyFactory label="ServicePropertyFactory" href="ServicePropertyFactory.html"/>
+      <hivemind.lib.SpringLookupFactory label="SpringLookupFactory" href="SpringLookupFactory.html"/>
+      <hivemind.lib.StrategyFactory label="StrategyFactory" href="StrategyFactory.html"/>
+    </services>
+    <reports label="Reports"> &hivemind-lib-report-menu.ent; </reports>
+  </hivemind-lib>
+  <hivemind-jmx label="JMX" href="hivemind-jmx/">
+    <index label="Overview" href="index.html"/>
+    <quickstart label="Quickstart" href="quickstart.html"/>
+    <setup label="Setup">
+      <setup.Overview label="Overview" href="setupOverview.html"/>
+      <setup.JMXImplementation label="JMX Implementation" href="setupJMXImplementation.html"/>
+      <setup.MBeanServer label="MBeanServer" href="setupMBeanServer.html"/>
+      <setup.Connectors label="Connectors" href="setupConnectors.html"/>
+    </setup>
+    <use label="Usage">
+      <use.ManageServices label="Manage Services" href="manageServices.html"/>
+      <use.MeasurePerformance label="Measure Performance" href="measurePerformance.html"/>
+      <use.Monitors label="Monitor Services" href="monitorServices.html"/>
+      <use.PerformanceInterceptor label="Manage Log4J" href="manageLog4j.html"/>
+    </use>
+    <advanced label="Advanced Topics">
+      <advanced.MultipleApplications label="Multiple Applications in Server" href="multipleApps.html"/>
+    </advanced>
+    <reports label="Reports"> &hivemind-jmx-report-menu.ent; </reports>
+  </hivemind-jmx>
+  <hivemind-examples label="Example Code" href="hivemind-examples/">
+    <index label="Overview" href="index.html"/>
+    <examples.calc label="Calculator" href="calc.html"/>
+    <examples.panorama label="Panorama Startup" href="panorama.html"/>
+    <examples.logging label="Logging Interceptor" href="logging.html"/>
+    <examples.setters href="setters.html"/>
+    <reports label="Reports"> &hivemind-examples-report-menu.ent; </reports>
+  </hivemind-examples>
+  <other-resources label="Other Resources">
+    <wiki label="HiveMind Wiki" href="http://wiki.apache.org/jakarta-hivemind/"/>
+    <blog label="Tapestry and HiveMind Blog" href="http://howardlewisship.com/blog/"/>
+    <hivetranse label="HiveMind Utilities" href="http://hivetranse.sourceforge.net/"/>
+    <hivebuzz label="HiveMind article on TheServerSide"
+      href="http://www.theserverside.com/articles/article.tss?l=HivemindBuzz"/>
+  </other-resources>
+  <!-- complete-site label="Complete Site">
+        <complete-html label="HTML" href="wholesite.html"/>
+        <complete-pdf label="PDF" href="wholesite.pdf"/>
+    </complete-site -->
+  <related label="Related Projects">
+    <tapestry label="Tapestry" href="http://jakarta.apache.org/tapestry/"/>
+    <spring label="Spring" href="http://www.springframework.org"/>
+  </related>
+</site>

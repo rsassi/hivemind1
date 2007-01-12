@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY projectroot '../'>
+	<!ENTITY % common-links SYSTEM "../links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+    <title>hivemind.lib.NameLookup Service</title>
+    </header>
+
+  <body>
+  	
+  
+<p>
+The <link href="&hivedoc;/service/hivemind.lib.NameLookup.html">NameLookup</link>
+service is a thin wrapper around JNDI lookup.  It is used by
+the <link href="site:hivemind.lib.EJBProxyFactory">EJBProxyFactory</link> service to locate
+EJBs.
+</p>
+
+<p>The implementation makes use of three symbols (all of whose values default 
+  to null):</p>
+<ul>
+<li>java.naming.factory.initial</li>	
+<li>java.naming.factory.url.pkgs</li>
+<li>java.naming.provider.url</li>
+</ul>
+
+
+<p>
+By supplying overrides of these values, it is possible to configure how the NameLookup service
+generates the InitialContext used for performing the JNDI lookup.
+</p>
+
+	
+  </body>
+</document>

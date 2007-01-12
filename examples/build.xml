@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project name="HiveMind Examples" default="jar">
+  <property name="module.name" value="hivemind-examples"/>
+	
+  <!-- Override the default, and leave the examples.jar in the local target directory. -->
+	
+  <property name="module.install.dir" value="target"/>
+	
+  <property name="root.dir" value=".."/>
+  <property file="${root.dir}/build.properties"/>  
+  <import file="${root.dir}/hivebuild/jar-module.xml"/>
+  <import file="${hivebuild.dir}/javadoc-report.xml"/>
+  <import file="${hivebuild.dir}/clover-report.xml"/>
+  <import file="${hivebuild.dir}/hivedoc-report.xml"/>  
+  <import file="${hivebuild.dir}/junit-report.xml"/>
+	
+  <path id="hivedoc.classpath">
+    <path refid="default.hivedoc.classpath"/>
+    <fileset dir="${descriptor.src.dir}/META-INF">
+      <include name="panorama.xml"/>
+      <include name="examples.xml"/>
+    </fileset>
+  </path>
+  
+  <path id="runtime.classpath">
+    <fileset dir="${module.lib.dir}">
+      <include name="compile/**/*.jar"/>
+      <include name="run/**/*.jar"/>
+    </fileset>
+    <pathelement location="${java.classes.dir}"/>
+    <pathelement location="${conf.src.dir}"/>
+    
+    <!-- Not sure why, but running the examples failed with a missing XML parser.
+         Haven't tracked this down yet, but adding in the libraries, including Xerces,
+         provided with Ant helps. -->
+         
+     <fileset dir="${ant.home}/lib" includes="*.jar"/>
+  </path>
+  
+  <target name="compile-dependencies">
+    <ibiblio-dependency artifact="geronimo-spec-ejb" version="1.0-M1" group="geronimo-spec"/>
+    <ibiblio-dependency artifact="spring-full" version="1.0.1" group="springframework"/>
+    <ibiblio-dependency artifact="commons-logging" version="1.0.3" group="commons-logging"/>
+    <ibiblio-dependency artifact="log4j" version="1.2.7" group="log4j" use="run"/>
+    <ibiblio-dependency artifact="javassist" version="${javassist.version}" group="javassist" use="run"/>
+    <ibiblio-dependency artifact="oro" version="2.0.6" group="oro" use="run"/>
+    <ibiblio-dependency artifact="easymock" version="1.1" group="easymock" use="test"/>
+  	<ibiblio-dependency artifact="hivemind" version="${project.version}" group="hivemind"/>
+  </target>
+  
+  <target name="run-reports">
+  	<junit-report/> 
+    <javadoc-report/>
+    <hivedoc-report doc-path-id="hivedoc.classpath"/>
+    <clover-report/> 
+  </target>
+  
+  <target name="run-calculator" description="Execute the Calculator example.">
+    <java classname="org.apache.hivemind.examples.CalculatorMain">
+      <classpath refid="runtime.classpath"/>
+      <sysproperty key="PROJECT_ROOT" value="${project.dir}"/>
+      <arg line="28 4.75"/>
+    </java>
+  </target>
+  
+  <target name="run-panorama" description="Execute the Panorama example.">
+    <java classname="com.panorama.startup.PanoramaMain">
+      <classpath refid="runtime.classpath"/>
+      <sysproperty key="PROJECT_ROOT" value="${project.dir}"/>
+    </java>
+  </target>
+  
+  <target name="run-logging" description="Execute the ProxyLoggingInterceptorFactory example.">
+    <java classname="org.apache.hivemind.examples.LoggingMain">
+      <classpath refid="runtime.classpath"/>
+      <sysproperty key="PROJECT_ROOT" value="${project.dir}"/>
+    </java>
+  </target>
+</project>

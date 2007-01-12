@@ -1,0 +1,46 @@
+<!-- =============================================================== -->
+<!-- Include the Common ISO Character Entity Sets -->
+<!-- =============================================================== -->
+
+<!ENTITY % common-charents PUBLIC
+"-//APACHE//ENTITIES Common Character Entity Sets V1.0//EN"
+"common-charents-v10.mod">
+%common-charents;
+
+<!-- =============================================================== -->
+<!-- Document -->
+<!-- =============================================================== -->
+
+<!ENTITY % document PUBLIC "-//APACHE//ENTITIES Documentation V1.3//EN"
+"document-v13.mod">
+
+<!-- Override this entity so that 'javasource' is allowed below 'section' -->
+<!ENTITY % local.sections "|javasource|javasourcefile|xmlsource|xmlsourcefile">
+
+%document;
+
+<!ELEMENT javasource (%content.mix;)*>
+<!ATTLIST javasource
+  %common.att; 
+  %xmlspace.att; 
+>
+
+<!ELEMENT javasourcefile EMPTY>
+<!ATTLIST javasourcefile
+  file CDATA #REQUIRED
+>
+
+<!ELEMENT xmlsource (%content.mix;)*>
+<!ATTLIST xmlsource
+  %common.att; 
+  %xmlspace.att; 
+>
+
+<!ELEMENT xmlsourcefile EMPTY>
+<!ATTLIST xmlsourcefile
+  file CDATA #REQUIRED
+>
+
+<!-- =============================================================== -->
+<!-- End of DTD -->
+<!-- =============================================================== -->
