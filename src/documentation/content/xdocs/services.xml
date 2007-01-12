@@ -1,0 +1,460 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>HiveMind Services</title>
+	</header>
+	<body>
+		<p>In HiveMind, a service is simply an object that implements a particular
+			interface, the <em>service interface</em> (see <link href="#Bean+Services">this note</link>). You supply the service
+			interface (packaged as part of a module). You supply the core
+			implementation of the interface (in the same module, or in a different
+			module). At runtime, HiveMind puts it all together.</p>
+		<p>HiveMind defines four service models: primitive, singleton, threaded and
+			pooled. In the primitive and singleton models, each service will
+			ultimately be just a single object instance. In the threaded and pooled
+			models, there may be many instances simultaneously, one for each thread.</p>
+		<p>Unlike EJBs, there's no concept of location transparency: services are
+			always local to the same JVM. Unlike XML-based web services, there's no
+			concept of language transparency: services are always expressed in terms
+			of Java interfaces. Unlike JMX or Jini, there's no concept of hot-loading
+			of services. HiveMind is kept deliberately simple, yet still very
+			powerful, so that your code is kept simple.</p>
+		<section>
+			<title>Defining Services</title>
+			<p>A service definition begins with a Java interface, the service
+				interface. Any interface will do, HiveMind doesn't care, and there's no
+				base HiveMind interface.</p>
+			<p>A module descriptor may include &service-point; elements to define
+				services. A module may contain any number of services.</p>
+			<p>Each &_service-point; establishes an id for the service and defines the
+				interface for the service. An example is provided later in this
+				document.</p>
+			<p>HiveMind is responsible for supplying the service implementation as
+				needed; in most cases, the service implementation is an additional Java
+				class which implements the service interface. HiveMind will instantiate
+				the class and configure it as needed. The exact timing is determined
+				by the service implementation's service model:</p>
+			<ul>
+				<li><strong>primitive</strong> : the service is constructed on first
+					reference</li>
+				<li><strong>singleton</strong> : the service is not constructed until a
+					method of the service interface is invoked</li>
+				<li><strong>threaded</strong> : invoking a service method constructs and
+					binds an instance of the service to the current thread</li>
+				<li><strong>pooled</strong> : as with threaded, but service
+					implementations are stored in a pool when unbound from a thread for
+					future use in other threads.</li>
+			</ul>
+			<p>Additional service models can be defined via the &hivemind.ServiceModels;
+				configuration point.</p>
+			<p>HiveMind uses a system of <em>proxies</em> for most of the service
+				models (all except the primitive service model, which primarily exists
+				to bootstrap the core HiveMind services used by other services). Proxies
+				are objects that implement the service interface and take care of
+				details such as constructing the actual implementation of a service on
+				the fly. These lifecycle issues are kept hidden from your code behind
+				the proxies.</p>
+			<p>A service definition may include <em>service contributions</em>, or may
+				leave that for another module.</p>
+			<p>Ultimately, a service will consist of a core implementation (a Java
+				object that implements the service interface) and, optionally, any
+				number of interceptors. Interceptors sit between the core implementation
+				and the client, and add functionality to the core implementation such as
+				logging, security, transaction demarcation or performance monitoring.
+				Interceptors are yet more objects that implement the service interface.</p>
+			<p>Instantiating the core service implementation, configuring it, and
+				wrapping it with any interceptors is referred to as <em>constructing the
+				service</em>. Typically, a service proxy will be created first. The
+				first time that a service method is invoked on the proxy, the service
+				implementation is instantiated and configured, and any interceptors for
+				the service are created.</p>
+		</section>
+		<section>
+			<title>Extending Services</title>
+			<p>Any module may contribute to any service extension point. An &implementation;
+				element contains these contributions. Contributions take three forms:</p>
+			<ul>
+				<li>Service constructors: <ul> <li>&create-instance; to instantiate an
+					instance of a Java class as the implementation</li> <li>&invoke-factory;
+					to have another service create the implementation</li> </ul> </li>
+				<li>&interceptor; to add additional logic to a core implementation</li>
+			</ul>
+			<section>
+				<title>Service Constructors</title>
+				<p>A service constructor is used to instantiate a Java class as the core
+					implementation instance for the service.</p>
+				<p>There are two forms of service constructors: instance creators and
+					implementation factories.</p>
+				<p>An instance creator is represented by a &create-instance; element. It
+					includes a class attribute, the Java class to instantiate.</p>
+				<p>An implementation factory is represented by a &invoke-factory; 
+					element. It includes a service-id attribute, the id of a service
+					implementation factory service (which implements the &api.ServiceImplementationFactory;
+					interface). The most common example is the &hivemind.BuilderFactory; 
+					service.</p>
+			</section>
+			<section>
+				<title>Implementation Factories</title>
+				<p>An implementation factory is used to create a core implementation for
+					a service at runtime.</p>
+				<p>Often, the factory will need some additional configuration
+					information. For example, the &hivemind.lib.EJBProxyFactory;
+				  service uses its parameters to
+					identify the JNDI name of the EJB's home interface, as well as the
+					home interface class itself.</p>
+				<p>Parameters to factory services are the XML elements enclosed by the &_invoke-factory;
+					element excluding any &assembly; elements. Much like a configuration contribution, 
+					these parameters are	converted from XML into Java objects before being provided to the
+					factory.</p>
+				<p>Enclosed &_assembly; elements represent assembly instructions with which the core
+					service implementation object created by the service implementation factory may be
+					initialized. This initilization encompasses dependency injection, event listener registration, 
+					and invoking any initialization method. <link href="site:assembly">Assembly 
+					instructions</link> are documented separately.</p>
+				<p>The most common service factory is &hivemind.BuilderFactory;. It is
+					used to construct a service and then set properties of the service
+					implementation object.</p>
+			</section>
+			<section>
+				<title>Interceptor Contributions</title>
+				<p>An interceptor contribution is represented by an &interceptor; 
+					element. The service-id attribute identifies a service interceptor
+					factory service: a service that implements the &api.ServiceInterceptorFactory;
+					interface.</p>
+				<p>An interceptor factory knows how to create an object that implements
+					an arbitrary interface (the interface being defined by the service
+					extension point), adding new functionality. For example, the &hivemind.LoggingInterceptor;
+					factory creates an instance that logs entry and exit to each method.</p>
+				<p>The factory shouldn't care what the service interface itself is ...
+					it should adapt to whatever interface is defined by the service
+					extension point it will create an interceptor for.</p>
+				<p>A service extension point may have any number of interceptor
+					contributions. If the order in which interceptors are applied is
+					important, then the optional <code>before</code> and <code>after</code>
+					attributes can be specified.  The value of the <code>before</code> and <code>after</code>
+					attributes must be a comm-separated list of interceptor names (name defaults to the 
+					service factory id which created the interceptor if none is provided).</p>
+				<figure src="images/InterceptorStack.png" alt="A Stack of Interceptors"
+					/>
+				<p>In this example, it was desired that any method logging occur first,
+					before the other interceptors. This ensures that the time taken to log
+					method entry and exit is not included in the performance statistics
+					(gathered by the performance interceptor). To ensure that the logging
+					interceptor is the first, or earliest interceptor, the special value 
+					<code>*</code> (rather than a list of interceptor service ids) is
+					given for its <code>before</code> attribute (within the &interceptor; 
+					element). This forces the logging interceptor to the front of the list
+					(however, only a single interceptor may be so designated).</p>
+				<p>Likewise, the security checks should occur last, after logging and
+					after performance; this is accomplished by setting the <code>after</code>
+					attribute to <code>*</code>. The performance interceptor naturally
+					falls between the two.</p>
+				<p>This is about as complex as an interceptor stack is likely to grow.
+					However, through the use of explicit dependencies, almost any
+					arrangement of interceptors is possible ... even when different
+					modules contribute the interceptors.</p>
+				<p>Interceptors implement the <code>toString()</code> method to provide
+					a useful identification for the interceptor, for example: <br/> 
+            <code>&lt;Iterceptor: hivemind.LoggingInterceptor for
+					com.myco.MyService(com.myco.MyServiceInterface)&gt;</code> </p>
+				<p>This string identifies the interceptor service factory
+					(hivemind.LoggingInterceptor), the service extension point
+					(com.myco.MyService) and the service interface
+					(com.myco.MyServiceInterface).</p>
+       
+        <warning>
+          If <code>toString()</code> is part of the service interface (really,
+					a very rare case), then the interceptor <em>does not</em> override the
+					service implementation's method. However, this is not a recommended practice.
+        </warning>
+			</section>
+		</section>
+		<section>
+			<title>A short example</title>
+			<p>As an example, let's create an interface with a single method, used to
+				add together two numbers.</p>
+			<source><![CDATA[
+package com.myco.mypackage;
+
+public interface Adder
+{
+  public int add(int arg1, int arg2);
+}
+]]></source>
+			<p>We could define many methods, and the methods could throw exceptions.
+				Once more, HiveMind doesn't care.</p>
+			<p>We need to create a module to contain this service. We'll create a
+				simple HiveMind deployment descriptor. This is an XML file, named
+				hivemodule.xml, that must be included in the module's META-INF
+				directory.</p>
+			<source><![CDATA[
+<?xml version="1.0"?>      
+<module id="com.myco.mypackage" version="1.0.0">
+  <service-point id="Adder" interface="Adder"/>
+</module>]]></source>
+			<p>The complete id for this service is <code>com.myco.mypackage.Adder</code>
+				, formed from the module id and the service id. Commonly, the service id
+				will exactly match the complete name of the service interface, but this
+				is not required.</p>
+			<p>Normally, the &_service-point; would contain a &create-instance; or &invoke-factory;
+				element, used to create the core implementation. For this example, we'll
+				create a second module that provides the implementation. First we'll
+				define the implementation class.</p>
+			<source><![CDATA[
+package com.myco.mypackage.impl;
+
+import com.myco.mypackage.Adder;
+
+public class AdderImpl implements Adder
+{
+  public int add(int arg1, int arg2)
+  {
+    return arg1 + arg2;
+  }
+}
+]]></source>
+			<p>That's what we meant by a POJO. We'll create a second module to provide
+				this implementation.</p>
+			<source><![CDATA[
+<?xml version="1.0"?>
+<module id="com.myco.mypackage.impl" version="1.0.0">
+  <implementation service-id="com.myco.mypackage.Adder">
+    <create-instance class="AdderImpl"/>
+  </implementation>
+</module>]]></source>
+			<p>The runtime code to access the service is very streamlined:</p>
+			<source><![CDATA[
+Registry registry = . . .
+Adder service = (Adder) registry.getService("com.myco.mypackage.Adder", Adder.class);  
+int sum = service.add(4, 7);
+]]></source>
+			<p>Another module may provide an interceptor:</p>
+			<source><![CDATA[
+<?xml version="1.0"?>
+<module id="com.myco.anotherpackage" version="1.0.0">
+  <implementation service-id="com.myco.mypackage.Adder">
+    <interceptor service-id="hivemind.LoggingInterceptor"/>
+  </implementation>
+</module>
+]]></source>
+			<p>Here the Logging interceptor is applied to the service extension point.
+				The interceptor will be inserted between the client code and the core
+				implementation. The client in the code example won't get an instance of
+				the AdderImpl class, it will get an instance of the interceptor, which
+				internally invokes methods on the AdderImpl instance. Because we code
+				against interfaces instead of implementations, the client code neither
+				knows nor cares about this.</p>
+		</section>
+		<section>
+			<title>Singleton Service Model</title>
+			<p>Constructing a service can be somewhat expensive; it involves
+				instantiating a core service implementation, configuring its properties
+				(some of which may also be services), and building the stack of
+				interceptors for the service. Although HiveMind encourages you to define
+				your application in terms of a large number of small, simple, testable
+				services, it is also desirable to avoid a cascade of unnecessary object
+				creation due to the dependencies between services.</p>
+			<p>To resolve this, HiveMind defers the actual creation of services by
+				default. This is controled by the <code>model</code> attribute of the 
+        &create-instance; or &invoke-factory;
+				elements; the default model is <strong>singleton</strong>.</p>
+			<p>When a service is first requested a <em>proxy</em> for the service is
+				created. This proxy implements the same service interface as the actual
+				service and, the first time a method of the service interface is
+				invoked, will force the construction of the actual service (with the
+				core service implementation, interceptors, references to other services,
+				and so forth).</p>
+			<p>In certain cases (including many of the fundamental services provided
+				by HiveMind) this behavior is not desired; in those cases, the <strong>
+				primitive</strong> service model is specified. In addition, there is
+				rarely a need to defer service implementation or service interceptor
+				factory services.</p>
+		</section>
+		<section>
+			<title>Primitive Service Model</title>
+      <p>The simplest service model is the <strong>primitive</strong> service model; in this model the service is 
+        constructed on first reference. This is appropriate for services such as service factories and interceptor 
+        factories, and for several of the basic services provided in the <link 
+        href="&hivedoc;/module/hivemind.html">hivemind module</link>.</p>
+      <p> There is rarely a need to use this service model in your own code. It exists primarily to support the 
+        services in the hivemind module itself (the implementation of the singleton service model is dependent on 
+        several services that use the primitive service model). </p>
+		</section>    
+		<section>
+			<title>Threaded Service Model</title>
+			<p>In general, singleton services (using the singleton or primitive
+				service models) should be sufficient. In some cases, the service may
+				need to keep some specific state. State and multithreading don't mix, so
+				the <strong>threaded</strong> service model constructs, as needed, a
+				service instance for the current thread. Once constructed, the service
+				instance stays bound to the thread until it is discarded. The particular
+				service implementation is exclusive to the thread and is only accessible
+				from that thread.</p>
+			<p>The threaded service model uses a special proxy class (fabricated at
+				runtime) to support this behavior; the proxy may be shared between
+				threads but methods invoked on the proxy are redirected to the private
+				service implementation bound to the thread. Binding of a service
+				implementation to a thread occurs automatically, the first time a
+				service method is invoked.</p>
+			<p>The service instance is discarded when notified to cleanup; this is
+				controlled by the &hivemind.ThreadEventNotifier; service. If your
+				application has any threaded services, you are responsible for invoking
+				the <code>fireThreadCleanup()</code> method of the service.</p>
+			<p>A core implementation may implement the <link
+				href="&apiroot;/Discardable.html">Discardable</link> interface. If so,
+				it will receive a notification as the service instance is discarded.</p>
+			<p>HiveMind includes a <link href="site:filter">servlet filter</link> to
+				take care creating the Registry and managing the ThreadEventNotifier
+				service.</p>
+		</section>
+		<section>
+			<title>Pooled Service Model</title>
+			<p>The pooled service model is very similar to the threaded model, in that
+				a service implementation will be exclusively bound to a particular
+				thread (until the thread is cleaned up). Unlike the threaded model, the
+				service is not discarded; instead it is stored into a pool for later
+				reuse with the same or a different thread.</p>
+			<p>As with the threaded model, all of this binding and unbinding is hidden
+				behind a dynamically fabricated proxy class.</p>
+			<p>Core service implementations may implement the &api.RegistryShutdownListener;
+				interface to receive a callback for final cleanups (as with the
+				singleton and deferred service models).</p>
+			<p>In addition, a service may implement the <link
+				href="&apiroot;/PoolManageable.html">PoolManageable</link> interface to
+				receive callbacks specific to the pooled service. The service is
+				notified when it is activated (bound to a thread) and deactivated
+				(unbound from the thread and returned to the pool).</p>
+		</section>
+		<section>
+			<title>Service Lifecycle</title>
+			<p>As discussed, the service model determines when a service is
+				instantiated. In many cases, the service needs to know when it has been
+				created (to perform any final initializations) or when the Registry has
+				been shut down.</p>
+			<p>A core service implementation may also implement the &api.RegistryShutdownListener;
+				interface. When a Registry is <link
+				href="&apiroot;/Registry.html#shutdown()">shutdown</link>, the <code>
+				registryDidShutdown()</code> method is invoked on all services (and many
+				other objects, such as proxies). The order in which these notifications
+				occur is not defined. A service may release any resources it may hold at
+				this time. It should not invoke methods on other service interfaces.</p>
+			<p>The threaded service model does <strong>not</strong> register services
+				for Registry shutdown notification; regardless of whether the core
+				service implementation implements the RegistryShutdownListener interface
+				or not. Instead, the core service implementation should implement the 
+				<link href="&apiroot;/Discardable.html">Discardable</link> interface, to
+				be informed when a service bound to a thread is discarded.</p>
+			<p>It is preferred that, whenever possible, services use the singleton
+				service model (the default) and not the primitive model. All the service
+				models (except for the primitive service model) expose a <strong>proxy</strong>
+				object (implementing the service interface) to client code (included
+				other services). These proxies are aware of when the Registry is
+				shutdown and will throw an exception when a service method is invoked on
+				them.</p>
+		</section>
+		<section>
+			<title>Services and Events</title>
+			<p>It is fairly common that some services will produce events and other
+				services will consume events. The use of the &hivemind.BuilderFactory; 
+				to construct a service simplifies this, using the <code>&lt; 
+				event-listener&gt;</code> element. The BuilderFactory can register a 
+				<em>core service implementation</em> (not the service itself!) as a <em>
+				listener</em> of events produced by some other service.</p>
+			<p>The producing service must include a matched pair of listener
+				registration methods, i.e., both <code>addFooListener()</code> and 
+				<code>removeFooListener()</code>. Note that only the <em>implementation
+				class</em> must implement the listener interface; the service interface
+				does not have to extend the listener interface. The core service
+				implementation is registered directly with the producer service,
+				bypassing any interceptors or proxies.</p>
+		</section>
+    <section>
+      <title>Bean Services</title>
+
+<p>In HiveMind 1.0, you always must have a service <em>interface</em>.  Starting in HiveMind 1.1, the
+  interface attribute of the &service-point; descriptor element can be a simple class as well.</p>      
+  
+  <p>
+The class you specify must have a public, no-arguments constructor.  Your service constructor
+(&create-instance; or &invoke-factory;) should create an instance of the specified interface class (or a subclass).    
+  </p>
+  
+  <p>
+  This represents a "quick and dirty" approach to HiveMind.  Some features of HiveMind, particularily
+  specialized service implementation factories, may not be compatible with bean services ... they are designed
+  for interface services.
+</p>      
+      
+    </section>
+		<section>
+			<title>Frequently Asked Questions</title>
+			<ul>
+				<li><strong>Why do I pass the interface class to getService()</strong>? 
+					<p>This is to add an additional level of error checking and reporting.
+					HiveMind knows, from the module descriptors, the interface provided by
+					the service extension point, but it can't tell if <em>you</em> know
+					that. By passing in the interface you'll cast the returned service to,
+					HiveMind can verify that you won't get a ClassCastException. Instead,
+					it throws an exception with more details (the service extension point
+					id, the actual interface provided, and the interface you passed it).</p></li>
+				<li>
+					<strong>What if no module provides a core implementation of the
+						service?</strong>
+					<p>HiveMind checks for a service constructor when the registry itself
+						is assembled. If a service extension point has no service
+						constructor, an error is logged (identifying the extension point
+						id). In addition, <code>getService()</code> will throw an
+						ApplicationRuntimeException.</p>
+				</li>
+				<li>
+					<strong>What if I need to do some initializations in my service?</strong>
+					<p>If you have additional initializations that can't occur inside your
+						core service implementation's constructor (for instance, if the
+						initializations are based on properties set after the service
+						implementation object is instantiated), then your class should use
+						the &hivemind.BuilderFactory; to invoke an initializer method.</p>
+				</li>
+				<li>
+					<strong>What if I don't invoke Registry.cleanupThread()?</strong>
+					<p>Then service implementations bound to the current thread stay
+						bound. When the thread is next used to process a request, the same
+						services, in whatever state they were left in, will be used. This
+						may not be desirable in a servlet or Tapestry application, as some
+						state from a client may be left inside the services, and a different
+						client may be associated with the thread in later executions.</p>
+				</li>
+				<li>
+					<strong>What if I want my service to be created early, not just when
+						needed?</strong>
+					<p>Contribute your service into the &hivemind.EagerLoad; 
+						configuration; this will force HiveMind to instantiate the service
+						on startup. This is often used when developing an application, so
+						that configuration errors are caught early; it may also be useful
+						when a service should be instantiated to listen for events from some
+						other service.</p>
+				</li>
+			</ul>
+		</section>
+	</body>
+</document>

@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2006 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY projectroot '../'>
+	<!ENTITY % common-links SYSTEM "../links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>Assembly Instructions</title>
+	</header>
+	<body>
+		<p>Assembly instructions are used to initialize the core service implementation object 
+			created by a service implementation factory. This initialization usually involves injecting 
+			dependencies (services, configurations, or other objects), registering the service as 
+			event listener, and calling an initialization method.</p>
+		<p>An assembly instruction is specified using an &_assembly; element right after the 
+			factory parameter elements inside the &_invoke-factory; element:</p>
+		<source><![CDATA[
+<assembly autowire-services="..." initialize-method="...">
+    
+    <set property="..." value="..."/>
+    <listener service-id="..." event-type-name="..."/>
+
+</assembly>]]> </source>
+		<p>The attributes of the <code>&_assembly;</code> element are used to control 
+			autowiring and specify the initialization method. Nested elements supply dependencies to 
+			inject (<code>&lt;set&gt;</code> elements) and other services with which should be 
+			registered as an event listener (<code>&lt;listener&gt;</code> elements).</p>
+
+      <note>
+      	When the &hivemind.BuilderFactory; is used there is actually no need for assembly 
+      	instructions, as the BuilderFactory can perform all of that itself. Assembly instructions have 
+      	the advantage of being applicable to all service implementation factories (including the 
+      	BuilderFactory) and thus don't require any support in the factory.
+      </note>
+
+		<section>
+			<title>assembly</title>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+		        <tr>
+					<td>autowire-services</td>
+					<td>no</td>
+					<td>If true (the default), then HiveMind will attempt to
+					  automatically wire services and some common properties to properties of the 
+					  core service implementation with setter methods (see notes below).
+					</td>
+		        </tr>
+				<tr>
+					<td>initialize-method</td>
+					<td>no</td>
+					<td>The name of a method (public, no parameters) to invoke after the
+						service is constructed, to allow it to perform any final
+						initialization before being put into use. Defaults to 
+						<code>initializeService</code>.</td>
+				</tr>
+			</table>
+			<p>The remaining elements are enclosed by the &_assembly; element,
+				and are used to configure properties	of the core service implementation.</p>
+		</section>
+    
+    <section>
+      <title>Autowiring</title>
+      
+      <p>
+        With <code>autowire-services</code> set to true the assembly instruction will cause some 
+        dependencies to be injected automatically through setter methods. It will not only attempt to inject 
+        services but also certain common properties. The assembly instruction works this out by looking for 
+        setter methods with standard names <em>and</em> types:
+      </p>
+      
+      <table>
+        <tr>
+          <th>Property name</th>
+          <th>Property / parameter type</th>
+        </tr>
+        <tr>
+          <td>classResolver</td>
+          <td>&api.ClassResolver;</td>
+        </tr>
+        <tr>
+          <td>errorHandler</td>
+          <td>&api.ErrorHandler;</td>
+        </tr>
+        <tr>
+          <td>errorLog</td>
+          <td>&api.ErrorLog;</td>
+        </tr>
+        <tr>
+          <td>log</td>
+          <td>
+            <code>org.apache.commons.logging.Log</code>
+          </td>
+        </tr>
+        <tr>
+          <td>messages</td>
+          <td>&api.Messages;</td>
+          <td/>
+        </tr>
+        <tr>
+          <td>serviceId</td>
+          <td>String</td>
+        </tr>
+      </table>
+      
+      <p>
+        As noted the assembly instruction will also cause services to be injected into the core service implementation. 
+        Through every writable property whose type is an interface (with the exception 
+        of the common parameters / properties listed above) and hasn't been set otherwise the assembly instruction will 
+        attempt to inject a service.  This attempt may fail if there is <em>no</em> visible service or <em>more than 
+        one</em> visible service implementing the given interface.  (Visibility is checked with respect to the module 
+        declaring the constructed service's implementation.)
+      </p>
+      
+      <p>
+        If the service injection fails (due to one of the reasons given above) the assembly instruction will 
+        log an error immedeately upon failed injection.
+      </p>
+      
+      <p>
+        Autowiring may be  complicated by the fact that one module may define a service point that will tangentially affect the
+        construction of a service in another module (simply by implementing the same service interface).  In this situation, 
+        service autowiring can be turned off, by setting the <code>autowire-services</code> attribute to false.
+      </p>
+      
+      <p>
+       Once all properties have been set (possibly by autowiring), an initializer method will be invoked.  If the 
+       <code>initialize-method</code> attribute is <em>not</em> specified, and the service implementation includes a 
+       public method <code>initializeService()</code> (no parameters, returns void), then <code>initializeService()</code> 
+       will be invoked as the initializer.
+      </p>
+      
+    </section>
+    
+	<section>
+		<title>Service Property Configuring Elements</title>
+		<section>
+			<title>listener</title>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>service-id</td>
+					<td>The service which produces events. The service must provide, in
+						its service interface, the necessary add and remove listener
+						methods.</td>
+				</tr>
+				<tr>
+					<td>name</td>
+					<td>The name of an event set to be registered. If not specified, all
+						applicable event sets are used.</td>
+				</tr>
+			</table>
+			<p>If the name attribute is not specified, then HiveMind will
+				register for all applicable event sets. For each event set provided by
+				the specified service, HiveMind will check to see if the core service
+				implementation object implements the corresponding listener
+				interface ... if so, the core service implementation is added as a
+				listener. When the name attribute is specified, the core service 
+				implementation object is registered as a listener of just that single type.</p>
+			<p>Event notifications go directly to the core service implementation;
+				they don't go through any proxies or interceptors for the service. The
+				service <em>instance</em> must implement the listener interface, the
+				constructed service's service interface <em>does not</em> have to
+				extend the listener interface. In other words, event notifications are
+				"behind the scenes", not part of the public API of the service.</p>
+			<p>It is perfectly acceptible to include multiple &lt;listener&gt;
+				elements for a number of different event producing services.</p>
+			<p>It is not enough for the event producer service to have an add
+				listener method (i.e., <code>
+				addPropertyChangeListener(PropertyChangeListener)</code>). To be
+				recognized as an event set, there must also be a corresponding remove
+				listener method (i.e., <code>
+				removePropertyChangeListener(PropertyChangeListener)</code>), even
+				though HiveMind does not make use of the remove method. This is
+				an offshoot of how the JavaBeans API defines event sets.</p>
+		</section>
+      <section>
+        <title>set</title>
+          <table>
+            <tr><th>Attribute</th> <th>Description</th></tr>
+            <tr>
+              <td>property</td>
+              <td>The name of the property to set.</td>
+            </tr>
+            <tr>
+              <td>value</td>
+              <td>The <em>selector</em> used to find an object value.  The selector consists of a prefix (such as 
+                "service" or "configuration"), a colon, and a <em>locator</em> whose interpretation is defined by 
+                the prefix.  For example, <code>service:MyService</code>.  See &hivemind.ObjectProviders;.</td>
+            </tr>
+          </table>
+      </section>
+	</body>
+</document>

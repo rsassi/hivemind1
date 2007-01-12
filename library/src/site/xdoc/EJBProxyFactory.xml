@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<document>
+   <properties>
+      <title>hivemind.lib.EJBProxyFactory Service</title>
+   </properties>
+   <body>
+		
+      <p>The <a href="hivedocs/service/hivemind.lib.EJBProxyFactory.html">
+			EJBProxyFactory</a> service is used to construct a HiveMind service
+			that delegates to an EJB stateless session bean. The EJB's remote
+			interface is the service interface. When the first service method is
+			invoked, the fabricated proxy will perform a JNDI lookup (using the <a href="site:hivemind.lib.NameLookup">NameLookup</a> service), and
+			invokes <code>create()</code> on the returned home interface.</p>
+		
+      <p>The single service instance will be shared by all threads.</p>
+		
+      <p>The service expects a single parameter element:</p>
+		
+      <source xml:space="preserve">
+&lt;construct home-interface="..." jndi-name="..." name-lookup-service="..."/&gt; </source>
+		<p>The <code>home-interface</code> attribute is the complete class name for
+			the home interface, and is required.</p>
+		<p>The <code>jndi-name</code> attribute is the name of the EJB's home
+			interface, also required.</p>
+		<p>The <code>name-lookup-service-id</code> attribute is optional and rarely
+			used; it is an alternate service implementing the <a href="../hivemind/apidocs/org/apache/hivemind/lib/NameLookup.html">NameLookup</a> 
+			interface to be used for JNDI lookups.</p>
+	</body>
+</document>

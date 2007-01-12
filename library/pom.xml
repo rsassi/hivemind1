@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.hivemind</groupId>
+    <artifactId>hivemind-lib</artifactId>
+    <packaging>jar</packaging>
+    <version>1.2.1</version>
+    <parent>
+        <groupId>org.apache.hivemind</groupId>
+        <artifactId>hivemind-project</artifactId>
+        <version>1.2.1</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <name>HiveMind standard library</name>
+    <inceptionYear>2003</inceptionYear>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hivemind</groupId>
+            <artifactId>hivemind</artifactId>
+        </dependency>
+        <!-- Here, again, we're using a scope of provided to mean
+             "optional at runtime" -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>easymock</groupId>
+            <artifactId>easymock</artifactId>           
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.8</version>
+        </dependency>
+        <dependency>
+            <groupId>groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>1.0-jsr-03</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>jboss-j2ee</artifactId>
+            <version>3.2.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-full</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>aopalliance</groupId>
+            <artifactId>aopalliance</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    <scm>
+        <connection>svn:http://svn.apache.org/repos/asf/jakarta/hivemind/trunk/library</connection>
+        <url>http://svn.apache.org/viewvc/jakarta/hivemind/trunk/library</url>
+    </scm>
+</project>

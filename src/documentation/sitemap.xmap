@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<map:sitemap xmlns:map="http://apache.org/cocoon/sitemap/1.0">
+	<!-- custom sitemap needed for support of javasource elements -->
+  <map:components>
+    <map:actions>
+      <map:action logger="sitemap.action.sourcetype" name="sourcetype" src="org.apache.forrest.sourcetype.SourceTypeAction">
+        <sourcetype name="hm-document">
+          <document-declaration public-id="-//HM//DTD Documentation V1.0//EN" />
+        </sourcetype>
+      </map:action>
+    </map:actions>   
+    
+    <map:selectors default="parameter">
+	    <map:selector logger="sitemap.selector.parameter" name="parameter" src="org.apache.cocoon.selection.ParameterSelector" />
+    </map:selectors>
+    
+    <map:transformers >
+         <map:transformer name="sourceHighlighter" 
+           src="org.apache.hivemind.tools.forrest.SourceHighlighterTransformer" 
+           logger="SourceHighlighterTransformer" >    
+           
+         </map:transformer>
+    </map:transformers>
+    
+  </map:components>
+  
+  <map:resources>    
+    <map:resource name="transform-to-document">
+      <map:act type="sourcetype" src="{src}">
+        <map:select type="parameter">
+          <map:parameter name="parameter-selector-test" value="{sourcetype}" />
+
+					<!-- add transformer to documents that use the hm-document dtd -->
+          <map:when test="hm-document">
+		        <map:generate src="{project:content.xdocs}{../../1}.xml" />
+		        <map:transform type="sourceHighlighter" >
+          	  <map:parameter name="sourcepath" value="{project:content}../../../" />
+          	</map:transform>
+     				<map:transform src="{project:resources.stylesheets}/sourceHighlighter.xsl"/>
+            <map:serialize type="xml-document"/>
+          </map:when>
+        </map:select>
+      </map:act>
+    </map:resource>
+  </map:resources>
+  
+	 <map:pipelines>
+		  <map:pipeline>
+		   <!-- intercept the standard processing -->
+		   <map:match pattern="**.xml">
+		      <map:call resource="transform-to-document">
+		        <map:parameter name="src" value="{project:content.xdocs}{1}.xml" />
+		      </map:call>
+		    </map:match>
+		  </map:pipeline>
+	 </map:pipelines>
+</map:sitemap>
+
+

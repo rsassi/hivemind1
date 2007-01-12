@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<document>
+   <properties>
+      <title>hivemind.FactoryDefaults Configuration</title>
+   </properties>
+   <body>
+
+
+
+      <p>
+The <a href="hivedocs/config/hivemind.FactoryDefaults.html">FactoryDefaults</a> configuration
+is used to set default values for substitution symbols. Contributions look like:
+</p>
+
+
+      <source xml:space="preserve">
+&lt;default symbol="..." value="..."/&gt;
+</source>
+
+
+<p>
+Values defined here can be overriden by making a contribution to
+<a href="ApplicationDefaults.html">hivemind.ApplicationDefaults</a>.
+</p>
+
+
+    
+
+    
+  </body>
+</document>

@@ -1,0 +1,166 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<project name="dependency">
+	<fail unless="ant.file.hivebuild" message="Must import hivebuild.xml first."/>
+
+  <property file="${hivebuild.dir}/dependency.properties"/>
+		
+  <path id="grabber.classpath">
+    <pathelement location="${hivebuild.classes.dir}"/>
+    <fileset dir="${ant.home}/lib" includes="ant.jar"/>
+  </path>
+
+  <macrodef name="grab-file">
+    <attribute name="src" description="The URL of the file to download."/>
+    <attribute name="dest" description="The directory and file to copy to."/>
+    <sequential>
+      <mkdir dir="${hivebuild.classes.dir}"/>
+      <javac includeantruntime="yes"
+        srcdir="${hivebuild.src.dir}"
+        destdir="${hivebuild.classes.dir}"/>
+    	<taskdef classname="org.apache.hivemind.build.Grabber" name="grabber" classpathref="grabber.classpath"/>
+      <grabber src="@{src}" dest="@{dest}"/>
+    </sequential>
+  </macrodef>
+
+
+	<property name="download-warning-marker.file" value="${external.package.dir}/download-warning-marker"/>
+	
+	<available property="download-warning-marker-displayed"
+			type="file"
+			file="${download-warning-marker.file}"/>
+			
+	<target name="-display-download-warning" unless="download-warning-marker-displayed">
+		<echo>
+**************************************************************************************************
+*                                                                                                *
+*                             D O W N L O A D   W A R N I N G                                    *
+*                                                                                                *
+* Dependent libraries will be downloaded.  These are NOT necessarily downloaded from apache.org, *  
+* and may use other licences besides the Apache Software License. Dependencies will use an       *
+* open-source license compatible with the ASL, such as Berkeley Software Distribution (BSD) or   *
+* Mozilla Public License (MPL).                                                                  *
+*                                                                                                *
+**************************************************************************************************
+</echo>
+	
+		<input 
+			validargs="continue" 
+			message="Enter 'continue' to continue with the build:"/>
+	
+		<mkdir dir="${external.package.dir}"/>
+		<echo file="${download-warning-marker.file}">Download warning accepted.</echo>
+		
+	</target>
+
+  <macrodef name="module-lib-copy">
+    <attribute name="fromdir" description="Source directory to copy from."/>
+    <attribute name="artifact" description="Name of artifact JAR to copy."/>
+    <attribute name="version" description="Version of artifact JAR to copy."/>
+    <attribute name="use" description="Subdirectory to copy to."/>
+    
+    <sequential>
+      <mkdir dir="${module.lib.dir}/@{use}/@{artifact}"/>
+      <copy file="@{fromdir}/@{artifact}-@{version}.jar" todir="${module.lib.dir}/@{use}/@{artifact}" verbose="true"/>
+      
+      <!-- Delete versions in the wrong directory, or out of date versions. -->
+      
+      <delete verbose="true">
+        <fileset dir="${module.lib.dir}">
+          <exclude name="@{use}/@{artifact}/@{artifact}-@{version}.jar"/>
+          <include name="**/@{artifact}/@{artifact}-*.jar"/>
+        </fileset>
+      </delete>
+      
+    </sequential>
+  </macrodef>
+
+
+	<!-- macro for downloading a JAR from maven's repository on ibiblio. -->
+	
+	<macrodef name="ibiblio-dependency">
+		<attribute name="artifact" description="The name of the JAR artfiact to download."/>
+    <attribute name="version" description="The version number of the artifact to download."/>
+		<attribute name="group" description="The Maven group-id containing the JAR."/>
+		<attribute name="use" default="compile" description="Useage of the dependency: compile, test or run. Subdirectory to place the artiface in."/>
+		
+		<sequential>
+			<mkdir dir="${external.lib.dir}"/>
+
+      <antcall target="-display-download-warning"/>
+      
+      <property name="jar" value=""/>
+
+			<grab-file
+				dest="${external.lib.dir}/@{artifact}-@{version}.jar"
+				src="${maven.ibiblio.url}/@{group}/jars/@{artifact}-@{version}.jar"
+				/>
+
+      <module-lib-copy 
+        fromdir="${external.lib.dir}"
+        artifact="@{artifact}"
+        version="@{version}"
+        use="@{use}"/>        
+			
+		</sequential>
+	</macrodef>
+	
+	<available file="${unpack-zip-dir}" type="dir" property="unpacked-zip-dir-exists"/>
+	
+	<target name="-unpack-zip-dependency" unless="unpacked-zip-dir-exists" depends="-display-download-warning">
+		<property name="local-copy-path" value="${external.package.dir}/${unpack-zip-name}"/>
+		<grab-file
+				src="${unpack-zip-url}"
+				dest="${local-copy-path}"/>
+		<unzip src="${local-copy-path}" dest="${external.package.dir}"/>
+	</target>
+	
+	<macrodef name="unpacked-zip-dependency">
+		<attribute name="url" description="The URL of the folder containing the zip file."/>
+		<attribute name="zip" description="The name of the zip file itself."/>
+		<attribute name="dir" description="The name of the directory that will be created."/>
+		
+		<sequential>
+			<antcall target="-unpack-zip-dependency" inheritAll="false">
+				<param name="unpack-zip-dir" value="@{dir}"/>
+				<param name="unpack-zip-url" value="@{url}/@{zip}"/>
+				<param name="unpack-zip-name" value="@{zip}"/>
+			</antcall>
+		</sequential>
+		
+	</macrodef>
+
+	
+	<!-- An internal dependency to another library previously created
+		   by a sibiling module.  Assumes that the module is infixed
+		   with the project's version. -->
+		   
+	<macrodef name="project-dependency">
+		<attribute name="artifact" description="The name of the dependency (the part before the version number)."/>
+		<attribute name="version" default="${project.version}" description="The version number."/>
+		<attribute name="use" default="compile" description="Useage of the dependency: compile, test or run."/>
+		
+		<sequential>
+      <module-lib-copy fromdir="${external.lib.dir}"
+        artifact="@{artifact}"
+        version="@{version}"
+        use="@{use}"/>           		
+		</sequential>	
+	</macrodef>
+
+</project>

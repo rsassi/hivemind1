@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN" 
+  "http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+  <!ENTITY projectroot '../'>
+  <!ENTITY % common-links SYSTEM "../links.ent">
+  %common-links;
+  ]>
+<document>
+  <header>
+    <title>Manage HiveMind services via JMX</title>
+  </header>
+  <body>
+  	<p>Actually it is possible to make any HiveMind service 
+  		manageable with JMX. 
+  		An existing service can be registered as MBean easily by a contribution 
+  		to "mbeans":
+  		</p>
+			<source><![CDATA[
+<contribution configuration-id="hivemind.management.mbeans" >
+    <mbean service-id="test.management.Calculator" />
+</contribution>]]></source>
+			<p>Now all properties and operations of the service interface
+				are accessible via JMX. Be aware, that this makes sense
+				only for a certain set of supported datatypes.<br/>
+				The service must use the primitive or singleton service model.</p>
+			<p>If you want to register a MBean that implements one of the 
+				standard mbean interfaces like DynamicMBean oder ModelMBean, define
+				the MBean as service and register it the same way:</p>
+			<source><![CDATA[
+<service-point id="MyMBean" interface="javax.management.DynamicMBean">
+  <invoke-factory model="primitive">
+    ...
+  </invoke-factory>  	
+</service-point>
+
+<contribution configuration-id="hivemind.management.mbeans" >
+  <mbean service-id="MyMBean" />
+</contribution>]]></source>
+  </body>
+</document>

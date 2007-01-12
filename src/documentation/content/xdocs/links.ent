@@ -1,0 +1,169 @@
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!ENTITY projectroot ''>
+
+<!ENTITY apiroot '&projectroot;hivemind/apidocs/org/apache/hivemind'>
+<!ENTITY apiroot-lib '&projectroot;hivemind-lib/apidocs/org/apache/hivemind/lib'>
+
+<!ENTITY hivedoc '&projectroot;hivedocs'>
+
+<!ENTITY api.ClassFactory '<link href="&apiroot;/service/ClassFactory.html">ClassFactory</link>'>
+<!ENTITY api.ClassResolver '<link href="&apiroot;/ClassResolver.html">ClassResolver</link>'>
+<!ENTITY api.Element '<link href="&apiroot;/Element.html">Element</link>'>
+<!ENTITY api.ErrorHandler '<link href="&apiroot;/ErrorHandler.html">ErrorHandler</link>'>
+<!ENTITY api.ErrorLog '<link href="&apiroot;/ErrorLog.html">ErrorLog</link>'>
+<!ENTITY api.HiveMindTestCase '<link href="&apiroot;/test/HiveMindTestCase.html">HiveMindTestCase</link>'>
+<!ENTITY api.InterceptorStack '<link href="&apiroot;/InterceptorStack.html">InterceptorStack</link>'>
+<!ENTITY api.Messages '<link href="&apiroot;/Messages.html">Messages</link>'>
+<!ENTITY api.Module '<link href="&apiroot;/Module.html">Module</link>'>
+<!ENTITY api.ModuleDescriptorProvider '<link href="&apiroot;/ModuleDescriptorProvider.html">ModuleDescriptorProvider</link>'>
+<!ENTITY api.Registry '<link href="&apiroot;/Registry.html">Registry</link>'>
+<!ENTITY api.RegistryBuilder '<link href="&apiroot;/impl/RegistryBuilder.html">RegistryBuilder</link>'>
+<!ENTITY api.RegistryShutdownListener '<link href="&apiroot;/events/RegistryShutdownListener.html">RegistryShutdownListener</link>'>
+<!ENTITY api.Resource '<link href="&apiroot;/Resource.html">Resource</link>'>
+<!ENTITY api.ServiceImplementationFactory '<link href="&apiroot;/ServiceImplementationFactory.html">ServiceImplementationFactory</link>'>
+<!ENTITY api.ServiceImplementationFactoryParameters '<link href="&apiroot;/ServiceImplementationFactoryParameters.html">ServiceImplementationFactoryParameters</link>'>
+
+<!ENTITY api.ServiceInterceptorFactory '<link href="&apiroot;/ServiceInterceptorFactory.html">ServiceInterceptorFactory</link>'>
+<!ENTITY api.Translator '<link href="&apiroot;/schema/Translator.html">Translator</link>'>
+
+<!ENTITY api.NameLookup '<link href="&apiroot;/lib/NameLookup.html">NameLookup</link>'>
+<!ENTITY api.RemoteExceptionCoordinator '<link href="&apiroot;/lib/RemoteExceptionCoordinator.html">RemoteExceptionCoordinator</link>'>
+<!ENTITY api.RemoteExceptionListener '<link href="&apiroot;/lib/RemoteExceptionListener.html">RemoteExceptionListener</link>'>
+
+
+<!ENTITY api.BeanFactory '<link href="&apiroot-lib;/BeanFactory.html">BeanFactory</link>'>
+<!ENTITY api.GroovyModuleDescriptorProvider '<link href="&apiroot-lib;/groovy/GroovyModuleDescriptorProvider.html">GroovyModuleDescriptorProvider</link>'>
+
+<!ENTITY Spring '<link href="site:spring">Spring</link>'>
+<!ENTITY Ant '<link href="http://ant.apache.org/">Ant</link>'>
+<!ENTITY Groovy '<link href="http://groovy.codehaus.org/">Groovy</link>'>
+
+<!-- Note, these links CAN NOT currently be converted to site:descriptor#foo because Forrest 0.5.1 doesn't
+     understand the use of the '#' as an anchor. -->
+
+<!ENTITY _module '&lt;module&gt;'>
+<!ENTITY module '<link href="&projectroot;descriptor.html#module">&_module;</link>'>
+
+<!ENTITY _implementation '&lt;implementation&gt;'>
+<!ENTITY implementation '<link href="&projectroot;descriptor.html#implementation">&_implementation;</link>'>
+
+<!ENTITY _configuration-point '&lt;configuration-point&gt;'>
+<!ENTITY configuration-point '<link href="&projectroot;descriptor.html#configuration-point">&_configuration-point;</link>'>
+
+<!ENTITY _conversion '&lt;conversion&gt;'>
+<!ENTITY conversion '<link href="&projectroot;descriptor.html#conversion">&_conversion;</link>'>
+
+<!ENTITY _map '&lt;map&gt;'>
+<!ENTITY map '<link href="&projectroot;descriptor.html#map">&_map;</link>'>
+
+<!ENTITY _create-instance '&lt;create-instance&gt;'>
+<!ENTITY create-instance '<link href="&projectroot;descriptor.html#create-instance">&_create-instance;</link>'>
+
+<!ENTITY _invoke-factory '&lt;invoke-factory&gt;'>
+<!ENTITY invoke-factory '<link href="&projectroot;descriptor.html#invoke-factory">&_invoke-factory;</link>'>
+
+<!ENTITY _assembly '&lt;assembly&gt;'>
+<!ENTITY assembly '<link href="&projectroot;descriptor.html#assembly">&_assembly;</link>'>
+
+<!ENTITY _interceptor '&lt;interceptor&gt;'>
+<!ENTITY interceptor '<link href="&projectroot;descriptor.html#interceptor">&_interceptor;</link>'>
+
+<!ENTITY _contribution '&lt;contribution&gt;'>
+<!ENTITY contribution '<link href="&projectroot;descriptor.html#contribution">&_contribution;</link>'>
+
+<!ENTITY _service-point '&lt;service-point&gt;'>
+<!ENTITY service-point '<link href="&projectroot;descriptor.html#service-point">&_service-point;</link>'>
+
+<!ENTITY _schema '&lt;schema&gt;'>
+<!ENTITY schema '<link href="&projectroot;descriptor.html#schema">&_schema;</link>'>
+
+<!ENTITY _parameters-schema '&lt;parameters-schema&gt;'>
+<!ENTITY parameters-schema '<link href="&projectroot;descriptor.html#parameters-schema">&_parameters-schema;</link>'>
+
+<!ENTITY _element '&lt;element&gt;'>
+<!ENTITY element '<link href="&projectroot;descriptor.html#element">&_element;</link>'>
+
+<!ENTITY _attribute '&lt;attribute&gt;'>
+<!ENTITY attribute '<link href="&projectroot;descriptor.html#attribute">&_attribute;</link>'>
+
+<!ENTITY _rules '&lt;rules&gt;'>
+<!ENTITY rules '<link href="&projectroot;descriptor.html#rules">&_rules;</link>'>
+
+<!ENTITY _sub-module '&lt;sub-module&gt;'>
+<!ENTITY sub-module '<link href="&projectroot;descriptor.html#sub-module">&_sub-module;</link>'>
+
+<!ENTITY _dependency '&lt;dependency&gt;'>
+<!ENTITY dependency '<link href="&projectroot;descriptor.html#dependency">&_dependency;</link>'>
+
+<!-- XML entities for the XML processing rules (documented seperately from the rest). -->
+
+<!ENTITY _create-object '&lt;create-object&gt;'>
+<!ENTITY create-object '<link href="&projectroot;rules.html#create-object">&_create-object;</link>'>
+
+<!ENTITY _invoke-parent '&lt;invoke-parent&gt;'>
+<!ENTITY invoke-parent '<link href="&projectroot;rules.html#invoke-parent">&_invoke-parent;</link>'>
+
+<!ENTITY _read-attribute '&lt;read-attribute&gt;'>
+<!ENTITY read-attribute '<link href="&projectroot;rules.html#read-attribute">&_read-attribute;</link>'>
+
+<!ENTITY _read-content '&lt;read-content&gt;'>
+<!ENTITY read-content '<link href="&projectroot;rules.html#read-content">&_read-content;</link>'>
+
+
+<!ENTITY _set-module '&lt;set-module&gt;'>
+<!ENTITY set-module '<link href="&projectroot;rules.html#set-module">&_set-module;</link>'>
+
+<!ENTITY _set-parent '&lt;set-parent&gt;'>
+<!ENTITY set-parent '<link href="&projectroot;rules.html#set-parent">&_set-parent;</link>'>
+
+<!ENTITY _set-property '&lt;set-property&gt;'>
+<!ENTITY set-property '<link href="&projectroot;rules.html#set-property">&_set-property;</link>'>
+
+<!ENTITY _custom '&lt;custom&gt;'>
+<!ENTITY custom '<link href="&projectroot;rules.html#custom">&_custom;</link>'>
+
+<!ENTITY _push-attribute '&lt;push-attribute&gt;'>
+<!ENTITY push-attribute '<link href="&projectroot;rules.html#push-attribute">&_push-attribute;</link>'>
+
+<!ENTITY _push-content '&lt;push-content&gt;'>
+<!ENTITY push-content '<link href="&projectroot;rules.html#push-content">&_push-content;</link>'>
+
+<!-- Entities for common services and configurations. -->
+
+<!ENTITY object-reference '<link href="site:hivemind.ObjectProviders">object reference</link>'>
+<!ENTITY instance-initializer '<link href="site:instance-initialization">instance initializer</link>'>
+
+<!ENTITY hivemind.ApplicationDefaults '<link href="site:hivemind.ApplicationDefaults">hivemind.ApplicationDefaults</link>'>
+<!ENTITY hivemind.BuilderFactory '<link href="site:hivemind.BuilderFactory">hivemind.BuilderFactory</link>'>
+<!ENTITY hivemind.EagerLoad '<link href="site:hivemind.EagerLoad">hivemind.EagerLoad</link>'>
+<!ENTITY hivemind.FactoryDefaults '<link href="site:hivemind.FactoryDefaults">hivemind.FactoryDefaults</link>'>
+<!ENTITY hivemind.LoggingInterceptor '<link href="site:hivemind.LoggingInterceptor">hivemind.LoggingInterceptor</link>'>
+<!ENTITY hivemind.ObjectProviders '<link href="site:hivemind.ObjectProviders">hivemind.ObjectProviders</link>'>
+<!ENTITY hivemind.ServiceModels 'hivemind.ServiceModels'>
+<!ENTITY hivemind.SymbolSources '<link href="site:hivemind.SymbolSources">hivemind.SymbolSources</link>'>
+<!ENTITY hivemind.ThreadEventNotifier 'hivemind.ThreadEventNotifier'>
+<!ENTITY hivemind.ThreadLocale '<link href="site:hivemind.ThreadLocale">hivemind.ThreadLocale</link>'>
+<!ENTITY hivemind.ThreadLocalStorage '<link href="site:hivemind.ThreadLocalStorage">hivemind.ThreadLocalStorage</link>'>
+<!ENTITY hivemind.Translators '<link href="site:hivemind.Translators">hivemind.Translators</link>'>
+
+<!ENTITY hivemind.lib.EJBProxyFactory '<link href="site:hivemind.lib.EJBProxyFactory">hivemind.lib.EJBProxyFactory</link>'>
+<!ENTITY hivemind.lib.NameLookup '<link href="site:hivemind.lib.NameLookup">hivemind.lib.NameLookup</link>'>
+<!ENTITY hivemind.lib.RemoteExceptionCoordinator '<link href="site:hivemind.lib.RemoteExceptionCoordinator">hivemind.lib.RemoteExceptionCoordinator</link>'>
+<!ENTITY hivemind.lib.ChainBuilder '<link href="site:hivemind.lib.ChainBuilder">hivemind.lib.ChainBuilder</link>'>
+<!ENTITY hivemind.lib.ChainFactory '<link href="site:hivemind.lib.ChainFactory">hivemind.lib.ChainFactory</link>'>
+<!ENTITY hivemind.lib.MethodInterceptorFactory '<link href="site:hivemind.lib.MethodInterceptorFactory">hivemind.lib.MethodInterceptorFactory</link>'>

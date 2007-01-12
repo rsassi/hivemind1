@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<module id="hivemind.test.services" version="1.0.0">
+
+  <service-point id="DefaultConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl" autowire-services="false">
+  			<set property="expectedConstructorMessage" value="()"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="LongConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<long>42</long>
+  			<set property="expectedConstructorMessage" value="(long)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="StringConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<string>Foo</string>
+  			<set property="expectedConstructorMessage" value="(String)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="ServiceConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<service>DefaultConstructor</service>
+  			<set property="expectedConstructorMessage" value="(ConstructorAccess)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="MultiConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<service>DefaultConstructor</service>
+  			<service-id/>
+  			<set property="expectedConstructorMessage" value="(ConstructorAccess, String)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="ConfigurationConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<configuration>DummyConfiguration</configuration>
+  			<set property="expectedConstructorMessage" value="(List)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="MappedConfigurationConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<configuration>DummyConfiguration</configuration>
+			<long>42</long>
+  			<set property="expectedConstructorMessage" value="(Map, long)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="LogAndMessagesConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<log/>
+  			<messages/>
+  			<set property="expectedConstructorMessage" value="(Log, Messages)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="NullConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<long>42</long>
+  			<null/>
+  			<set property="expectedConstructorMessage" value="(long, null)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <configuration-point id="DummyConfiguration">
+	<schema>
+		<element name="element" key-attribute="key">
+			<attribute name="key"/>
+		</element>
+	</schema>
+  </configuration-point>
+
+</module>

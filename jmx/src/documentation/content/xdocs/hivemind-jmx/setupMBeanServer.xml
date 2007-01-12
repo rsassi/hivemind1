@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN" 
+  "http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+  <!ENTITY projectroot '../'>
+  <!ENTITY % common-links SYSTEM "../links.ent">
+  %common-links;
+  ]>
+<document>
+  <header>
+    <title>Connect to MBeanServer</title>
+  </header>
+  <body>
+  <p>
+	A running MBean Server is needed in your application. It is
+	the central registry for all MBeans of your application. 
+	The JMX specification requires a JMX implementation to provide 
+	a factory (javax.management.MBeanServerFactory) for finding running 
+	servers and starting new ones.	
+	</p>
+	<p>HiveMind uses MBeanServerFactory to find a running server at first. 
+	That one could be provided by an application server or servlet 
+	engine (like Tomcat 5) or your J2SE 1.5 runtime environment. 
+	If multiple implementations are available in your environment 
+	the classpath and classloader hierarchy finally decide which 
+	implementation is used. 
+	Add these lines to your module descriptor: 
+	</p>
+	<source><![CDATA[
+<contribution configuration-id="hivemind.EagerLoad">
+	<load service-id="hivemind.management.MBeanRegistry"/>
+</contribution>]]>
+  </source> 
+  <p>
+	Connecting to a running server results in a unified management of infrastructure mbeans 
+	and your applications mbeans. Infrastructure mbeans are for example the
+	J2SE 1.5 MBeans for instrumentation of the JMX (GarbageCollector, MemoryManager etc.).
+	If no running server is found, a new one is started.
+  </p>	
+  </body>
+</document>

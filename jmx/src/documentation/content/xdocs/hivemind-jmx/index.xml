@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN" "http://xml.apache.org/forrest/dtd/document-v13.dtd"
+[
+	<!ENTITY projectroot '../'>
+	<!ENTITY % common-links SYSTEM "../links.ent">
+	%common-links;
+]>
+<document>
+
+  <header>
+    <title>Module: hivemind.jmx</title>
+	</header>
+	
+  <body>
+
+	<p>
+	The HiveMind JMX library brings the benefits of mature application management 
+	and monitoring to your HiveMind based applications by integration of
+	the 
+	<link href="http://java.sun.com/products/JavaManagement">Java Management Extension (JMX)</link>.
+	</p>
+	<p>With minimal effort you can reach these goals, for example:
+    	</p>
+	<ul>
+		<li>Change log levels in your running application via a web based interface
+			or by use of a management console</li>
+		<li>Measure the performance of middleware calls and view the data online</li>
+		<li>Make your services configurable at runtime. Change database urls or cache sizes</li>
+	</ul>	
+
+	<p>
+		The services of this library are implemented in the module 
+	<link href="&hivedoc;/module/hivemind.management.html">hivemind.management</link>
+	</p>
+	<p>Start <link href="site:quickstart">here</link> for a JMX quickstart or read
+		a more detailled introduction <link href="site:setup.Overview">here</link> 
+  </p>
+  </body>
+</document>

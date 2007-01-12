@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 
+   Copyright 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<document>
+   <properties>
+      <title>hivemind.lib.ChainFactory Service</title>
+   </properties>
+   <body>
+    
+      <p>The <a href="hivedocs/service/hivemind.lib.ChainFactory.html">ChainFactory</a> service implementation 
+      factory is based on <a href="site:hivemind.lib.ChainBuilder">hivemind.lib.ChainBuilder</a>. The chain's command interface is the service interface, and the 
+      service parameters identify the configuration that identifies the chain of commands. </p>
+    
+      <section name="Usage">
+      
+      
+         <p> The factory expects a single parameter element: </p>
+      
+         <source xml:space="preserve">
+&lt;construct configuration-id="..."/&gt;      
+      </source>
+      <p>The configuration-id identifies a configuration that implements the <a href="hivedocs/schema/hivemind.lib.ChainContribution.html">hivemind.lib.ChainContribution</a> schema. </p>
+    </section>
+    
+      <section name="Configuration">
+      
+      
+         <p> The configuration identifies the command objects that form the chain, including the order of the commands: 
+        </p>
+      
+         <source xml:space="preserve"> 
+&lt;command id="..." before="..." after="..." object="..."/&gt;
+ </source>
+      <p> Each command has an id (which is qualified with the module id) and may specify a list of commands which 
+        precede or follow it. </p>
+      <p> The object is specified as an <a href="../hivemind/hivedocs/config/ObjectProviders.html">object reference</a>. </p>
+    </section>
+  
+   </body>
+</document>

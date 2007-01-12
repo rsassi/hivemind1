@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005, 2006 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+  <header>
+    <title>Conditional Contributions</title>
+  </header>
+  
+  <body>
+    <p>
+      In certain cases, it is desirable to <em>conditionally contribute</em> to a configuration point, or to a
+      service point. One way of doing this is to factor the contributions into their own module, and control whether that
+      module (and its descriptor) is on the classpath at runtime. This can be cumbersome, however.
+    </p>
+    
+    <p>
+      A second method is to mark certain contributions (&contribution;, &implementation;, and &sub-module; elements) as 
+      conditional, using the <code>if</code> attribute.
+    </p>
+    
+    <p>
+      When the <code>if</code> attribute is non-null, it is evaluated as a <em>conditional expression</em>.  If the expression
+      evaluates to true, then the contribution is used.  If false, the the contribution is silently discarded.  The expression
+      evaluation occurs while the Registry is being constructed.
+    </p>
+    
+    <p>
+      This mechanism allows you to test for certain conditions, such as the presense of a 
+      particular class or a particular JVM system property.  These basic conditions can be combined with
+      and, or and not operators, and parenthesis to control order of evaluation.
+    </p>
+    
+    <p>
+      For example, the expression <code>class org.springframework.beans.factory.BeanFactory</code> would evaluate to true if the BeanFactory
+      class was on the classpath.
+    </p>
+    
+    <p>
+      The format for conditional expressions is:
+    </p>
+    
+<source>
+expression := <em>term</em> <code>or</code> <em>expression</em>
+           := <em>term</em> <code>and</code> <em>expression</em>
+           := <em>term</em>
+           
+term       := ( <em>expression</em> )
+           := <code>not</code> ( <em>expression</em> )
+           := <code>property</code> <em>symbol</em>
+           := <code>class</code> <em>symbol</em>
+</source>
+           
+<p>
+The keywords ("and", "or", "not", "property", "class") are <em>not</em> case sensitive.
+</p>  
+
+<p>
+Symbols are Java identifiers ... they are either JVM system properties or fully qualified Java class names. In addition, they
+may contain the dash character.
+</p>
+
+<p>
+Whitespace is ignored.
+</p>
+
+<p>
+The <code>property</code> keyword treats its symbol as a JVM system property, as with <code>Boolean.getBoolean()</code>.
+</p>
+
+<p>
+The <code>class</code> keyword treats its symbol as a Java class name, evaluating to true if such a class exists.
+</p>
+    
+    
+  </body>
+  
+</document>

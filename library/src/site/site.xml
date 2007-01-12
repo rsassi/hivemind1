@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Maven">
+    <bannerLeft>
+        <name>Jakarta</name>
+        <href>http://jakarta.apache.org/</href>
+    </bannerLeft>
+    <bannerRight>
+        <name>HiveMind Library</name>
+        <href>http://jakarta.apache.org/hivemind/library/</href>
+    </bannerRight>
+    <body>
+        <links>
+            <item name="Apache" href="http://www.apache.org/"/>
+        </links>
+        <menu name="HiveMind Library">
+            <item name="Introduction" href="index.html"/>
+            <item name="BeanFactoryBuilder" href="BeanFactoryBuilder.html"/>
+            <item name="ChainBuilder" href="ChainBuilder.html"/>
+            <item name="ChainFactory" href="ChainFactory.html"/>
+            <item name="DefaultImplementationBuilder" href="DefaultImplementationBuilder.html"/>
+            <item name="EJBProxyFactory" href="EJBProxyFactory.html"/>
+            <item name="MethodInterceptorFactory" href="MethodInterceptorFactory.html"/>
+            <item name="NameLookup" href="NameLookup.html"/>
+            <item name="PipelineFactory" href="PipelineFactory.html"/>
+            <item name="RemoteExceptionCoordinator" href="RemoteExceptionCoordinator.html"/>
+            <item name="ServicePropertyFactory" href="ServicePropertyFactory.html"/>
+            <item name="StrategyFactory" href="StrategyFactory.html"/>
+        </menu> ${reports} </body>
+</project>

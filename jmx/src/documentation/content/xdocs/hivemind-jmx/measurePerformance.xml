@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//HM//DTD Documentation V1.0//EN" "hm-document.dtd"
+  [
+  <!ENTITY projectroot '../'>
+  <!ENTITY % common-links SYSTEM "../links.ent">
+  %common-links;
+  ]> 
+<document>
+  <header>
+    <title>Measure service performance</title>
+  </header>
+  <body>
+  	<p>The interceptor PerformanceMonitor collects statistical data about calls to 
+  		a service. The results are sent to a newly created mbean. For each 
+  		service method it displays: number of calls, maximum, minimum, average and last 
+  		execution duration.<br/>
+  		Add the Interceptor to your service and choose which methods
+  		are to be intercepted by inclusion and exclusion:</p>
+
+			<xmlsource><![CDATA[
+<service-point id="Calculator" 
+    interface="org.apache.hivemind.management.Calculator">
+  <invoke-factory>
+    <construct class="org.apache.hivemind.management.CalculatorImpl" />
+  </invoke-factory>
+  <interceptor service-id="hivemind.management.PerformanceMonitorFactory">
+    <exclude method="getSum"/>
+    <include method="add"/>
+    <include method="subtract"/>
+  </interceptor>
+</service-point>]]></xmlsource>
+	<p>
+		The statistics are displayed by a MBean named like your service, 
+		with an additional name part "decorator=PerformanceCollector":<br/><br/>
+		<img src="images/performanceInterceptorMBean.png" alt="Performance Interceptor MBean"></img>
+	</p>
+	<note>
+		By default a service - and thus it's interceptors - is created 
+		on the first call of a service method. If you want to get the
+		performance mbean at startup, add your service to the EagerLoad contribution.
+	</note>
+  </body>
+</document>

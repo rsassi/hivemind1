@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl"?>
+<rdf:RDF xml:lang="en"
+         xmlns="http://usefulinc.com/ns/doap#" 
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:asfext="http:projects.apache.org/ns/asfext#">
+  <Project rdf:about="http://jakarta.apache.org/hivemind/">
+    <created>2006-01-31</created>
+    <license rdf:resource="http://usefulinc.com/doap/licenses/asl20" />
+    <name>Apache Jakarta Hivemind</name>
+    <homepage rdf:resource="http://jakarta.apache.org/hivemind/" />
+    <asfext:pmc rdf:resource="http://jakarta.apache.org" />
+    <shortdesc>Services and Configuration Microkernel</shortdesc>
+    <description>HiveMind is a framework for creating applications, not an application, or even an application server, itself. The 'core' of HiveMind is the startup logic that knows how to parse and understand the module deployment descriptors, and use that information to instantiate and initialize all those services and configurations.</description>
+    <bug-database rdf:resource="http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10500" />
+    <mailing-list rdf:resource="http://jakarta.apache.org/site/mail2.html#HiveMind" />
+    <download-page rdf:resource="http://jakarta.apache.org/hivemind/downloads.html" />
+    <programming-language>Java</programming-language>
+    <category rdf:resource="http://projects.apache.org/category/library" />
+    <release>
+      <Version>
+        <name>hivemind</name>
+        <created>2006-01-29</created>
+        <revision>1.1.1</revision>
+      </Version>
+    </release>
+    <repository>
+      <SVNRepository>
+        <location rdf:resource="http://svn.apache.org/repos/asf/jakarta/hivemind "/>
+        <browse rdf:resource="http://svn.apache.org/viewcvs.cgi/jakarta/hivemind "/>
+      </SVNRepository>
+    </repository>
+  </Project>
+</rdf:RDF>

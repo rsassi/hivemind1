@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<module id="hivemind.examples" version="0.0.1">
+    
+    Master hivemodule descriptor for all the examples.
+    
+    <sub-module descriptor="examples.xml"/>
+    <sub-module descriptor="panorama.xml"/>    
+    
+</module>

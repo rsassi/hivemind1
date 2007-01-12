@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/jhighlight-1.0rc.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="FORREST_HOME/lib/core/avalon-framework-api-4.1.5.jar"/>
+	<classpathentry kind="var" path="FORREST_HOME/lib/core/cocoon-2.2.0-dev-r125082.jar"/>
+	<classpathentry kind="var" path="FORREST_HOME/lib/core/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="var" path="FORREST_HOME/lib/core/excalibur-pool-api-2.0.0.jar"/>
+	<classpathentry kind="var" path="FORREST_HOME/lib/core/excalibur-xmlutil-1.0.jar"/>
+	<classpathentry kind="output" path="target/eclipse-classes"/>
+</classpath>

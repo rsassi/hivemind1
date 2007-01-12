@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<document>
+   <properties>
+      <title>hivemind.lib.PipelineFactory Service</title>
+   </properties>
+   <body>
+    
+      <p>The <a href="hivedocs/service/hivemind.lib.PipelineFactory.html"> 
+      PipelineFactory</a> service is used to construct a <em>pipeline</em> 
+      consisting of a series of filters. The filters implement an interface 
+      related to the service interface.</p>
+    
+      <p> Each method of the service interface has a corresponding method in the 
+      filter interface with an identical signature, except that an additional 
+      parameter, whose type matches the <em>service interface</em> has been 
+      added. </p>
+    
+      <p> For example, a service interface for transforming a string: </p>
+    
+      <source xml:space="preserve">
+package mypackage; 
+
+public interface StringTransformService
+{
+  public String transform(String inputValue); 
+} </source>
+    <p> The corresponding filter interface: </p>
+    <source xml:space="preserve">
+package mypackage;
+
+public interface StringTransformFilter
+{
+  public String transform(String inputValue, StringTransformService service);
+}
+</source>
+    <p> The service parameter may appear at any point in the parameter list, 
+      though the convention of listing it last is recommended. </p>
+    <p> The filters in a pipeline are chained together as follows: </p>
+    <img alt="Pipeline Calling Sequence" src="images/PipelineCallingSequence.png"/>
+    <p> The bridge objects implement the <em>service interface</em> (and are 
+      created dynamically at runtime). The <em>terminator</em> at the end also 
+      implements the service interface. This is an <a href="../hivemind/hivedocs/config/ObjectProviders.html">object reference</a> (it can be
+      an object or a service) if 
+      no terminator is specified, a <a href="site:hivemind.lib.DefaultImplementationBuilder">default 
+      implementation</a> is created and used. Only a single terminator is 
+      allowed.</p>
+    <p> A pipeline is always created in terms of a service and a configuration. 
+      The service defines the service interface and identifies a configuration. 
+      The configuration conforms to the <code>hivemind.lib.Pipeline</code> 
+      schema and is used to specify filters and the terminator. Filters may be 
+      ordered much like <a href="../descriptor.html#interceptor">&lt;interceptor&gt;</a>s, using <code>before</code> and 
+      <code>after</code> attributes. This allows different modules to 
+      contribute filters into the service's pipeline. </p>
+    <section name="Usage">
+      
+      <p> The factory expects a single parameter element: </p>
+      <source xml:space="preserve">
+&lt;create-pipeline filter-interface="..." configuration-id="..." terminator="..."/&gt;</source>
+      <p> The <code>filter-interface</code> attribute is the complete class 
+        name of the filter interface. </p>
+      <p>The <code>configuration-id</code> is the id of the companion 
+        configuration (used to define filters).</p>
+      <p>The optional <code>terminator</code> attribute is used to 
+        specify an <a href="../hivemind/hivedocs/config/ObjectProviders.html">object reference</a>. A terminator may also be 
+        contributed into the pipeline configuration.</p>
+    </section>
+    <section name="Configuration">
+      
+      <p>Each pipeline service must have a configuration, into which filters 
+        are contributed:</p>
+      <source xml:space="preserve">
+&lt;configuration-point id="..." schema-id="hivemind.lib.Pipeline"/&gt;</source>
+    </section>
+    <section name="Contributions">
+      
+      <p>Contributions into the configuration are used to specify the filters 
+        and the terminator.</p>
+      <subsection name="filter">
+        
+        <source xml:space="preserve">
+&lt;filter name="..." before="..." after="..." object="..."/&gt; </source>
+        <p>Contributes a filter. The optional <code>before</code> 
+          and <code>after</code> attributes are lists of the ids of other 
+          filters in the pipeline, used to set the ordering of the filters. 
+          They may be comma-seperated lists of filter ids (or filter names), or 
+          simple <code>*</code> to indicate absolute positioning. </p>
+          <p>
+            The <code>object</code> attribute is the filter object itself, an
+            <a href="../hivemind/hivedocs/config/ObjectProviders.html">object reference</a> to an object implementing the <em>filter interface</em>.
+          </p>
+      </subsection>
+
+      <subsection name="terminator">
+        
+        <source xml:space="preserve">&lt;terminator object="..."/&gt;</source>
+        <p> Specifies the terminator for the pipeline, as an <a href="../hivemind/hivedocs/config/ObjectProviders.html">object reference</a> to an object
+          implementing the <em>service interface</em>. Only a single 
+          terminator may be specified, and the terminator service provided in 
+          the factory parameters takes precendence over a terminator in the 
+          configuration. </p>
+      </subsection>
+
+    </section>
+  </body>
+</document>

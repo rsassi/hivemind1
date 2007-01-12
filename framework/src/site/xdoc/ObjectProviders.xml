@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?><!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<document>
+   <properties>
+      <title>hivemind.ObjectProviders Configuration</title>
+   </properties>
+   <body>
+		
+      <p>The <a href="hivedocs/config/hivemind.ObjectProviders.html">ObjectProviders</a>
+			configuration drives the <code>object</code> translator. Contributions
+      define an object <em>provider</em> in terms of a prefix (such as <code>service</code>)
+      and a service that implements the <code>ObjectProvider</code> interface.
+      </p>
+    
+      <p>
+      Object <em>providers</em> exist to support <em>object references</em>.  Object references
+      are a way to contribute objects that may be references to services, or to other objects, or may even be created
+      on the spot.  This is often used with the <a href="site:hivemind.BuilderFactory">hivemind.BuilderFactory</a>'s &lt;set-object&gt; element.
+    </p>
+    
+    
+      <p>
+      An object reference consists of a <em>prefix</em> and a <em>locator</em> seperated by a colon.  The interpretation of
+      the locator is different for each provider.  The prefix determines which provider will be utilized to interpret the
+      locator. 
+    </p>
+    
+		
+      <p>The contribution format defines the name and class for each service
+			model:</p>
+		
+      <source xml:space="preserve">
+&lt;provider prefix="..." service-id="..."/&gt; </source>
+	<p>Prefixes must be unique.</p>
+  
+  <p>
+    The following default prefixes are available:
+  </p>
+  
+  <table>
+    <tr>
+      <th>Prefix</th>
+      <th>Descripton</th>
+      <th>Example</th>
+    </tr>
+    
+    <tr>
+      <td>bean</td>
+      <td>The locator is a <a href="../hivemind-lib/apidocs/org/apache/hivemind/lib/BeanFactory.html">BeanFactory</a> locator, consisting of the id of a BeanFactory service, a colon, 
+        and an optional initializer for the bean.
+        </td>        
+        <td>
+          bean:ValidatorFactory:string,required
+        </td>
+    </tr>
+    
+    <tr>
+      <td>class</td>
+      <td>The locator is a class name. It may be a partial class name, with the package name
+        provided by the contributing module.</td>
+        <td>class:java.util.List</td>
+    </tr>
+    
+    <tr>
+      <td>configuration</td>
+      <td>The locator is the id of a configuration.</td>
+      <td>
+        configuration:MyConfiguration
+      </td>
+    </tr>
+    
+    <tr>
+      <td>instance</td>
+      <td>The locator is a class name, which must have a public no arguments contructor.
+        You may use <a href="site:instance-initialization">instance initializer</a> syntax.</td>
+      <td>
+        instance:com.example.MyObject
+      </td>
+    </tr>
+    
+    <tr>
+      <td>service</td>
+      <td>The locator is the id of a service.</td>
+      <td>service:MyService</td>
+    </tr>
+    
+    <tr>
+      <td>service-property</td>
+      <td>The locator provides a service id and a property name (provided by that service), seperated with a colon.</td>
+      <td>
+        service-property:MyService:activeRequest
+      </td>
+    </tr>
+    
+    <tr>
+      <td>spring</td>
+      <td>The locator is the name of a bean within a Spring BeanFactory.</td>
+      <td>spring:MyBean</td>
+    </tr>
+    
+  </table>
+  
+ <p><strong>Note:</strong><br/>
+ The bean: and spring: prefixes are provided by the HiveMind library (not the base framework).
+ </p>
+  
+  	</body>
+</document>

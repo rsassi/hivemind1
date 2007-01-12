@@ -1,0 +1,487 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY projectroot '../'>
+	<!ENTITY % common-links SYSTEM "../links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>hivemind.BuilderFactory Service</title>
+	</header>
+	<body>
+		<p>The <link href="&hivedoc;/service/hivemind.BuilderFactory.html">
+			BuilderFactory</link> service is a service implementation factory ... a
+			service that is used to construct other services.</p>
+		<p>The builder factory takes a single parameter element (usually with nested elements):</p>
+		<source><![CDATA[
+<construct
+    class="..." autowire-services="..." log-property="..." messages-property="..."
+    service-id-property="..." initialize-method="..." error-log-property="..."
+    error-handler-property="..." class-resolver-property="...">
+    
+    <log/>
+    <messages/>
+    <service-id/>
+    <error-handler/>
+    <error-log/>
+    <class-resolver/>
+    <string>  ... </string>
+    <boolean> ... </boolean>
+    <configuration> ... </configuration>
+    <int> ... </int>
+    <long> ... </long>
+    <resource> ... </resource>
+    <service> ... </service>
+    <object> ... </object>
+    <null/>
+    
+    <event-listener service-id="..." event-type-name="..."/>
+    <set property="..." value="..."/>
+    <set-configuration property="..." configuration-id="..."/>
+    <set-resource property="..." path="..."/>
+    <set-service property="..." service-id="..."/>
+    <set-object property="..." value="..."/>
+</construct>]]> </source>
+		<p>The attributes of the <code>construct</code> element are used to specify
+			the implementation class and set common service properties. Nested
+			elements supply the constructor parameters and configure other specific
+			properties of the implementation (the <code>set-...</code> elements).</p>
+      
+      <note>
+     BuilderFactory is a complex tool, with support for both constructor dependency injection and
+     property dependency injection. Many of the options are rarely used; the most general purpose
+     and most frequently used are <link href="#set">set</link>, <link href="#set-object">set-object</link>
+     and <link href="#event-listener">event-listener</link> (along with
+     <link href="#Autowiring">autowiring</link>).
+      </note>
+      
+      <note>
+      If you are looking into implementing your own service implementation factory and need 
+      it to support property dependency injection as available in BuilderFactory then check 
+      whether <link href="site:assembly">assembly instructions</link> cut it for you.
+      </note>
+      
+		<section>
+			<title>construct</title>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+        <tr>
+          <td>autowire-services</td>
+          <td>no</td>
+          <td>If true (the default), then the BuilderFactory will attempt to
+            automatically wire services and some common properties to constructor parameters 
+            and to properties of the constructed implementation with setter methods (see notes below).
+            </td>
+        </tr>
+				<tr>
+					<td>class</td>
+					<td>yes</td>
+					<td>The fully qualified name of the class to instantiate.</td>
+				</tr>
+        <tr><td>class-resolver-property</td>
+          <td>no</td>
+            <td>The property to receive the module's
+          &api.ClassResolver;.</td></tr>
+        <tr><td>error-handler-property</td>
+          <td>no</td>
+          <td> The name of a property to recieve the module's 
+            &api.ErrorHandler; instance (which is used to report recoverable 
+            errors). </td>
+          </tr>
+        <tr>
+          <td>error-log-property</td>
+          <td>no</td>
+          <td>The name of a property which will be assigned an &api.ErrorLog; instance for the service. An ErrorLog is 
+            simply a wrapper around a Log and an &api.ErrorHandler; as is the preferred approach.</td>
+        </tr>          
+				<tr>
+					<td>initialize-method</td>
+					<td>no</td>
+					<td>The name of a method (public, no parameters) to invoke after the
+						service is constructed, to allow it to perform any final
+						initializion before being put into use.</td>
+				</tr>
+				<tr>
+					<td>log-property</td>
+					<td>no</td>
+					<td>The name of a property which will be assigned a <code>
+						org.apache.commons.logging.Log</code> instance for the service. The
+						Log is created from the complete service id (not the name of the
+						class). If ommitted (and autowiring is disabled), no Log will be assigned.</td>
+				</tr>
+				<tr>
+					<td>messages-property</td>
+					<td>no</td>
+					<td>Allows the &api.Messages; for the module to be assigned to a
+						property of the instance.</td>
+				</tr>
+				<tr>
+					<td>service-id-property</td>
+					<td>no</td>
+					<td>Allows the service id of the <em>constructed</em> service to be
+						assigned to a property of the service implementation.</td>
+				</tr>
+			</table>
+			<p>The remaining elements are enclosed by the &lt;construct&gt; element,
+				and are used to supply constructor parameters and configure properties
+				of the constructed service implementation.</p>
+		</section>
+    
+    <section>
+      <title>Autowiring</title>
+      
+      <p>
+        With <code>autowire-services</code> set to true the BuilderFactory can automatically both perform
+        constructor based and setter based dependency injection.  It will not only attempt to inject 
+        services but also certain common properties.  By using standard names (and standard types), 
+        the need to specify attributes <code>log-property</code>, <code>error-handler-property</code>, 
+        etc. is avoided.  Simply declaring a constructor parameter with the correct type <em>or</em> a 
+        writable property with the correct name <em>and</em> type is sufficient:
+      </p>
+      
+      <table>
+        <tr>
+          <th>Property name</th>
+          <th>Property / parameter type</th>
+        </tr>
+        <tr>
+          <td>classResolver</td>
+          <td>&api.ClassResolver;</td>
+        </tr>
+        <tr>
+          <td>errorHandler</td>
+          <td>&api.ErrorHandler;</td>
+        </tr>
+        <tr>
+          <td>errorLog</td>
+          <td>&api.ErrorLog;</td>
+        </tr>
+        <tr>
+          <td>log</td>
+          <td>
+            <code>org.apache.commons.logging.Log</code>
+          </td>
+        </tr>
+        <tr>
+          <td>messages</td>
+          <td>&api.Messages;</td>
+          <td/>
+        </tr>
+        <tr>
+          <td>serviceId</td>
+          <td>String</td>
+        </tr>
+      </table>
+      
+      <note>
+        The service id (last entry in above table) will <em>only</em> be automatically injected through a writable property
+        (i.e. <code>setServiceId(String)</code>).  This because a constructor parameter of type String
+        is far too common.
+      </note>
+      
+      <p>
+        As noted the BuilderFactory will also inject services into the constructed service implementation. 
+        Through every constructor parameter and writable property whose type is an interface (with the exception 
+        of the common parameters / properties listed above) and hasn't been set otherwise the BuilderFactory will 
+        attempt to inject a service.  This attempt may fail if there is <em>no</em> visible service or <em>more than 
+        one</em> visible service implementing the given interface.  (Visibility is checked with respect to the module 
+        declaring the constructed service's implementation.)
+      </p>
+      
+      <p>
+        The action taken if the service injection fails (due to one of the reasons given above) depends on the type 
+        of dependency injection.  For constructor based dependency injection the BuilderFactory will try using a 
+        different constructor (see selection details below).  If no &quot;working&quot; constructor is found an error 
+        is logged.  For setter based dependency injection the BuilderFactory will log an error immedeately upon failed injection.
+      </p>
+      
+      <p>
+        Constructor based dependency injection is enabled with the <code>autowire-services</code> attribute but can be 
+        overridden by declaring any constructor parameter elements (see next section).  The constructor being used for
+        the constructor based dependency injection has to meet all of the following criteria:
+      </p>
+
+      <ul>
+        <li>the constructor is declared as <code>public</code></li>
+        <li>all parameter types are interfaces (including the common types listed above)</li>
+        <li>no two parameters are of the same type</li>
+      </ul>
+
+      <p>
+        All constructors of the service implementation class meeting these criteria (the default constructor is 
+        considered as one of these) are ordered by length (given by the number of parameters) and the first of these for which 
+        every parameter type either has a matching common property or there is exactly one corresponding visible service 
+        available will be invoked.  If no such constructor can be found an error is logged.
+      </p>
+
+      <p>
+        Autowiring may be  complicated by the fact that one module may define a service point that will tangentially affect the
+        construction of a service in another module (simply by implementing the same service interface).  In this situation, 
+        service autowiring can be turned off, by setting the <code>autowire-services</code> attribute to false.
+      </p>
+      
+      <p>
+       Once all properties have been set (possibly by autowiring), an initializer method will be invoked.  If the 
+       <code>initialize-method</code> attribute is <em>not</em> specified, and the service implementation includes a 
+       public method <code>initializeService()</code> (no parameters, returns void), then <code>initializeService()</code> 
+       will be invoked as the initializer.
+      </p>
+      
+    </section>
+    
+		<section>
+			<title>Constructor Parameter Elements</title>
+			<p>The following table summarizes the elements which can be used to
+				specify constructor parameters for the class to instantiate. These
+				elements can be mixed freely with the properties configuring elements.
+				It is important to know that the number, type, and order of the
+				constructor parameter elements determine the constructor that will be
+				used to instantiate the implementation.</p>
+			<table>
+				<tr>
+					<th>Element</th>
+					<th>Matched Parameter Type</th>
+					<th>Passed Parameter Value</th>
+				</tr>
+        <tr>
+          <td>error-handler</td>
+          <td>&api.ErrorHandler;</td>
+          <td>The module's ErrorHandler, user to report recoverable errors.</td>
+        </tr>
+        <tr>
+          <td>error-log</td>
+          <td>&api.ErrorLog;</td>
+          <td>The service's ErrorLog, used to report recoverable errors (this is preferred 
+			over using a Log and an &api.ErrorHandler;).</td>
+        </tr>        
+				<tr>
+					<td>log</td>
+					<td>org.apache.commons.logging.Log</td>
+					<td>The Log is created from the complete service id (not the name of
+						the class) of the created service.</td>
+				</tr>
+				<tr>
+					<td>messages</td>
+					<td>&api.Messages;</td>
+					<td>The &api.Messages; object of the invoking module.</td>
+				</tr>
+        <tr>
+          <td>object</td>
+          <td><em>variable</em></td>
+          <td>As determined by the object translator, this is decidedly free-form. See &hivemind.ObjectProviders;.</td>
+        </tr>
+        <tr>
+          <td>null</td>
+          <td><em>any reference type</em></td>
+          <td>Always simply <code>null</code>.</td>
+        </tr>
+				<tr>
+					<td>service-id</td>
+					<td>java.lang.String</td>
+					<td>The service id of the <em>constructed</em> service.</td>
+				</tr>
+				<tr>
+					<td>string</td>
+					<td>java.lang.String</td>
+					<td>This element's content.</td>
+				</tr>
+				<tr>
+					<td>boolean</td>
+					<td>boolean</td>
+					<td>This element's content. Must be either "true" or "false".</td>
+				</tr>
+				<tr>
+					<td>configuration</td>
+					<td>java.util.List <em>or</em> java.util.Map</td>
+					<td>The List / Map of the elements of the configuration specified by this
+						element's content as a configuration id. The id can either by a
+						simple id for a configuration within the same module as the
+						constructed service, or a complete id.</td>
+				</tr>
+				<tr>
+					<td>int</td>
+					<td>int</td>
+					<td>This element's content parsed as an integer value.</td>
+				</tr>
+				<tr>
+					<td>long</td>
+					<td>long</td>
+					<td>This element's content parsed as a long value.</td>
+				</tr>
+				<tr>
+					<td>resource</td>
+					<td>&api.Resource;</td>
+					<td>This element's content parsed as a path to a &api.Resource;, which
+						is relative to the contributing module's deployment descriptor. If
+						available, a localized version of the Resource will be selected.</td>
+				</tr>
+				<tr>
+					<td>service</td>
+					<td>interface corresponding to specified service</td>
+					<td>The implementation of the service with the id given in this
+						element's content. The id can either be a simple id for a service
+						within the same module as the constructed service, or a complete id.</td>
+				</tr>
+			</table>
+		</section>
+		<section>
+			<title>Service Property Configuring Elements</title>
+			<section>
+				<title>event-listener</title>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>service-id</td>
+						<td>The service which produces events. The service must provide, in
+							its service interface, the necessary add and remove listener
+							methods.</td>
+					</tr>
+					<tr>
+						<td>name</td>
+						<td>The name of an event set to be registered. If not specified, all
+							applicable event sets are used.</td>
+					</tr>
+				</table>
+				<p>If the name attribute is not specified, then BuilderFactory will
+					register for all applicable event sets. For each event set provided by
+					the specified service, BuilderFactory will check to see if the service
+					instance being constructed implements the corresponding listener
+					interface ... if so, the constructed service instance is added as a
+					listener. When the name attribute is specified, the constructed
+					service instance is registered as a listener of just that single type.</p>
+				<p>Event notifications go directly to the constructed service instance;
+					they don't go through any proxies or interceptors for the service. The
+					service <em>instance</em> must implement the listener interface, the
+					constructed service's service interface <em>does not</em> have to
+					extend the listener interface. In other words, event notifications are
+					"behind the scenes", not part of the public API of the service.</p>
+				<p>It is perfectly acceptible to include multiple &lt;event-listener&gt;
+					elements for a number of different event producing services.</p>
+				<p>It is not enough for the event producer service to have an add
+					listener method (i.e., <code>
+					addPropertyChangeListener(PropertyChangeListener)</code>). To be
+					recognized as an event set, there must also be a corresponding remove
+					listener method (i.e., <code>
+					removePropertyChangeListener(PropertyChangeListener)</code>), even
+					though BuilderFactory does not make use of the remove method. This is
+					an offshoot of how the JavaBeans API defines event sets.</p>
+			</section>
+			<section>
+				<title>set</title>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>The name of the property to set.</td>
+					</tr>
+					<tr>
+						<td>value</td>
+						<td>A value to assigned to the property. The value will be converted
+							to an appropriate type for the property.</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<title>set-configuration</title>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>The name of the property to set.</td>
+					</tr>
+					<tr>
+						<td>configuration-id</td>
+						<td>The id of a configuration, either a simple id for a
+							configuration within the same module as the constructed service,
+							or a complete id. The property will be assigned a <code>List</code>
+							or <code>Map</code> of the elements of the configuration.</td>
+					</tr>
+				</table>
+			</section>
+      <section>
+        <title>set-object</title>
+          <table>
+            <tr><th>Attribute</th> <th>Description</th></tr>
+            <tr>
+              <td>property</td>
+              <td>The name of the property to set.</td>
+            </tr>
+            <tr>
+              <td>value</td>
+              <td>The <em>selector</em> used to find an object value.  The selector consists of a prefix (such as 
+                "service" or "configuration"), a colon, and a <em>locator</em> whose interpretation is defined by 
+                the prefix.  For example, <code>service:MyService</code>.  See &hivemind.ObjectProviders;.</td>
+            </tr>
+          </table>
+      </section>
+			<section>
+				<title>set-resource</title>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>The name of the property to set.</td>
+					</tr>
+					<tr>
+						<td>path</td>
+						<td>The path to a &api.Resource;, relative to the contributing
+							module's deployment descriptor. If available, a localized version
+							of the Resource will be selected.</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<title>set-service</title>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>The name of the property to set.</td>
+					</tr>
+					<tr>
+						<td>service-id</td>
+						<td>The id of a service, either a simple id for a service within the
+							same module as the constructed service, or a complete id. The
+							property will be assigned the service.</td>
+					</tr>
+				</table>
+			</section>
+		</section>
+	</body>
+</document>

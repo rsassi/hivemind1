@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>HiveMind Servlet Filter</title>
+	</header>
+	<body>
+		<p>HiveMind includes a feature to streamline the use of HiveMind within a
+			web application: a <fork
+			href="http://developer.java.sun.com/developer/EJTechTips/2002/tt0813.html#tip1"
+			>servlet filter</fork> that can automatically construct the HiveMind
+			Registry and ensure that end-of-request thread cleanup occurs.</p>
+		<p>The filter class is <link href="&apiroot;/servlet/HiveMindFilter.html">
+			HiveMindFilter</link>. It constructs a standard HiveMind Registry (and includes
+      WEB-INF/hivemodule.xml, if present) when
+			initialized, and will shutdown the Registry when the containing
+			application is undeployed.</p>
+		<p>Each request will be terminated with a call to the <link
+			href="&apiroot;/Registry.html#cleanupThread()">Registry's cleanupThread()
+			method</link>, which will cleanup any thread-local values, including
+			service implementations that are bound to the current thread.</p>
+		<p>The HiveMindFilter class includes a static method for accessing the
+			Registry.</p>
+		<section>
+			<title>Deployment Descriptor</title>
+			<p>To make use of the filter, it must be declared inside the web
+				deployment descriptor (web.xml). Filters can be attached to servlets, or
+				URL patterns, or both. Here's an example:</p>
+			<source><![CDATA[
+<filter>
+  <filter-name>HiveMindFilter</filter-name>
+  <filter-class>org.apache.hivemind.servlet.HiveMindFilter</filter-class>
+</filter>
+
+<servlet>
+  <servlet-name>MyServlet</servlet-name>
+  <servlet-class>myco.servlets.MyServlet</servlet-class>
+</servlet>
+
+<filter-mapping>
+  <filter-name>HiveMindFilter</filter-name>
+  <servlet-name>MyServlet</servlet-name>
+</filter-mapping>
+]]> </source>
+		</section>
+	</body>
+</document>

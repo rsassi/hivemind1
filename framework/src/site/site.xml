@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Maven">
+    <bannerLeft>
+        <name>Jakarta</name>
+        <href>http://jakarta.apache.org/</href>
+    </bannerLeft>
+    <bannerRight>
+        <name>HiveMind Framework</name>
+        <href>http://jakarta.apache.org/hivemind/hivemind/</href>
+    </bannerRight>
+    <body>
+        <links>
+            <item name="Apache" href="http://www.apache.org/"/>
+        </links>
+        <menu name="HiveMind Framework">
+            <item name="Introduction" href="index.html"/>
+            <item name="ApplicationDefaults" href="ApplicationDefaults.html"/>
+            <item name="BuilderFactory" href="BuilderFactory.html"/>
+            <item name="EagerLoad" href="EagerLoad.html"/>
+            <item name="FactoryDefaults" href="FactoryDefaults.html"/>
+            <item name="LoggingInterceptor" href="LoggingInterceptor.html"/>
+            <item name="ObjectProviders" href="ObjectProviders.html"/>
+            <item name="ServiceModels" href="ServiceModels.html"/>
+            <item name="ShutdownCoordinator" href="ShutdownCoordinator.html"/>
+            <item name="SymbolSources" href="SymbolSources.html"/>
+            <item name="ThreadLocale" href="ThreadLocale.html"/>
+            <item name="ThreadLocalStorage" href="ThreadLocalStorage.html"/>
+            <item name="Translators" href="Translators.html"/>
+        </menu> ${reports} </body>
+</project>

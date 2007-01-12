@@ -1,0 +1,716 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005, 2006 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+  <!ENTITY conditional-expression '<link href="site:conditional">conditional expression</link>'>
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>HiveMind Module Descriptor</title>
+	</header>
+	<body>
+		<p>The purpose of the module descriptor is to provide a runtime and
+			compile-time description of each HiveMind module in terms of service and
+			configuration extension points and contributions to those extension
+			points.</p>
+		<p>The descriptor is named <code>hivemodule.xml</code> and is stored in the
+			META-INF directory of the module.</p>
+		<p>The root element of the descriptor is the &module; element.</p>
+
+		<section>
+			<title>assembly</title>
+			<p>&_assembly; is used to define an attribute within an &invoke-factory; element. Inside
+				a &contribution;, only known attributes are allowed in elements; unknown
+				attributes will be logged as an error and ignored. In addition, some
+				attributes are required; again, errors occur if the contributed element
+				does not provide a value for the attribute.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>autowire-services</td>
+					<td>boolean</td>
+					<td>no</td>
+					<td>The name of the attribute.</td>
+				</tr>
+				<tr>
+					<td>initialize-method</td>
+					<td>string</td>
+					<td>no</td>
+					<td>If true, the attribute must be provided in the contributed
+						configuration element. The default is false.</td>
+				</tr>
+			</table>
+			<p><link href="site:assembly">documented separately</link>.</p>
+		</section>
+		<section>
+			<title>attribute</title>
+			<p>&_attribute; is used to define an attribute within an &element;. Inside
+				a &contribution;, only known attributes are allowed in elements; unknown
+				attributes will be logged as an error and ignored. In addition, some
+				attributes are required; again, errors occur if the contributed element
+				does not provide a value for the attribute.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>name</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The name of the attribute.</td>
+				</tr>
+				<tr>
+					<td>required</td>
+					<td>boolean</td>
+					<td>no</td>
+					<td>If true, the attribute must be provided in the contributed
+						configuration element. The default is false.</td>
+				</tr>
+				<tr>
+					<td>default</td>
+					<td>string</td>
+					<td>no</td>
+					<td>Specifies the default value for this attribute. This value is used 
+						whenever this attribute has been omitted. Note that this default 
+						value is just like a specified value also subject to symbol expansion 
+						and translation.</td>
+				</tr>
+				<tr>
+					<td>unique</td>
+					<td>boolean</td>
+					<td>no</td>
+					<td>If true, the attribute must contain a unique value with respect to 
+					all other contributions to the same configuration point.  The default is false.</td>
+				</tr>
+				<tr>
+					<td>translator</td>
+					<td>string</td>
+					<td>no</td>
+					<td>The <link href="rules.html#Translators">translator</link> 
+						configuration that is used to convert the attribute into a useable
+						type. By default, the attribute is treated as a single string.</td>
+				</tr>
+			</table>
+	
+		</section>
+		<section>
+			<title>configuration-point</title>
+			<p>The &_configuration-point; element defines a configuration extension
+				point.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>id</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The simple id of the service extension point. The fully qualified
+						id for the extension point is created by prefixing with the module's
+						id (and a dot).</td>
+				</tr>
+        <tr>
+          <td>visibility</td>
+          <td><code>public | private</code></td>
+          <td>no</td>
+          <td>
+            If <code>private</code> is specified, then the configuration point may only be referenced
+            (or contributed to) from within the same module. It will not be visible to the application
+            (via the &api.Registry;) if private.  The default is <code>public</code>.
+          </td>
+        </tr>
+				<tr>
+					<td>occurs</td>
+					<td>
+						<code>unbounded | 0..1 | 1 | 1..n | none</code>
+					</td>
+					<td>no</td>
+          <td>The number of contributions allowed: <ul> <li><strong>unbounded</strong> (default): any number</li> 
+            <li><strong>0..1</strong>: optional</li> <li><strong>1</strong> : required</li> <li><strong>1..n</strong>: 
+            at least one</li> <li><strong>none</strong>: none allowed</li> </ul> <note> <strong>none</strong> doesn't 
+            make sense for occurances to a configuration point, but does occasionally make sense for parameters to a 
+            factory. </note> </td>				</tr>
+				<tr>
+					<td>schema-id</td>
+					<td>string</td>
+					<td>no</td>
+					<td>Used to reference a &schema; (in the same module, or a different
+						one) that defines the format of contributions into the configuration
+						point. This may be omitted, in which case the extension point will
+						contain a list of &api.Element; .</td>
+				</tr>
+			</table>
+			<p>Contains: &schema; </p>
+			<p> &_configuration-point; only defines a configuration point, it does not
+				supply any data into that point. The &_contribution; element is used to
+				provide such data.</p>
+		</section>
+		<section>
+			<title>contribution</title>
+			<p>The &_contribution; element contributes elements to an existing
+				configuration extension point.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>configuration-id</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>Either the id of an &configuration-point; within the module, or
+						the fully qualified id of an &_configuration-point; in another
+						module.</td>
+				</tr>
+        <tr>
+          <td>if</td>
+          <td>string</td>
+          <td>no</td>
+          <td>A &conditional-expression; controlling whether the contribution is used or ignored.</td>
+        </tr>
+			</table>
+			<p>The content of the &_contribution; consists of elements. These elements
+				are converted, in accordance with the configuration point's &schema;,
+				into Java objects.</p>
+		</section>
+		<section>
+			<title>conversion</title>
+			<p>&_conversion; is an alternative to &rules; that is generally simpler
+				and more concise. An &element; should contain &_conversion; or &_rules; 
+				but not both.</p>
+			<p> &_conversion; is geared towards the typical case; a straight-forward
+				mapping of the element to an instance of a Java class, and a mapping of
+				the element's attributes to the properties of the Java object.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>class</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The fully qualified name of a Java class to instantiate.</td>
+				</tr>
+				<tr>
+					<td>parent-method</td>
+					<td>string</td>
+					<td>no</td>
+					<td>The name of a method of the parent object used to add the created
+						object to the parent. The default, <code>addElement</code>, is
+						appropriate for top-level &_element;s.</td>
+				</tr>
+			</table>
+			<p>Contains: &map; </p>
+			<p>Each attribute will be mapped to a property. A limited amount of name
+				mangling occurs: if the attribute name contains dashes, they are
+				removed, and the character following is converted to upper case. So, an
+				attribute named "complex-attribute-name" would be mapped to a property
+				named "complexAttributeName". Only attributes identified with a &attribute;
+				element will be mapped, others will be ignored.</p>
+		</section>
+		<section>
+			<title>create-instance</title>
+			<p> &_create-instance; is used, within &service-point; and &implementation;
+				to create the core service implementation for a service by instantiating
+				a class. This is appropriate for simple services that require no
+				explicit configuration.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>class</td>
+					<td>class name</td>
+					<td>yes</td>
+					<td>The class name to instantiate. May use &instance-initializer; syntax.</td>
+				</tr>
+				<tr>
+					<td>model</td>
+					<td>
+						<code>primitive | singleton | threaded | pooled</code>
+					</td>
+					<td>no</td>
+					<td>The model used to construct and manage the service. <strong>
+						singleton</strong> is the default.</td>
+				</tr>
+			</table>
+			<p>Additional service models can be defined via the &hivemind.ServiceModels;
+				configuration point.</p>
+		</section>
+		<section>
+			<title>dependency</title>
+			<p> &_dependency; is used, within &module; to specify a dependency upon another
+				required module.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>module-id</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The id of the required module.</td>
+				</tr>
+				<tr>
+					<td>version</td>
+					<td>version number</td>
+					<td>no</td>
+					<td>The version of the required module as a dotted sequence of three numbers.
+						Example: "1.0.0".  With no version specified any version of the required
+						module is matched.</td>
+				</tr>
+			</table>
+			<p>In the future HiveMind will support other more sophisticated version matching
+			   types for dependencies.</p>
+		</section>
+		<section>
+			<title>element</title>
+			<p>The &_element; element is used to define an element in a the &schema;. &_element;
+				may also be nested within another &_element;, to indicate an element
+				that may be enclosed within another element.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>name</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The name of the element.</td>
+				</tr>
+				<tr>
+					<td>content-translator</td>
+					<td>string</td>
+					<td>no</td>
+					<td>The <link href="rules.html#Translators">translator</link> 
+						configuration that is used to convert the element's content into a
+						useable type. By default, the content is treated as a single string.</td>
+				</tr>
+				<tr>
+					<td>key-attribute</td>
+					<td>string</td>
+					<td>no</td>
+					<td>The name of this element's &_attribute; whose <em>translated</em> value will 
+					    be used as a unique key for configuration contributions corresponding to this 
+					    element.  The contributions can then be accessed in a Map using this key.  The 
+					    specified &_attribute; is implicitly marked as <em>required</em> and 
+                        <em>unique</em>.</td>
+				</tr>
+			</table>
+			<p>Contains: &attribute;, &conversion;,  &element;, &rules; </p>
+			<p>Future enhancements to the HiveMind framework will include greater
+				sophistication in defining configuration content.</p>
+		</section>
+		<section>
+			<title>implementation</title>
+			<p>The &implementation; element contributes a core implementation or
+				interceptors to a service extension point.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>service-id</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The id of the service to extend; this may be a fully qualified id,
+						or the local id of a service within the same module.</td>
+				</tr>
+       <tr>
+          <td>if</td>
+          <td>string</td>
+          <td>no</td>
+          <td>A &conditional-expression; controlling whether the contribution is used or ignored.</td>
+        </tr>        
+			</table>
+			<p>Contains: &create-instance;, &interceptor;, &invoke-factory; </p>
+		</section>
+		<section>
+			<title>interceptor</title>
+			<p>&_interceptor; contributes an interceptor factory to a service
+				extension point. An interceptor factory is a service which implements
+				the &api.ServiceInterceptorFactory; interface.</p>
+			<p>When the service is constructed, each invoked interceptor factory will
+				fabricate an interceptor class to provide additional functionality for
+				the service.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>service-id</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The id of the service that will create the interceptor for the
+						service. This may be the local id of a service defined within the
+						same module, or a fully qualified id.</td>
+				</tr>
+				<tr>
+					<td>before</td>
+					<td>string</td>
+					<td>no</td>
+					<td>A list of interceptors whose behavior should come later in
+						execution than this interceptor.</td>
+				</tr>
+				<tr>
+					<td>after</td>
+					<td>string</td>
+					<td>no</td>
+					<td>A list of interceptors whose behavior should come earlier in
+						execution than this interceptor.</td>
+				</tr>
+				<tr>
+					<td>name</td>
+					<td>string</td>
+					<td>no</td>
+					<td>The name to use for ordering this interceptor.  Defaults to the service-id.  This
+					comes in handy when using the same factory to create multiple unique interceptors which
+					should be able to be ordered with respect to one another.</td>
+				</tr>
+			</table>
+			<p>Like a service implementation factory, a service interceptor factory
+				may need parameters. As with &invoke-factory;, parameters to the
+				interceptor factory are enclosed by the &_interceptor; element. The
+				service interceptor factory will decode the parameters using the schema
+				identified by its <code>parameters-schema-id</code> attribute.</p>
+			<p>Interceptor ordering is based on dependencies; each interceptor can
+				identify, by name, other interceptors. Interceptors in
+				the <code>before</code> list are deferred until after this interceptor.
+				Likewise, this interceptor is deferred until after all interceptors in
+				the <code>after</code> list.</p>
+			<note>The <code>after</code> dependencies will look familar to anyone who
+				has used &Ant; or any version
+				of Make. <code>before</code> dependencies are simply the opposite.</note>
+			<p>The value for <code>before</code> or <code>after</code> is a list of
+				interceptor names seperated by commas. Service ids may be unqualified if they
+				are within the same module. Alternately, the fixed value <code>*</code> 
+				may be used instead of a list: this indicates that the interceptor
+				should be ordered absolutely first or absolutely last.</p>
+		</section>
+		<section>
+			<title>invoke-factory</title>
+			<p>The &_invoke-factory; element is used to provide a service
+				implementation for a service by invoking another service, a factory
+				service.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>service-id</td>
+					<td>string</td>
+					<td>no</td>
+					<td>The id of the factory service. This may be a simple id for a
+						service within the same module, or a fully qualified service id. The default, if not
+            specified, is &hivemind.BuilderFactory;.</td>
+				</tr>
+				<tr>
+					<td>model</td>
+					<td>
+						<code>primitive | singleton | threaded | pooled</code>
+					</td>
+					<td>no</td>
+					<td>The model used to construct and manage the service. <strong>
+						singleton</strong> is the default.</td>
+				</tr>
+			</table>
+			<p>A service factory defines its parameters in terms of a schema. The
+				content of the &_invoke-factory; (excluding any &assembly; elements) is 
+				converted, in accordance with the factory's schema, and provided to the factory.</p>
+			<p>The &_invoke-factory; element may additionally contain &assembly; elements to
+				initialize the service implementation created by the factory.</p>
+			<note>
+        Additional service models can be defined via the &hivemind.ServiceModels;
+				configuration point.</note>
+		</section>
+		<section>
+			<title>map</title>
+			<p>The &_map; element appears within &conversion; to override the default
+				mapping from an attribute to a property. By default, the property name
+				is expected to match the attribute name (with the name mangling
+				described in the description of &conversion;); the &_map; element is
+				used to handle exceptions to the rule.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>attribute</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The name of the attribute, which should match a name defined by an&attribute;
+						(of the enclosing &element;).</td>
+				</tr>
+				<tr>
+					<td>property</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The corresponding property (of the Java object specified by the
+						enclosing &conversion;)</td>
+				</tr>
+			</table>
+		</section>
+		<section>
+			<title>module</title>
+			<p>The &_module; element is the root element.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>id</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The id should be a dotted sequence, like a package name. In
+						general, the module id should <em>be</em> the package name.</td>
+				</tr>
+				<tr>
+					<td>version</td>
+					<td>version number</td>
+					<td>yes</td>
+					<td>The version of the module as a dotted sequence of three numbers.
+						Example: "1.0.0"</td>
+				</tr>
+        <tr>
+          <td>package</td>
+          <td>string</td>
+          <td>no</td>
+          <td>
+           The package which contains Java types within the module.  Defaults to the
+           module's id if not specified.
+          </td>
+        </tr>
+			</table>
+			<p>Contains: &contribution;, &configuration-point;, &dependency;, &implementation;
+				, &service-point;, &schema;, &sub-module; </p>
+        
+<p>
+Every module is mapped to a <em>Java package</em>, using the package attribute (or the module's id if not specified).  When a class name
+is referenced within a module, the name will be searched for within the package if not found normally.  This applies to all contributions, etc.,
+within the module ... virtually anywhere a Java class name can be used.  Literally, if the class can't be found by the provided type, the
+module's package name is prefixed and a second search is attempted.  The interface attribute of the &service-point; element
+is slightly different.
+</p>        
+		</section>
+    <section>
+      <title>parameters-schema</title>
+      
+      <p>The &_parameters-schema; element is identical to the &schema; element, but only appears
+        inside &service-point;, to define the schema for the parameters for a service implementation factory or service interceptor factory.
+        </p>
+      <note>This element and the owning &service-point; element's <code>parameters-schema-id</code> 
+        attribute are mutually exclusive.</note>
+    </section>
+    
+		<section>
+			<title>rules</title>
+			<p> &_rules; is a container for element and attribute parsing rules within
+				an &element;. These rules are responsible for converting the contributed
+				element and its attributes into objects and object properties. The
+				available rules are <link href="site:rules">documented separately</link>
+				.</p>
+		</section>
+		<section>
+			<title>schema</title>
+			<p>The &_schema; element is used to describe the format of element
+				contributions to an &configuration-point;, or parameters provided to a
+				service or interceptor factory.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>id</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>Assigns a local id to the schema that may be referenced elsewhere.</td>
+				</tr>
+        <tr>
+          <td>visibility</td>
+          <td><code>public | private</code></td>
+          <td>no</td>
+          <td>
+            If <code>private</code> is specified, then the schema may only be referenced
+            from within the same module. The default is <code>public</code>.
+          </td>
+        </tr>        
+			</table>
+			<p>Contains: &element; </p>
+			<p>At a future time, the &_schema; element will be extended to provide
+				more options, to provide more precise control over the elements that may
+				be provided in an &_contribution;. At this time, a &_schema; is simply a
+				list of &_element; elements.</p>
+			<warning>When &_schema; appears directly within &configuration-point;, or &_parameters-schema;
+				appears directly within &service-point;, then the <code>id</code> and <code>visibility</code>
+				attributes are not allowed.</warning>
+		</section>
+		<section>
+			<title>service-point</title>
+			<p>The &_service-point; element defines a service extension point.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>id</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>The simple id of the service extension point. The fully qualified
+						id for the extension point is created by prefixing with the module's
+						id (and a dot).</td>
+				</tr>
+				<tr>
+					<td>interface</td>
+					<td>class name</td>
+					<td>no</td>
+					<td>The name of the Java interface 
+            (<link href="services.html#Bean+Services">or class</link>) supplied by this
+						service extension point.  If no value is provided, the interface defaults to the
+            service id (and will then be qualified by the module's package).</td>
+				</tr>
+        <tr>
+          <td>visibility</td>
+          <td><code>public | private</code></td>
+          <td>no</td>
+          <td>
+            If <code>private</code> is specified, then the service may only be referenced
+            (or contributed to) from within the same module. It will not be visible to the application
+            (via the &api.Registry;) if private.  The default is <code>public</code>.  It is common
+            for a module to have several public services acting as a facade over many more private services.
+          </td>
+        </tr>        
+				<tr>
+					<td>parameters-schema-id</td>
+					<td>string</td>
+					<td>no</td>
+					<td>Used to reference a &schema; (in the same module, or a different
+						one) that defines parameters used by the service. This is used when
+						the service being defined is a &api.ServiceImplementationFactory; or
+						a &api.ServiceInterceptorFactory;.</td>
+				</tr>
+				<tr>
+					<td>parameters-occurs</td>
+					<td>
+						<code>unbounded | 0..1 | 1 | 1..n | none</code>
+					</td>
+					<td>no</td>
+					<td>The number of parameter element contributions allowed: <ul> <li><strong>unbounded</strong>: any number</li> 
+            <li><strong>0..1</strong>: optional</li> 
+						<li><strong>1</strong> (default) : required</li> <li><strong>1..n</strong>: at
+						least one</li> 
+            <li><strong>none</strong>: none allowed</li>
+            </ul>
+            
+
+            </td>
+            </tr>
+			</table>
+			<p>Contains: &create-instance;, &interceptor;, &invoke-factory;
+				, &parameters-schema; </p>
+        
+<p>
+  If the specified interface name is unqualified (does not contain a period), then it is prefixed with the module's package  name.
+  Note that this is slightly different than how partial class names are resolved elsewhere in
+  a module descriptor.
+</p>        
+
+        
+		</section>
+		<section>
+			<title>sub-module</title>
+			<p>The &_sub-module; element is used to identify an additional HiveMind
+				module deployment descriptor. This is used when a single JAR file
+				contains logically distinct packages, each of which should be treated as
+				an individual HiveMind module. This can also be useful as a way to
+				reduce developer conflict against a single, large, central module
+				descriptor by effectively breaking it into smaller pieces. Sub-modules
+				identified in this way must still have their own unique module id.</p>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Type</th>
+					<th>Required ?</th>
+					<th>Description</th>
+				</tr>
+				<tr>
+					<td>descriptor</td>
+					<td>string</td>
+					<td>yes</td>
+					<td>Location of the module descriptor.</td>
+				</tr>
+                <tr>
+                    <td>if</td>
+                    <td>string</td>
+                    <td>no</td>
+                    <td>A &conditional-expression; controlling whether the sub-module is included or ignored.</td>
+                </tr>
+			</table>
+			<p>The descriptor should be specified as a relative path, either the name
+				of another module descriptor within the same folder, or within a child
+				folder.</p>
+		</section>
+	</body>
+</document>
