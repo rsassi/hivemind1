@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<module id="hivemind.test.services" version="1.0.0">
+
+  <service-point id="DefaultConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<set property="expectedConstructorMessage" value="()"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="LongConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<long>42</long>
+  			<set property="expectedConstructorMessage" value="(long)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="ServiceConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<service>DefaultConstructor</service>
+  			<set property="expectedConstructorMessage" value="(ConstructorAccess)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="MultiConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<service>DefaultConstructor</service>
+  			<service-id/>
+  			<set property="expectedConstructorMessage" value="(ConstructorAccess, String)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="ConfigurationConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<configuration>DummyConfiguration</configuration>
+  			<set property="expectedConstructorMessage" value="(List)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="ConfigurationConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<configuration>DummyConfiguration</configuration>
+  			<set property="expectedConstructorMessage" value="(List)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <service-point id="LogAndMessagesConstructor" interface="hivemind.test.services.ConstructorAccess">
+  	<invoke-factory>
+  		<construct class="hivemind.test.services.impl.ConstructorAccessImpl">
+  			<log/>
+  			<messages/>
+  			<set property="expectedConstructorMessage" value="(Log, Messages)"/>
+  		</construct>
+  	</invoke-factory>	
+  </service-point>
+
+  <configuration-point id="DummyConfiguration"/>
+
+</module>

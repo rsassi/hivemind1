@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN"
+	"./dtd/document-v12.dtd" [
+	<!ENTITY projectroot '../../'>
+	<!ENTITY % common-links SYSTEM "../../links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>ConstructRegistry Ant Task</title>
+	</header>
+	<body>
+		<p>Reads some number of HiveMind module descriptors and assembles a single
+			registry file from them. The output registry consists of a &lt;registry&gt;
+			element which contains one &lt;module&gt; element for each module
+			descriptor read. This registry is useful for generating documentation.</p>
+		<p>The registry XML is only updated if it does not exist, or if any of the
+			module deployment descriptor is newer.</p>
+		<p>This task is implemented as <link
+			href="&apiroot;/ant/ConstructRegistry.html">
+			org.apache.hivemind.ant.ConstructRegistry</link>.</p>
+		<section>
+			<title>Parameters</title>
+			<table>
+				<tr>
+					<th>Attribute</th>
+					<th>Description</th>
+					<th>Required</th>
+				</tr>
+				<tr>
+					<td>output</td>
+					<td>The file to write the registry to.</td>
+					<td>Yes</td>
+				</tr>
+			</table>
+		</section>
+		<section>
+			<title>Parameters specified as nested elements</title>
+			<section>
+				<title>descriptors</title>
+				<p>A path-like structure, used to identify which HiveMind module
+					descriptors (<code>hivemodule.xml</code>) should be included.</p>
+				<p>Each path element should either be a module deployment descriptor, or
+					be a JAR containing a deployment descriptor (in the <code>META-INF</code>
+					folder).</p>
+			</section>
+		</section>
+		<section>
+			<title>Examples</title>
+			<p>Create <code>target/registry.xml</code> from all <code>hivemodule.xml</code>
+				descriptors found inside the <code>src</code> directory.</p>
+			<source><![CDATA[
+<constructregistry output="target/registry.xml">
+  <descriptors>
+    <fileset dir="src">
+      <include name="**/hivemodule.xml"/>
+    </fileset>
+  </descriptors>
+</constructregistry>]]> </source>
+		</section>
+	</body>
+</document>

@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project name="dist">
+	
+	<property file="${basedir}/project.properties"/>
+	<property file="${hivebuild.dir}/dist.properties"/>
+	
+	<!-- This will be here until we add some new taskdefs and typedefs to simplify this. -->
+	
+	<target name="dist" description="Build a distribution." depends="clean,install,site,dist-build"/>
+	
+	<target name="dist-build" description="Constructs final distribution files.">
+		<mkdir dir="${dist.dir}"/>
+		
+		<fail unless="dist.name"
+				message="You must provide a value for property property dist.name."/>
+				
+		<announce message="Assembling binary/src distribution (.tar.gz format) ..."/>
+		
+		<tar destfile="${dist.basefile}.tar.gz"
+			compression="gzip">
+						
+			<tarfileset id="dist.src.set" dir="." prefix="${dist.base.name}">
+				<exclude name="**/target/**"/>
+				<exclude name="target/**"/>
+				<exclude name="ext-package/**"/>
+				
+				<!-- These are all related to Eclipse. -->
+				<exclude name="bin/**"/>
+				<exclude name=".*"/>
+				
+				<!-- These are left around by PaintShopPro and Windows Explorer -->
+				
+				<exclude name="**/Thumbs.db"/>
+				<exclude name="**/pspbrwse.jbf"/>
+			</tarfileset>
+			
+			<!-- Pick up the packaged libraries. -->
+			
+			<tarfileset id="dist.bin.set" dir="${target.dir}" prefix="${dist.base.name}">
+				<include name="*.jar"/>
+			</tarfileset>		
+		</tar>
+		
+		<announce message="Assembling binary/src distribution (.zip format) ..."/>
+		
+		<zip destfile="${dist.basefile}.zip">						
+			<zipfileset refid="dist.src.set"/>
+			<zipfileset refid="dist.bin.set"/>	
+		</zip>		
+		
+		<announce message="Assembling documentation distribution ..."/>
+    
+		<tar destfile="${dist.dir}/${dist.docs.file}" compression="gzip">
+			<tarfileset dir="${project.docs.target.dir}"/>
+		</tar>
+		
+		<checksum fileext=".md5">
+		  <fileset dir="${dist.dir}">
+		  	<include name="*.zip"/>
+		  	<include name="*.gz"/>
+		  </fileset>
+		</checksum>
+    
+    <announce message="You should sign the release files (in target/dist) using GPG before invoking the install-dist target."/>
+	</target>
+
+	
+	<target name="-check-password" unless="password">
+	
+		<input message="Please provide password for installation:" addproperty="password"/>
+
+	</target>
+  
+	<target name="install-docs" depends="-check-password"
+			description="Copies the documentation to a directory and unpacks it remotely.">
+
+		<!-- TODO: Check for missing properties. -->
+		
+		<announce message="Installing documentation distribution to ${dist.install.docs.dir} ..."/>
+    
+		<scp
+				file="${dist.dir}/${dist.docs.file}" 
+				todir="${dist.install.docs.dir}"
+				password="${password}"
+				trust="yes"/>
+		
+		<sshexec 
+			username="${dist.install.docs.user}"
+			host="${dist.install.docs.host}"
+			command="cd ${dist.install.docs.path} ; tar xzvf ${dist.docs.file} ; rm ${dist.docs.file}"
+			password="${password}"
+			trust="yes"/>
+
+	</target>
+	
+	<target name="install-dist" depends="-check-password"
+		description="Install current distributions.">
+		
+		<announce message="Installing distributions to ${dist.install.dir} ..."/> 
+    
+		<scp todir="${dist.install.dir}"
+				password="${password}"
+				trust="yes">
+			<fileset dir="${dist.dir}"/>
+      <fileset dir="." includes="KEYS"/>
+		</scp>
+    
+    <announce message="Fixing distribution file permissions ..."/>
+    
+		<sshexec 
+			username="${dist.install.user}"
+			host="${dist.install.host}"
+			command="cd ${dist.install.path} ; chgrp * ${dist.install.group}; chmod ${dist.install.mode} *"
+			password="${password}"
+			trust="yes"/>  
+    
+	</target>
+  
+  <target name="install-maven" depends="-check-password"
+    description="Install JARs into Maven distribution library.">
+    <announce message="Building MD5 Checksums ..."/>
+    
+    <checksum fileext=".md5">
+      <fileset dir="${target.dir}" includes="*.jar"/>
+    </checksum>
+    
+    <announce message="Copying JARs and MD5 Checksums to ${dist.install.maven.dir} ..."/>
+    
+    <scp todir="${dist.install.maven.dir}"
+      password="${password}"
+      trust="yes">
+      <fileset dir="${target.dir}">
+        <include name="*.jar"/>
+        <include name="*.md5"/>
+      </fileset>
+    </scp>
+    
+    <announce message="Fixing distribution file permissions ..."/>
+    
+		<sshexec 
+			username="${dist.install.maven.user}"
+			host="${dist.install.maven.host}"
+			command="cd ${dist.install.maven.path} ; chmod ${dist.install.maven.mode} *"
+			password="${password}"
+			trust="yes"/>      
+  </target>
+	
+</project>

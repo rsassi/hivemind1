@@ -1,0 +1,273 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN"
+	"./dtd/document-v12.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>Configuration Points</title>
+	</header>
+	<body>
+		<p>A central concept in HiveMind is <em>configuration extension points</em>.
+			Once you have a set of services, its natural to want to configure those
+			services. In HiveMind, a configuration point contains an unordered list of
+			<em>elements</em>. Each element is contributed by a module ... any module
+			may make contributions to any configuration point.</p>
+		<p>There is no explicit connection between a service and a configuration
+			point, though it is often the case that a service and a configuration
+			point will be similarily named (or even identically named; services and
+			configuration points are in seperate namespaces). Any relationship between
+			a service and an configuration point is explicit only in code ... the
+			service may be configured with the elements of a configuration point and
+			operate on those elements in some way.</p>
+		<section>
+			<title>Defining a Configuration Point</title>
+			<p>A module may include &configuration-point; elements to define new
+				configuration points. A configuration point may specify the expected, or
+				allowed, number of contributions:</p>
+			<ul>
+				<li>Zero or one</li>
+				<li>Zero or more (the default)</li>
+				<li>At least one</li>
+				<li>Exactly one</li>
+			</ul>
+			<p>At runtime, the number of actual contributions is checked against the
+				constraint and an error is reported if the number doesn't match.</p>
+			<section>
+				<title>Defining the Contribution Format</title>
+				<p>A significant portion of an configuration point is the &schema; 
+					element ... this is used to define the format of contributions that
+					may be made inside &contribution; elements. Contributions take the
+					form of XML elements and attributes, the &_schema; element identifies
+					which elements and which attributes and provides rules that transform
+					the contributions into Java objects.</p>
+				<p>This is very important: what gets fed into an configuration point (in
+					the form of contributed &_contribution;s) is XML. What comes out on
+					the other side is a list of configured Java objects. Without these XML
+					transformation rules, it would be necessary to write Java code to walk
+					the tree of XML elements and attributes to create the Java objects;
+					instead this is done inside the module deployment descriptor, by
+					specifying a &_schema; for the configuration point, and providing
+					rules for processing each contributed element.</p>
+				<p>If a contribution from an &_contribution; is invalid, then a runtime
+					error is logged and the contribution is ignored. The runtime error
+					will identify the exact location (the file, line number and column
+					number) of the contribution so you can go fix it.</p>
+				<p>The &schema; element contains &element; elements to describe the XML
+					elements that may be contributed. &_element;s contain &attribute;s to
+					define the attributes allowed for those elements. &_element;s also
+					contain &rules; used to convert the contributed XML into Java objects.</p>
+				<p>Here's an example from the HiveMind test suite. The <code>Datum</code>
+					object has two properties: key and value.</p>
+				<source><![CDATA[
+<configuration-point id="Simple">
+  <schema>
+    <element name="datum">
+      <attribute name="key" required="true"/>
+      <attriute name="value" required="true"/>
+      
+      <conversion class="hivemind.test.config.impl.Datum"/>
+    </element>
+  </schema>
+</configuration-point>
+
+<contribution configuration-id="Simple">
+  <datum key="key1" value="value1"/>
+  <datum key="key2" value="value2"/>
+</contribution>]]></source>
+				<p>The &conversion; element creates an instance of the class, and
+					initializes its properties from the attributes of the contributed
+					element (the <code>datum</code> and its <code>key</code> and <code>
+					value</code> attributes). For more complex data, the &map; and &rules;
+					elements add power (and complexity).</p>
+				<p>This extra work in the module descriptor eliminates a large amount of
+					custom Java code that would otherwise be necessary to walk the XML
+					contributions tree and convert elements and attributes into objects
+					and properties. Yes, you could do this in your own code ... but would
+					you really include all the error checking that HiveMind does? Or the
+					line-precise error reporting? Would you bother to create unit tests
+					for all the failure conditions?</p>
+				<p>Using HiveMind allows you to write the schema and rules and know that
+					the conversion from XML to Java objects is done uniformly, efficiently
+					and robustly.</p>
+				<p>The end result of this mechanism is very concise, readable
+					contributions (as shown in the &_contribution; in the example).</p>
+				<p>In addition, it is common for multiple configuration points to share
+					the exact same schema. By assigning an id attribute to a &_schema; 
+					element, you may reference the same schema for multiple configuration
+					points. For example, the &hivemind.FactoryDefaults; and &hivemind.ApplicationDefaults;
+					configuration points use the same schema. The hivemind module
+					deployment descriptor accomplishes this by defining a schema for one
+					configuration point, then referencing it from another:</p>
+				<source><![CDATA[
+<schema id="Defaults">
+  <element name="default">
+  
+  . . .
+  
+  </element>
+</schema>
+
+<configuration-point id="FactoryDefaults" schema-id="Defaults"/>]]></source>
+				<p>Like service points and configuration points, schemas may be
+					referenced within a single module using an unqualified id, or
+					referenced between modules using a fully qualified id (that is,
+					prefixed with the module's id).</p>
+			</section>
+		</section>
+		<section>
+			<title>Accessing Configuration Points</title>
+			<p>Like services, configuration points are meant to be easy to access (the
+				only trick is getting a reference to the registry to start from).</p>
+			<source><![CDATA[
+Registry registry = . . .;
+List elements = registry.getConfiguration("com.myco.MyConfig");	
+
+int count = elements.size();
+for (int i = 0; i < count; i++)
+{
+  MyElement element = (MyElement) elements.get(i);
+  
+  . . .
+}
+
+]]></source>
+			<note>Although it is possible to access configurations via the Registry,
+				it is often not a good idea. It is unlikely that you want the
+				information contained in a configuration as an unordered list. A best
+				practice is to always access the configuration through a service, which
+				can organize and validate the data in the configuration.</note>
+			<p>The list of elements is always returned as an unmodifiable list. An
+				empty list may be returned.</p>
+			<p>The order of the elements in the list is not defined. If order is
+				important, you should create a new (modifiable) list from the returned
+				list and sort it.</p>
+			<p>Note that the elements in the list are no longer the XML elements and
+				attributes that were contributed, the rules provided in the
+				configuration point's &schema; are used to convert the contributed XML
+				into Java objects.</p>
+		</section>
+		<section>
+			<title>Lazy Loading</title>
+			<p>At application startup, all the module deployment descriptors are
+				located and parsed and in-memory objects created. Validations (such as
+				having the correct number of contributions) occur at this stage.</p>
+			<p>The list of elements for an configuration point is not created until
+				the first call to <code>Registry.getConfiguration()</code> for that
+				configuration point.</p>
+			<p>In fact, it is not created even then. When the element list for an
+				configuration point is first accessed, what's returned is not <em>really</em>
+				the list of elements; it's a proxy, a stand-in for the real data. The
+				actual elements are not converted until they are actually needed, in
+				much the same way that the creation of services is deferred.</p>
+			<p>In general, you will never know (or need to know) this; when you access
+				the <code>size()</code> of the list or <code>get()</code> any of its
+				elements, the conversion of contributions into Java objects will be
+				triggered, and those Java objects will be returned in the list.</p>
+			<p>If there are minor errors in the contribution, then you may see errors
+				logged; if the &_contribution; contributions are singificantly
+				malformed, HiveMind may be unable to recover and will throw a runtime
+				exception.</p>
+		</section>
+		<section>
+			<title>Substitution Symbols</title>
+			<p>The information provided by HiveMind module descriptors is entirely
+				static, but in some cases, some aspects of the configuration should be
+				dynamic. For example, a database URL or an e-mail address may not be
+				known until runtime (a sophisticated application may have an installer
+				which collects this information).</p>
+			<p>HiveMind supports this notion through <em>substitution symbols</em>.
+				These are references to values that are supplied at runtime.
+				Substitution symbols can appear inside literal values ... both as XML
+				attributes, and as character data inside XML elements.</p>
+			<p>Example:</p>
+			<source><![CDATA[
+<contribution configuration-id="com.myco.MyConfig">
+  <value> dir/foo.txt </value>
+  <value> ${config.dir}/${config.file} </value>
+</contribution>]]></source>
+			<p>This example contributes two elements to the <code>com.myco.MyConfig</code>
+				configuration point. The first contribution is simply the text <code>
+				dir/foo.txt</code>. In the second contribution, the content contains
+				substitution symbols (which use a syntax derived from the &Ant; build tool). Symbol
+				substitution occurs <em>before</em> &schema; rules are executed, so the 
+				<code>config.dir</code> and <code>config.file</code> symbols will be
+				converted to strings first, then whatever rules are in place to convert
+				the <code>value</code> element into a Java object will be executed.</p>
+        <note>
+          If you contribute text that includes symbols that you do <strong>not</strong> want to be expanded
+          then you must add an extra dollar sign to the false symbol.  This is to support legacy data that was
+          already using the HiveMind symbol notation for its own, internal purposes.  For example, <code>foo $${bar} baz</code> will be
+          expanded into the text <code>foo ${bar} baz</code>.
+        </note>
+			<section>
+				<title>Symbol Sources</title>
+				<p>This begs the question: where do symbol values come from? The answser
+					is application dependent. HiveMind itself defines a configuration
+					configuration point for this purpose: &hivemind.SymbolSources;. 
+					Contributions to this configuration
+					point define new objects that can provide values for symbols, and
+					identify the order in which these objects should be consulted.</p>
+				<p>If at runtime none of the configured SymbolSources provides a value
+					for a given symbol then HiveMind will leave the reference to that
+					symbol <em>as is</em>, including the surrounding <code>${</code> and 
+					<code>}</code>. Additionally an error will be logged.</p>
+			</section>
+		</section>
+		<section>
+			<title>Frequently Asked Questions</title>
+			<ul>
+				<li>
+					<strong>Are the any default implementations of SymbolSource?</strong>
+					<p>There is now an configuration point for setting factory defaults: 
+						&hivemind.FactoryDefaults;
+						. A second configuration point, for application defaults, overrides
+						the factory defaults: &hivemind.ApplicationDefaults;.</p>
+					<p> <link href="&apiroot;/impl/SystemPropertiesSymbolSource.html">
+						SystemPropertiesSymbolSource</link> is a one-line implementation
+						that allows access to system properties as substitution symbols.
+						Note that this configuration is <em>not</em> loaded by default.</p>
+					<p>Additional implementations may follow in the future.</p>
+				</li>
+				<li>
+					<strong>What's all this about schemas and rules?</strong>
+					<p>A central goal of HiveMind is to reduce code clutter. If
+						configuration point contributions are just strings (in a .properties
+						file) or just XML, that puts a lot of burden on the developer whose
+						code <em>reads</em> the configuration to then massage it into useful
+						objects. That kind of ad-hoc code is notoriously buggy; in HiveMind
+						it is almost entirely absent. Instead, all the XML parsing occurs
+						inside HiveMind, which uses the schema and rules to validate and
+						convert the XML contributions into Java objects.</p>
+					<p>You can omit the schema, in which case the elements are left as XML
+						(instances of &api.Element;) and your code is responsible for walking
+						the elements and attributes ... but why bother? Far easier to let
+						HiveMind do the conversions and validations.</p>
+				</li>
+				<li>
+					<strong>How do I know if the element list is a proxy or not?</strong>
+					<p>Basically, you can't, short of performing an <code>instanceof</code>
+						check. There isn't any need to tell the difference between the
+						deferred proxy to the element list and the actual element list; they
+						are both immutable and both behave identically.</p>
+				</li>
+			</ul>
+		</section>
+	</body>
+</document>

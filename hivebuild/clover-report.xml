@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<project name="clover-report">
+	<fail unless="ant.file.hivebuild" message="Must import hivebuild.xml first."/>
+	<fail unless="ant.file.dependency" message="Must import dependency.xml first."
+		/>
+	<property file="${hivebuild.dir}/clover.properties"/>
+	<path id="default.clover.classpath">
+		<pathelement location="${clover.classes.dir}"/>
+		<pathelement location="${ant.home}/lib/${clover.jar}"/>
+		<path refid="default.test.classpath"/>
+	</path>
+	<available property="clover.available"
+		classname="org.apache.tools.ant.taskdefs.CloverCompilerAdapter"/>
+	<target name="-check-for-clover" unless="clover.available">
+		<antcall target="-display-download-warning"/>
+		<grab-file dest="${ant.home}/lib/${clover.jar}"
+			src="${maven.ibiblio.url}/clover/jars/${clover.jar}"
+			md5="${maven.ibiblio.url}/clover/jars/${clover.jar}.md5" />
+		<echo><![CDATA[
+		
+*** Clover has been installed into ${ant.home}/lib. 
+*** 
+*** You must restart the build.
+	
+]]></echo>
+		<fail message="Clover has been installed. Restart the build."/>
+	</target>
+	<macrodef name="default-clover">
+		<attribute name="sourcepath-id" default="default.source.path"
+			description="Path reference to source files to compile."/>
+		<attribute name="compile-classpath-id" default="default.compile.classpath"
+			description="Compile-time classpath."/>
+		<attribute name="test-classpath-id" default="default.clover.classpath"
+			description="Runtime classpath for unit tests running under clover."/>
+		<element name="clover-junit-elements" optional="true"
+			description="Additional elements passed to the JUnit task."/>
+		<sequential>
+			<antcall target="-check-for-clover"/>
+			<antcall target="-compile-init"/>
+			<antcall target="compile-dependencies"/>
+			<mkdir dir="${clover.classes.dir}"/>
+			<taskdef resource="clovertasks"/>
+			<typedef resource="clovertypes"/>
+			<announce message="Recompiling Java sources for Clover ..."/>
+			<clover-setup initString="${clover.db.dir}" preserve="true"
+				tmpdir="${target.dir}"/>
+			<default-compile classes-dir="${clover.classes.dir}"/>
+			<default-run-tests fork="on" classpath-id="default.clover.classpath">
+				<junit-elements>
+					<clover-junit-elements/>
+				</junit-elements>
+			</default-run-tests>
+		</sequential>
+	</macrodef>
+	<macrodef name="generate-clover-html">
+		<sequential>
+			<announce message="Generating HTML code coverage report ..."/>
+			<clover-report>
+				<current
+					title="Code Coverage for ${module.name} release ${project.version}"
+					outfile="${module.docs.target.dir}/clover">
+					<format type="html">
+					</format>
+				</current>
+			</clover-report>
+			<add-report-to-menu element="clover-${module.name}"
+				label="Clover Code Coverage" file="clover/index.html"/>
+		</sequential>
+	</macrodef>
+	<macrodef name="clover-report">
+		<sequential>
+			<default-clover/>
+			<generate-clover-html/>
+		</sequential>
+	</macrodef>
+</project>

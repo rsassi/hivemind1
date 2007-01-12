@@ -1,0 +1,13 @@
+/*.log
+/bin
+examples/target
+/ext-package
+framework/*.log
+framework/bin
+framework/target
+hivebuild/target
+library/*.log
+library/bin
+library/target
+/target
+/velocity.log*

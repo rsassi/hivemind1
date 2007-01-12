@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project name="forrest">
+	
+		<fail unless="ant.file.hivebuild" message="Must import hivebuild.xml first."/>
+		<fail unless="ant.file.dependency" message="Must import dependency.xml first."/>
+
+		<property name="forrest-package-dir" value="${external.package.dir}/apache-forrest-0.5.1-bin"/>
+
+		<target name="run-forrest" description="Runs Forrest to generate final site documentation.">
+			<announce message="Invoking Forrest ..."/>
+				
+			<ant antfile="${forrest-package-dir}/forrest.antproxy.xml" target="site">
+				<property name="project.home" location="${basedir}"/>
+				<property name="forrest.home" location="${forrest-package-dir}"/>
+			</ant>			
+		</target>
+		
+		<macrodef name="add-report-to-menu">
+			<attribute name="element" default="report" description="Element name to use inside site.xml, useful when creating a link to the report."/>
+			<attribute name="label" description="The label to use in the menus."/>
+			<attribute name="file" description="The relative path to the report file (relative to the documentation root)."/>
+			
+			<sequential>
+				<echo file="${forrest.report-menu.file}" append="true">
+<![CDATA[ <@{element} label="@{label}" href="@{file}"/> ]]>	
+				</echo>	
+			</sequential>	
+		</macrodef>
+		
+		<target name="-initialize-report-menu-file">
+		
+			<mkdir dir="${project.forrest.xdocs.dir}"/>
+			
+			<echo message="" file="${forrest.report-menu.file}"/>
+			
+		</target>  
+        
+		<target name="marshall-documentation"
+			depends="-initialize-report-menu-file"
+			description="Copy static content into the forrest composite, and generate dynamic reports.">
+	
+			<antcall target="copy-documentation-to-composite"/>
+			<antcall target="run-reports"/>
+			
+		</target>
+			
+		<target name="run-reports" description="Overridden in project or module to run dynamic reports."/>
+		
+		<available file="${forrest.documentation.dir}" type="dir" property="exists-forrest-documentation-dir"/>
+		
+		<target name="copy-documentation-to-composite" if="exists-forrest-documentation-dir">
+			<copy todir="${project.forrest.composite.dir}" includeEmptyDirs="no">
+				<fileset dir="${forrest.documentation.dir}"/>	
+			</copy>
+		</target>
+		
+</project>

@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN"
+	"./dtd/document-v12.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>Overriding a Service</title>
+	</header>
+	<body>
+		<p>It is not uncommon to want to override an existing service and replace it
+			with a new implementation. This goes beyond simply intercepting the
+			service ... the goal is to replace the original implementation with a new
+			implementation. This occurs frequently in <link href="site:tapestry">
+			Tapestry</link> where frequently an existing service is replaced with a
+			new implementation that handles application-specific cases (and delegates
+			most cases to the default implementation).</p>
+		<note>Plans are afoot to refactor <link href="site:tapestry">Tapestry</link>
+			3.1 to make considerable use of HiveMind. Many of the ideas represented in
+			HiveMind germinated in earlier Tapestry releases.</note>
+		<p>HiveMind doesn't have an explicit mechanism for accomplishing this ...
+			that's because its reasonable to replace and wrap existing services just
+			with the mechanisms already available.</p>
+		<section>
+			<title>Step One: A non-overridable service</title>
+			<p>To describe this technique, we'll start with a ordinary, every day
+				service. In fact, for discussion purposes, there will be two services:
+				Consumer and Provider. Ultimately, we'll show how to override Provider.
+				Also for discussion purposes, we'll do all of this in a single module,
+				though (of course) you can as easily split it up across many modules.</p>
+			<p>To begin, we'll define the two services, and set Provider as a property
+				of Consumer:</p>
+			<source><![CDATA[
+<module id="ex.override" version="1.0.0">
+  <service-point id="Provider" interface="ex.override.Provider">
+    <create-instance class="ex.override.impl.ProviderImpl"/>
+  </service-point>
+  
+  <service-point id="Consumer" interface="ex.override.Consumer">
+    <invoke-factory>
+      <construct class="ex.override.impl.Consumer">
+        <set-service property="provider" service-id="Provider"/>
+    </invoke-factory>
+  </service-point>
+</module>]]> </source>
+		</section>
+		<section>
+			<title>Step Two: Add some indirection</title>
+			<p>In this step, we still have just the two services ... Consumer and
+				Provider, but they are linked together less explicitly, by using
+				substitution symbols.</p>
+			<source><![CDATA[
+<module id="ex.override" version="1.0.0">
+  <service-point id="Provider" interface="ex.override.Provider">
+    <create-instance class="ex.override.impl.ProviderImpl"/>
+  </service-point>
+  
+  <contribution configuration-id="hivemind.FactoryDefaults">
+    <default symbol="ex.override.Provider" value="ex.override.Provider"/>
+  </contribution>
+  
+  <service-point id="Consumer" interface="ex.override.Consumer">
+    <invoke-factory>
+      <construct class="ex.override.impl.Consumer">
+        <set-service property="provider" service-id="${ex.override.Provider}"/>
+    </invoke-factory>
+  </service-point>
+</module>      ]]> </source>
+			<p>The indirection is in the form of the symbol <code>ex.override.Provider</code>,
+				which evaluates to the service id <code>ex.override.Provider</code> and the
+				end result is the same as step one. We needed to use a fully qualified
+				service id because, ultimately, we don't know in which modules the
+				symbol will be referenced.</p>
+		</section>
+		<section>
+			<title>Step Three: Override!</title>
+			<p>The final step is to define a second service and slip it into place.
+				For kicks, the OverrideProvider service will get a reference to the
+				original Provider service.</p>
+			<source><![CDATA[
+<module id="ex.override" version="1.0.0">
+  <service-point id="Provider" interface="ex.override.Provider">
+    <create-instance class="ex.override.impl.ProviderImpl"/>
+  </service-point>
+  
+  <contribution configuration-id="hivemind.FactoryDefaults">
+    <default symbol="ex.override.Provider" value="ex.override.Provider"/>
+  </contribution>
+  
+  <service-point id="OverrideProvider" interface="ex.override.Provider">
+    <invoke-factory>
+      <construct class="ex.override.impl.OverrideProviderImpl">
+        <set-service property="defaultProvider" service-id="Provider"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
+  
+  <!-- ApplicationDefaults overrides FactoryDefaults -->
+  
+  <contribution id="hivemind.ApplicationDefaults">
+    <default symbol="ex.override.Provider" value="ex.override.OverrideProvider"/>
+  </contribution>
+  
+  <!-- Consumer unchanged from step 2 -->
+  
+  <service-point id="Consumer" interface="ex.override.Consumer">
+    <invoke-factory>
+      <construct class="ex.override.impl.Consumer">
+        <set-service property="provider" service-id="${ex.override.Provider}"/>
+    </invoke-factory>
+  </service-point>
+</module> ]]> </source>
+			<p>The new service, OverrideProvider, gets a reference to the original
+				service using its real id. It can't use the symbol that the Consumer
+				service uses, because that would end up pointing it at itself. Again, in
+				this example it's all happening in a single module, but it could
+				absolutely be split up, with OverrideProvider and the configuration to &hivemind.ApplicationDefaults;
+				in an entirely different module.</p>
+			<p> &hivemind.ApplicationDefaults; overrides &hivemind.FactoryDefaults;.
+				This means that the Consumer will be connected to <code>
+				ex.override.OverrideProvider</code>.</p>
+			<p>Note that the &_service-point; for the Consumer doesn't change between
+				steps two and three.</p>
+		</section>
+		<section>
+			<title>Limitations</title>
+			<p>The main limitation to this approach is that you can only do it once
+				for a service; there's no way to add an EvenMoreOverridenProvider
+				service that wraps around OverrideProvider (that wraps around Provider).
+				Making multiple contributions to the &hivemind.ApplicationDefaults; 
+				configuration point with the name symbol name will result in a runtime
+				error ... and unpredictable results.</p>
+			<p>This could be addressed by adding another source to the &hivemind.SymbolSources;
+				configuration.</p>
+			<p>To be honest, if this kind of indirection becomes extremely frequent,
+				then HiveMind should change to accomidate the pattern, perhaps adding an
+				<code>&lt;override&gt;</code> element, similar to a &_interceptor; 
+				element.</p>
+		</section>
+	</body>
+</document>

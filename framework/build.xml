@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project name="HiveMind Framework" default="jar" basedir=".">
+	<property name="module.name" value="hivemind"/>
+	<property name="javadoc.package" value="org.apache.hivemind.*"/>
+  
+  <property name="module.junit.use" value="compile"/>
+  
+	<property name="root.dir" value=".."/>
+	<import file="${root.dir}/hivebuild/jar-module.xml"/>
+	<import file="${hivebuild.dir}/javadoc-report.xml"/>
+	<import file="${hivebuild.dir}/clover-report.xml"/>
+  
+	<target name="compile">
+		<ibiblio-dependency artifact="commons-logging" version="1.0.3" group="commons-logging"/>
+		<ibiblio-dependency artifact="javassist" version="2.6" group="jboss"/>
+		<ibiblio-dependency artifact="servletapi" version="2.3" group="servletapi"/>
+		<ibiblio-dependency artifact="oro" version="2.0.6" group="oro"/>
+		<ibiblio-dependency artifact="log4j" version="1.2.7" group="log4j"/>
+		<ibiblio-dependency artifact="easymock" version="1.1" group="easymock"/>
+		<ibiblio-dependency artifact="junit" version="3.8.1" group="junit"/>
+		
+		<default-compile/>
+	</target>
+  
+	
+	<target name="run-tests" description="Runs JUnit tests."
+		depends="compile-tests">
+		<default-run-tests>
+			<junit-elements>
+				<!-- Adjust for wrong current directory when framework/build.xml invoked from the project. -->
+				<sysproperty key="FRAMEWORK_ROOT" value="${basedir}/"/>
+			</junit-elements>
+		</default-run-tests>
+	</target>
+  
+	<target name="run-reports">
+		<javadoc-report/>
+    
+		<default-clover>
+			<clover-junit-elements>
+				<sysproperty key="FRAMEWORK_ROOT" value="${basedir}/"/>
+			</clover-junit-elements>
+		</default-clover>
+		<generate-clover-html/>
+	</target>
+</project>

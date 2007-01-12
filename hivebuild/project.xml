@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project name="project">
+  
+  <!-- Top level module used to combine other types of modules. -->
+
+	<import file="hivebuild.xml"/>
+	<import file="dependency.xml"/>
+	<import file="forrest.xml"/>
+	
+	<property name="forrest.report-menu.file" value="${project.forrest.xdocs.dir}/project-report-menu.ent"/>
+	
+	<!-- Typically, project.name is all lower case and the title is mixed case, but
+		the project name is still a good default. -->
+		
+	<property name="project.title" value="${project.name}"/>
+	
+	<macrodef name="reinvoke-ant">
+		<attribute name="target" description="Target to achieve in each module."/>
+		<attribute name="files" default="project.modules" description="List of build.xml's, in build order."/>
+		<element name="parameters" optional="true" description="Parameters passed to the subant task."/>
+		
+		<sequential>
+			<subant target="@{target}" inheritall="false">
+				<filelist refid="@{files}"/>
+				<parameters/>
+			</subant>	
+		</sequential>
+			
+	</macrodef>
+
+	<target name="install" description="Reinvokes install in each module.">
+		<reinvoke-ant target="install"/>
+	</target>
+	
+	<target name="clean" description="Deletes all derived files in the project and in each module.">
+		
+		<reinvoke-ant target="clean"/>
+		<antcall target="hivebuild.clean"/>	
+		
+	</target>
+	
+	<target name="marshall-documentation" description="Marshall documentation in the project and in each module.">
+		<antcall target="forrest.marshall-documentation"/>
+		<reinvoke-ant target="marshall-documentation"/>
+	</target>
+	
+		<target name="site" description="Build site documentation using Forrest.">
+		
+			<unpacked-zip-dependency
+					url="http://www.apache.org/dist/forrest/"
+					zip="apache-forrest-0.5.1-bin.zip"
+					dir="${forrest-package-dir}"/>
+			
+			<antcall target="marshall-documentation"/>
+			<antcall target="run-forrest"/>
+		</target>
+		
+</project>

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<module id="hivemind.lib.test" version="1.0.0">
+    <configuration-point id="StandardPipeline" schema-id="hivemind.lib.Pipeline"/>
+    <contribution configuration-id="StandardPipeline">
+        <filter name="multiply" object="service:MultiplyFilter"/>
+        <terminator object="service:Terminator"/>
+    </contribution>
+    <service-point id="MultiplyFilter" interface="org.apache.hivemind.lib.pipeline.StandardFilter">
+        <create-instance class="org.apache.hivemind.lib.pipeline.StandardFilterImpl"/>
+    </service-point>
+    <service-point id="Terminator" interface="org.apache.hivemind.lib.pipeline.StandardService">
+        <create-instance class="org.apache.hivemind.lib.pipeline.StandardServiceImpl"/>
+    </service-point>
+    <service-point id="Pipeline" interface="org.apache.hivemind.lib.pipeline.StandardService">
+        <invoke-factory service-id="hivemind.lib.PipelineFactory">
+            <create-pipeline configuration-id="StandardPipeline" filter-interface="org.apache.hivemind.lib.pipeline.StandardFilter"/>
+        </invoke-factory>
+    </service-point>
+    <service-point id="ObjectPipeline" interface="org.apache.hivemind.lib.pipeline.StandardService">
+        <invoke-factory service-id="hivemind.lib.PipelineFactory">
+            <create-pipeline configuration-id="ObjectPipeline" filter-interface="org.apache.hivemind.lib.pipeline.StandardFilter"/>
+        </invoke-factory>
+    </service-point>
+    <configuration-point id="ObjectPipeline" schema-id="hivemind.lib.Pipeline"/>
+    <contribution configuration-id="ObjectPipeline">
+        <filter name="multiply" object="instance:org.apache.hivemind.lib.pipeline.StandardFilterImpl"/>
+        <terminator object="instance:org.apache.hivemind.lib.pipeline.StandardServiceImpl"/>
+    </contribution>
+</module>

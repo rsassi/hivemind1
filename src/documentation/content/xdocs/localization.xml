@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN"
+	"./dtd/document-v12.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>HiveMind Localization</title>
+	</header>
+	<body>
+		<p>Every HiveMind module may have its own set of messages. Messages are
+			stored alongside the module deployment descriptor, as <code>
+			META-INF/hivemodule.properties</code> (within the module's JAR).</p>
+		<note>In actuality, the name of the properties file is created by stripping
+			off the extension (".xml") from the descriptor name and
+			appending the localization code and ".properties". This is relevant only
+			if you load your module deployment descriptors from a non-standard
+			location, possibly via the &sub-module; element.</note>
+		<p>Services can gain access to localized messages, as an instance of &api.Messages;
+			, which includes methods for accessing messages and formatting messages
+			with arguments.</p>
+		<p>In a module descriptor, within the &contribution; and &invoke-factory; 
+			elements, you can reference a localized message in an attribute or element
+			content simply by prefixing the message key with '%'. Examples:</p>
+		<source> <![CDATA[ 
+<contribution configuration-id=...>
+  <some-item <message="%message.key">
+    %other.message.key
+  </some-item>
+</contribution>]]> </source>
+		<p>The two keys (<code>message.key</code> and <code>other.message.key</code>
+			) are searched for in the <em>contributing</em> module's messages.</p>
+		<p>HiveMind gracefully recovers from undefined messages. If a message is not
+			in the properties file, then HiveMind provides a substitute value by
+			converting the key to upper-case and adding brackets, i.e. <code>
+			[MESSAGE.KEY]</code>. This allows your application to continue running,
+			but clearly identifies missing messages.</p>
+		<p>By adding additional files, message localization can be accomplished. For
+			example, adding a second file, <code>META-INF/hivemodule_fr.properties</code>
+			would provide French language localizations. Any common keys between the
+			two files defer to the more specific file.</p>
+		<section>
+			<title>Setting the locale</title>
+			<p>When a &api.Registry; is created by the &api.RegistryBuilder;, a locale
+				is specified. This is the locale for the Registry and, by extension, for
+				all Modules in the registry. The locale may not be changed.</p>
+		</section>
+	</body>
+</document>

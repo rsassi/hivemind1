@@ -1,0 +1,430 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN"
+	"./dtd/document-v12.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+  
+  <!ENTITY note-library "<note>This translator is contributed by the hivemind.lib module. </note>">
+  <!ENTITY note-hard-coded "<note>This translator is hard-coded, and does not appear in the 
+          &hivemind.Translators; configuration point.</note>">         
+	]>
+<document>
+	<header>
+		<title>Contribution Processing Rules</title>
+	</header>
+	<body>
+		<p>The concept of performing a rules-directed conversion of elements and
+			attributes into Java objects was pioneered (to my knowledge) in the <link
+			href="http://jakarta.apache.org/commons/digester/">Jakarta Digester</link>
+			framework (which started inside Tomcat, moved to Struts, and is now
+			available on its own).</p>
+		<p>The technique is very powerful, even in the limited subset of Digester
+			provided by HiveMind (over time, the number of available rules will
+			increase).</p>
+		<section>
+			<title>Rules</title>
+			<p>Rules are attached to &element;s. Each rule object has two methods: the
+				<link
+				href="&apiroot;/schema/Rule.html#begin(org.apache.hivemind.schema.SchemaProcessor, org.apache.hivemind.Element)"
+				>begin()</link> method is invoked when the element is first encountered.
+				The content of the element is then processed recursively (which will
+				involve more rules). Once that completes, the <link
+				href="&apiroot;/schema/Rule.html#end(org.apache.hivemind.schema.SchemaProcessor, org.apache.hivemind.Element)"
+				>end()</link> method is invoked.</p>
+			<p>Note: <code>begin()</code> is invoked in the order that rules are
+				defined within the &rules; element. <code>end()</code> is invoked in
+				inverse order. This rarely makes any difference.</p>
+			<p>Element processing is based on an object stack. Several rules will
+				manipulate the top object on the stack, setting properties based on
+				attributes or content. The &create-object; rule will instantiate a new
+				object at <code>begin()</code> and pop it off the stack at <code>end()</code>
+				.</p>
+			<p>In several cases, rule descriptions reference the parent and child
+				objects. The top object on the stack is the child, the object beneath
+				that is the parent. The &set-parent; and &invoke-parent; rules are
+				useful for creating hierarchies of objects.</p>
+			<section>
+				<title>create-object</title>
+				<p>The &_create-object; rule is used to create a new object, which is
+					pushed onto the stack at <code>begin()</code>. The object is popped
+					off the stack at <code>end()</code>. &_create-object; is typically
+					paired up with &_invoke-parent; to connect the new object (as a child)
+					to a parent object.</p>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Required ?</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>class</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The complete class name of the object to create. The class must
+							be public, and have a no-arguments public constructor.</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<title>custom</title>
+				<p>The &_custom; rule is used to provide a custom implementation of the 
+					<code>Rule</code> interface. Note that any such rules must not contain
+					any individual state, as they will be reused, possibly by multiple
+					threads.</p>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Required ?</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>class</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The complete class name of the class implementing the <code>Rule</code>
+							interface.</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<title>invoke-parent</title>
+				<p>The &_invoke-parent; rule is used to connect the child (top object on
+					the stack) to its parent (the next object down). A method of the
+					parent is invoked, passing the child as a parameter. This invocation
+					occurs inside the rule's <code>begin()</code> method; to ensure that
+					the child object is fully configured before being added to the parent
+					place this rule after all properties of the child object have been
+					configured.</p>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Required ?</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>method</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The name of the method to invoke on the parent object.</td>
+					</tr>
+					<tr>
+						<td>depth</td>
+						<td>number</td>
+						<td>no</td>
+						<td>The depth of the parent object within the object stack. The top
+							object (the child) is at depth 0, and default depth of the parent
+							is 1.</td>
+					</tr>
+				</table>
+				<warning>Top level elements should include an &_invoke-parent; rule, and
+					specify the method as <code>addElement</code>. This adds the created,
+					configured object to the list of contributed objects for the &contribution;
+					(or for service factories, adds the object as a parameter).</warning>
+			</section>
+			<section>
+				<title>push-attribute</title>
+				<p>The &_push-attribute; rule reads an attribute, converts it with a
+					translator, and pushes the result onto the stack. It will typically be
+					combined with a &invoke-parent; to get the pushed value added to the
+					configuration point elements (or to some parent object).</p>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Required ?</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>attribute</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The name of the attribute to read.</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<title>read-attribute</title>
+				<p>The &_read-attribute; rule reads an attribute from the current
+					element, optionally translates it (from a string to some other type),
+					and then assigns the value to a property of the top object on the
+					object stack.</p>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Required ?</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The name of the property of the top object on the stack to
+							update.</td>
+					</tr>
+					<tr>
+						<td>attribute</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The name of the attribute to read.</td>
+					</tr>
+					<tr>
+						<td>skip-if-null</td>
+						<td>boolean</td>
+						<td>no</td>
+						<td>If "true" (the default), then an omitted attribute will be
+							ignored. If "false", the property will be updated regardless.</td>
+					</tr>
+           <tr>
+          <td>translator</td>
+          <td>string</td>
+          <td>no</td>
+          <td>
+            A translator that overrides the attribute's translator.
+          </td>
+        </tr>
+				</table>
+			</section>
+			<section>
+				<title>read-content</title>
+				<p>The &_read-content; rule is similar to &read-attribute;, except it
+					concerns the content of the current element (the text wrapped by its
+					start and end tags).</p>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Required ?</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The name of the property of the top object on the stack to
+							update.</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<title>set-module</title>
+				<p> &_set-module; is used to set a property of the top object on the
+					stack to the module which made the contribution. This is often used
+					when some other attribute of the contribution is the name of a service
+					or configuration extension point (but it is advantageous to defer
+					access to the service or configuration). The module can be used to
+					resolve names of services or configurations that are local to the
+					contributing module.</p>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Required ?</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The name of the property of the top object to update with the
+							contributing module.</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<title>set-parent</title>
+				<p>The &_set-parent; rule is used to set a property of the child object
+					to parent object. This allows for backwards connections from child
+					objects to parent objects.</p>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Required ?</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The name of the property of the child object to set.</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<title>set-property</title>
+				<p>The &_set-property; rule is used to set a property of the top object
+					to a preset value.</p>
+				<table>
+					<tr>
+						<th>Attribute</th>
+						<th>Type</th>
+						<th>Required ?</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The name of the property of the child object to set.</td>
+					</tr>
+					<tr>
+						<td>value</td>
+						<td>string</td>
+						<td>yes</td>
+						<td>The value to set the proeprty to. The is interpreted as with the
+							<link href="#smart">smart translator</link>, meaning that
+							conversion to normal Java types (boolean, int, etc.) will work as
+							expected.</td>
+					</tr>
+				</table>
+			</section>
+		</section>
+		<!-- Rules -->
+    <section>
+      <title>Translators</title>
+      <p>Commonly, it is necessary to perform some translation or transformation of string attribute value to convert 
+        the value into some other type, such as boolean, integer or date. This can be accomplished by specifying a 
+        translator in the &attribute; element (it also applies to element content, with the 
+        <code>content-translator</code> attribute of the &element; element).</p>
+      <p>A translator is an object implementing the &api.Translator; interface. The <code>translator</code> value 
+        specified in a rule may be either the complete class name of a class implementing the interface, or one of a 
+        number of builtin values.</p>
+      <p>Translators configurations consist of a translator name, and an optional initalizer string. The initializer 
+        string is separated from the translator id by a comma, ex: <code>int,min=0</code> (where <code>min=0</code> is 
+        the initializer string). Initializer strings are generally in the format of <code>key=value[,key=value]*</code> 
+        ... but each Translator is free to interpret the initializer string its own way.</p>
+      <p>The following sections describe the basic translators provided with the framework. You can add additional 
+        translators by contributing to the &hivemind.Translators; configuration point.</p>
+      <section> <title>bean</title> <p> The bean translator expects its input to bean in the form 
+        <code>service-id:locator</code>. The service-id references a service implementing &api.BeanFactory;. </p> 
+        &note-library; </section>
+      <section>
+        <title>boolean</title>
+        <p>The boolean translator converts an input string into a boolean value. "true" is translated to true, and 
+          "false" to false.</p>
+        <p>A default value is used when the input is blank. Normally, this default is false, but the "default" key in 
+          the initializer can override this (i.e., <code>boolean,default=true</code>).</p>
+      </section>
+      <section> <title>class</title> <p>The class translator converts a class name into a Class object. The value must 
+        be a fully qualified class name. A null input value returns null.</p> &note-hard-coded; </section>
+      <section>
+        <title>configuration</title>
+        <p>The configuration translator converts an input value into a configuration point id, then obtains the 
+          elements for that configuration point as a List. The id may be fully qualified, or a local id within the 
+          contributing module.</p>
+        <p>A blank input value returns null.</p>
+      </section>
+      <section>
+        <title>double</title>
+        <p>The double translator converts the input into an double precision floating point value. It recognizes three 
+          initializer values:</p>
+        <ul>
+          <li>default: the default value (normally 0) to use when the input is blank</li>
+          <li>min: a minimum acceptible value</li>
+          <li>max: a maximum acceptible value</li>
+        </ul>
+      </section>
+      <section>
+        <title>enumeration</title>
+        <p>The enumeration translator converts input strings into enumerated values. Enumeration <em>requires</em> an 
+          initializer string, with a special format: <br/> <code> 
+          enumeration,class-name,input=field-name[,input=field-name]*</code> </p>
+        <p>That is, the initializer begins with the name of the class containing some number of public static fields. 
+          Input values are mapped against field names. Example: <br/> <code> 
+          enumeration,java.lang.Boolean,yes=TRUE,no=FALSE</code> </p>
+        <p>If the input is null or empty, then the translator returns null.</p>
+      </section>
+      <section>
+        <title>id-list</title>
+        <p>Translates a comma-seperated list of ids into a comma-seperated list of fully qualified ids (qualified 
+          against the contributing module). Alternately, passes the value <code>*</code> through as-is. Id lists are 
+          typically used to establish ordering of items within a list, as with &interceptor;. </p>
+      </section>
+      <section>
+        <title>instance</title>
+        <p>The object translator converts a fully qualified class name into an object instance. The class must 
+          implement a public no-arguments constructor.</p>
+      </section>
+      <section>
+        <title>int</title>
+        <p>The int translator converts the input into an integer value. It recognizes three initializer values:</p>
+        <ul>
+          <li>default: the default value (normally 0) to use when the input is blank</li>
+          <li>min: a minimum acceptible value</li>
+          <li>max: a maximum acceptible value</li>
+        </ul>
+        &note-hard-coded;
+      </section>
+      <section>
+        <title>long</title>
+        <p>The long translator converts the input into an long integer (64 bit) value. It recognizes three initializer 
+          values:</p>
+        <ul>
+          <li>default: the default value (normally 0) to use when the input is blank</li>
+          <li>min: a minimum acceptible value</li>
+          <li>max: a maximum acceptible value</li>
+        </ul>
+      </section>
+      <section>
+        <title>object</title>
+        <p>
+          The object translator is allows the caller to provide an object value
+          in a multitude of ways. The object translator inverts the normal roles; the caller
+          has all the power in determining how to interpret the value, and the schema
+          takes whatever value shows up.
+          The object translator is driven by the
+          &hivemind.ObjectProviders; configuration.
+        </p>
+      </section>
+      
+      <section>
+        <title>qualified-id</title>
+        <p>Translates an id into a fully qualified id (qualified against the contributing module's id). </p>
+      </section>
+      <section>
+        <title>resource</title>
+        <p>The resource translator is used to find a resource packaged with (or near) the module's deployment 
+          descriptor. The input value is the relative path to a file. The translator converts the input value to a 
+          &api.Resource; for that file.</p>
+        <p>If the file doesn't exist, then an error is logged. If a localization of the file exists, then the Resource 
+          for that localization is returned.</p>
+      </section>
+      <section> <title>service</title> <p>The service translator is used to lookup a service in the registry. The input 
+        value is either a local service id from the contributing module, or a fully qualified service id.</p> 
+        &note-hard-coded; </section>
+      <section>
+        <title>service-point</title>
+        <p>The service translator is used to lookup a service point (not a service) in the registry. The input value is 
+          either a local service id from the contributing module, or a fully qualified service id.</p>
+      </section>
+      <section> <title>smart</title> <p>The smart translator attempts an automatic conversion from a string value (the 
+        attribute value or element content) to a particular type. It determines the type from the property to which the 
+        value will be assigned. Smart translator makes use of the JavaBeans's PropertyEditor class for the conversion, 
+        which allows easy this translator to be used with most common primitive types, such as int, short and boolean. 
+        See the <link href="&apiroot;/schema/rules/SmartTranslator.html"> SmartTranslator</link> documentation for more 
+        details.</p> <p>In general, the smart translator is the useful for most ordinary Java type properties, unless 
+        you want to specify range constraints.</p> <p>It recognizes one initializer value:</p> <ul> <li>default: the 
+        default value to use when the input is blank</li> </ul> &note-hard-coded; </section>
+    </section>
+		<!-- Translators -->
+	</body>
+</document>

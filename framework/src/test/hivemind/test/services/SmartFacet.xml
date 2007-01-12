@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<module id="hivemind.test.services" version="1.0.0">
+	
+	<service-point id="Simple" interface="hivemind.test.services.SimpleService">
+		<invoke-factory>
+			<construct class="hivemind.test.services.impl.SimpleLiar">
+					<set property="fixedResult" value="99"/>				
+			</construct>	
+		</invoke-factory>	
+	</service-point>
+</module>

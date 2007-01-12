@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "./dtd/document-v12.dtd"
+[
+	<!ENTITY projectroot '../'>
+	<!ENTITY % common-links SYSTEM "../links.ent">
+	%common-links;
+]>
+<document>
+
+  <header>
+    <title>hivemind.LoggingInterceptor Service</title>
+  </header>
+
+  <body>
+  	
+
+<p>
+The
+<link href="&hivedoc;/service/hivemind.LoggingInterceptor.html">LoggingInterceptor</link>
+service is used to add logging capability to a service, i.e.:
+</p>
+
+<source><![CDATA[
+<interceptor service-id="hivemind.LoggingInterceptor">
+  <include method="..."/>
+  <exclude method="..."/>    
+</interceptor>]]></source>	
+
+
+<p>
+The service make take parameters (which control which methods will be logged).	
+</p>
+
+<p>
+The logging interceptor uses a <code>Log</code>	 derived from the service id (of
+the service to which logging is being added).
+</p>
+
+<p>
+The service logs, at debug level, the following events:
+</p>
+
+<ul>
+<li>Method entry (with parameters)</li>	
+<li>Method exit (with return value, if applicable)</li>
+<li>Thrown exceptions (checked and runtime)</li>
+</ul>	
+
+
+<p>
+By default, the interceptor will log all methods. By supplying parameters to the interceptor,
+you can control exactly
+which methods should be logged.  The <code>include</code> and <code>exclude</code> parameter
+elements specify methods to be included (logged) and excluded (not logged).
+The <code>method</code> attribute is a
+<em>method pattern</em>, a string used to match methods based on name, number of parameters, or type
+of parameters; see  the
+<link href="&apiroot;/methodmatch/MethodMatcher.html">MethodMatcher</link> class for more details.
+</p>
+
+<p>
+A method which does not match any supplied pattern <em>will</em> be logged.
+</p>
+
+
+
+    
+  </body>
+</document>

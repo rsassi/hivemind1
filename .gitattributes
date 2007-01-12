@@ -1,0 +1,17 @@
+* text=auto !eol
+framework/src/test-data/TestConstructRegistry/empty.jar -text
+framework/src/test-data/TestConstructRegistry/module.jar -text
+framework/src/test-data/TestRegistryBuilder.jar -text
+framework/src/test/org/apache/hivemind/util/home.png -text
+framework/src/test/org/apache/hivemind/util/home_fr.png -text
+library/src/documentation/resources/images/PipelineCallingSequence.png -text
+src/documentation/content/HiveMind-QuickReference.doc -text
+src/documentation/resources/images/Bootstrap-ProjectLayout.png -text
+src/documentation/resources/images/FrameworkStack.png -text
+src/documentation/resources/images/HiveMind-Logo.png -text
+src/documentation/resources/images/InterceptorStack.png -text
+src/documentation/resources/images/jakarta-logo.gif -text
+src/images/HiveMind-Logo.psp -text
+src/images/HiveMindImages.vsd -text
+src/images/InterceptorStack.psp -text
+support/update-copyrights.py -text svneol=unset#application/octet-stream

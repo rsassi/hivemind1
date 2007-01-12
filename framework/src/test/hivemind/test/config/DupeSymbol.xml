@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<module id="hivemind.test.config" version="1.0.0">
+
+ <contribution configuration-id="hivemind.ApplicationDefaults">
+ 
+   <default symbol="fred" value="barney"/>
+   
+   <default symbol="wilma" value="betty"/>
+   
+   <default symbol="fred" value="dino"/>	
+ 	
+ </contribution>
+
+</module>

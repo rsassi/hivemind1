@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<registry>
+    <module id="hivemind.test.config" uid="1" version="1.0.0">
+        <service-point id="hivemind.test.config.MyService" uid="2">
+            <invoke-factory service-id="hivemind.test.config.MyService"/>
+            <interceptor service-id="hivemind.test.config.MyService"/>
+        </service-point>
+    </module>
+</registry>

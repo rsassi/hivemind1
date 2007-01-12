@@ -1,0 +1,97 @@
+/* $Id$
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+P  {}
+
+H1  {}
+
+H2  {}
+
+H3  {}
+
+A  {}
+
+A:Visited  {}
+
+A:Active  {}
+
+A:Hover  {}
+
+BODY  {
+	font-family : Trebuchet MS, San Serif;
+}
+
+
+TABLE.summary TH  {
+	text-align : right;
+	border-style : dashed;
+	border-width : thin;
+}
+
+TABLE.summary TD  {
+	border-style : dashed;
+	border-width : thin;
+	vertical-align: top;
+}
+
+TABLE.summary TD.description  {
+	font-style: italic;
+	padding-left: 20px;
+}
+
+TABLE.summary TD
+{
+  text-align: top;
+}
+
+TABLE.summary TH.subhead
+{
+	text-align: center;
+}
+
+TABLE.summary TH.section-id
+{
+	text-align: left;
+}
+
+LI
+{
+  list-style-type: none;
+}
+
+SPAN.missing
+{
+ font-style: italic;
+}
+
+SPAN.tag
+{
+  font-family: monospace;
+  color:  Blue;
+}
+
+SPAN.attribute
+{
+  font-family: monospace;
+  font-weight: bold;
+  color: Red;
+}
+
+SPAN.literal
+{
+  font-family: monospace;
+}

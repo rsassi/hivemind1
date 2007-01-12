@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!--
+Copyright 2004 The Apache Software Foundation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<module id="hivemind.test.parse" version="1.0.0">
+	Description of the Module.
+	<schema id="UniqueAttributeBroken">
+		<element name="foo">
+			Identifies a foo that will be fnorded.
+			<attribute name="unique" unique="true"/>
+			<rules>
+				<create-object class="hivemind.test.config.impl.FooHolder"/>
+				<read-attribute property="unique" attribute="unique"/>
+				<invoke-parent method="addElement"/>
+			</rules>
+		</element>
+	</schema>
+
+	<configuration-point id="MyExtensionPoint" occurs="1..n" schema-id="UniqueAttributeBroken">
+		Description of MyExtensionPoint.
+	</configuration-point>
+
+
+	<schema id="FalseUniqueAttribute">
+		<element name="foo">
+			Identifies a foo that will be fnorded.
+			<attribute name="unique" unique="false"/>
+			<rules>
+				<create-object class="hivemind.test.config.impl.FooHolder"/>
+				<read-attribute property="unique" attribute="unique"/>
+				<invoke-parent method="addElement"/>
+			</rules>
+		</element>
+	</schema>
+
+	<configuration-point id="MyExtensionPoint2" occurs="1..n" schema-id="FalseUniqueAttribute">
+		Description of MyExtensionPoint.
+	</configuration-point>
+
+	<schema id="NoUniqueAttribute">
+		<element name="foo">
+			Identifies a foo that will be fnorded.
+			<attribute name="unique"/>
+			<rules>
+				<create-object class="hivemind.test.config.impl.FooHolder"/>
+				<read-attribute property="unique" attribute="unique"/>
+				<invoke-parent method="addElement"/>
+			</rules>
+		</element>
+	</schema>
+
+
+	<configuration-point id="MyExtensionPoint3" occurs="1..n" schema-id="FalseUniqueAttribute">
+		Description of MyExtensionPoint.
+	</configuration-point>
+
+	<contribution configuration-id="MyExtensionPoint">
+		<foo unique="jeje"/>
+		<foo unique="jeje2"/>
+	</contribution>
+
+	<contribution configuration-id="MyExtensionPoint2">
+		<foo unique="jeje"/>
+		<foo unique="jeje2"/>
+	</contribution>
+
+	<contribution configuration-id="MyExtensionPoint3">
+		<foo unique="jeje"/>
+		<foo unique="jeje2"/>
+	</contribution>
+
+</module>

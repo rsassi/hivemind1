@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<module id="hivemind.tests.contains" version="1.0.0">
+    <service-point id="uniqueService" interface="hivemind.test.IUniqueService">
+        <create-instance class="hivemind.test.UniqueServiceImpl"/>
+    </service-point>
+    <service-point id="multipleServiceOne" interface="hivemind.test.IMultipleService">
+        <create-instance class="hivemind.test.MultipleServiceImpl"/>
+    </service-point>
+    <service-point id="multipleServiceTwo" interface="hivemind.test.IMultipleService">
+        <create-instance class="hivemind.test.MultipleServiceImpl"/>
+    </service-point>
+	<configuration-point id="Simple" schema-id="Datum"/>
+		<schema id="Datum">
+			<element name="datum">
+			  <attribute name="key" required="true"/>
+			  <attribute name="value" required="true"/>
+				<rules>
+					<create-object class="hivemind.test.config.impl.Datum"/>
+					<read-attribute property="key" attribute="key"/>
+					<read-attribute property="value" attribute="value"/>
+					<invoke-parent method="addElement"/>
+				</rules>
+			</element>
+		</schema>
+	<contribution configuration-id="Simple">
+	    <datum key="key1" value="value1"/>
+		<datum key="key2" value="value2"/>
+	</contribution>
+</module>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src"
+        output="framework/target/eclipse-test-classes" path="framework/src/conf"/>
+    <classpathentry kind="src" output="framework/target/eclipse-classes" path="framework/src/java"/>
+    <classpathentry kind="src"
+        output="framework/target/eclipse-test-classes" path="framework/src/test"/>
+    <classpathentry kind="src" output="library/target/eclipse-classes" path="library/src/java"/>
+    <classpathentry kind="src"
+        output="library/target/eclipse-test-classes" path="library/src/test"/>
+    <classpathentry kind="src" output="library/target/eclipse-classes" path="library/src/descriptor"/>
+    <classpathentry kind="src" output="framework/target/eclipse-classes" path="framework/src/descriptor"/>
+    <classpathentry kind="src" output="examples/target/eclipse-classes" path="examples/src/java"/>
+    <classpathentry kind="src"
+        output="examples/target/eclipse-test-classes" path="examples/src/test"/>
+    <classpathentry kind="src" path="hivebuild/src/java"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="lib" path="ext-package/lib/commons-logging-1.0.3.jar"/>
+    <classpathentry kind="lib" path="ext-package/lib/easymock-1.1.jar"/>
+    <classpathentry kind="lib" path="ext-package/lib/javassist-2.6.jar"/>
+    <classpathentry kind="lib" path="ext-package/lib/log4j-1.2.7.jar"/>
+    <classpathentry kind="lib" path="ext-package/lib/oro-2.0.6.jar"/>
+    <classpathentry kind="lib" path="ext-package/lib/servletapi-2.3.jar"/>
+    <classpathentry kind="var" path="ANT_HOME/lib/ant.jar" sourcepath="ANT_HOME/apache-ant-1.6.1-src.zip"/>
+    <classpathentry kind="var" path="ANT_HOME/lib/xercesImpl.jar"/>
+    <classpathentry kind="var" path="ANT_HOME/lib/xml-apis.jar"/>
+    <classpathentry kind="lib" path="ext-package/lib/spring-full-1.0.1.jar"/>
+    <classpathentry kind="lib" path="ext-package/lib/junit-3.8.1.jar"/>
+    <classpathentry kind="lib" path="ext-package/lib/jboss-j2ee-3.2.1.jar"/>
+    <classpathentry kind="output" path="bin"/>
+</classpath>

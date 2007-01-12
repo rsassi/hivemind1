@@ -1,0 +1,267 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<status>
+  <developers>
+    <person name="Howard M. Lewis Ship" email="hlship@comcast.net" id="HLS" />
+    <person name="Knut Wannheden" email="knut.wannheden@paranor.ch" id="KW" />
+  </developers>
+  <todo>
+    <actions priority="Release 1.1">
+      <action context="lib" dev="HLS">JMX Integration</action>
+    </actions>
+  </todo>
+  
+  
+  <changes>
+  
+   <release version="1.0" date="Sep 22 2004">
+    <action type="fix" dev="HLS" fixes-bug="HIVEMIND-55">
+      Ensure that the logging interceptor will work properly when wrapping around JDK dynamic proxies.
+    </action>
+   </release>
+  
+    <release version="1.0-rc-2" date="Sep 11 2004">
+      <action type="add" dev="HLS">
+        Add method getSymbolValue() to RegistryInfrastructure and Module
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-48">
+        Fix class loader issues concerning fabricated classes in different modules.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-47">
+        Allow symbols to be escaped rather than expanded.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-44" due-to="James Carman">
+        The previous fix was incomplete; this should close the remaining sychronization gaps.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-49">
+        Class loading issue inside Tomcat.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-10" due-to="James Carman">
+        Tweak HiveMind to work properly in a JavaWebStart application.
+      </action>
+      <action type="add" dev="HLS">
+        Add clearCache() method to PropertyUtils.
+      </action>
+      <action type="update" dev="HLS">
+        Change the API for ClassFactory to take a ClassLoader, not a Module.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-52">
+        Handle duplicated methods in service interfaces, avoiding "attempt to redefine method" errors.
+      </action>
+    </release>
+  
+    <release version="1.0-rc-1" date="Aug 25 2004">
+      <action type="update" dev="HLS">
+        Remove support for Simple Data Language ... it's all XML again.
+      </action>
+      <action type="update" dev="HLS">
+        Re-work part of PipelineFactory to take advantage of object references.
+      </action>
+      <action type="update" dev="HLS">
+        Make the service-id of &lt;invoke-factory&gt; optional and default
+        to hivemind.BuilderFactory.
+      </action>
+      <action type="update" dev="HLS">
+        Change the hivemind.Startup configuration to take an object reference, not
+        a service id.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-29" due-to="Michael Frericks">
+        SmartTranslator should differentiate between blank strings and null input
+      </action>
+      <action type="update" dev="HLS">
+        Improvements to HiveBuild to properly handle changing versions or useages of artifacts.
+      </action>
+      <action type="add" dev="HLS" fixes-bug="HIVEMIND-43" due-to="Johan Lindquist">
+        Add ability to mark attributes of an element as unique, such that
+        duplicate values in contributions result in errors.
+      </action>      
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-41">
+        Add checks to SchemaProcessorImpl for empty stack conditions
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-33">
+        Add parameters-occurs attribute to &lt;service-point&gt; element.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-23">
+        Specify location in all module deployment descriptor parse exceptions.
+      </action>
+      <action type="add" dev="HLS" due-to="Stefan Liebig" fixes-bug="HIVEMIND-42">
+        Add Quick Reference Sheet.
+      </action>
+      <action type="fix" dev="HLS" due-to="Luke Blanshard" fixes-bug="HIVEMIND-16">
+        Add getCause() method to ApplicationRuntimeException
+      </action>
+      <action type="add" dev="HLS" due-to="Naresh Sikha" fixes-bug="HIVEMIND-37">
+        Add polling methods to Registry.
+      </action>
+      <action type="add" dev="HLS" due-to="Naresh Sikha" fixes-bug="HIVEMIND-36">
+        Add polling methods to BeanFactory.
+      </action>
+      <action type="fix" dev="HLS" due-to="James Carman" fixes-bug="HIVEMIND-44">
+        Fix broken synchronization in ThreadedServiceModel and PooledServiceModel that could make them
+        randomly fail when creating a service by invoking a factory.
+      </action>
+      <action type="fix" dev="HLS" due-to="Johan Lindquist" fixes-bug="HIVEMIND-34">
+        Check for &lt;sub-module&gt; references that do not exist.
+      </action>
+    </release>
+  
+    <release version="1.0-beta-2" date="Aug 1 2004">
+      <action type="fix" dev="KW" fixes-bug="HIVEMIND-6">
+        Removed dependency on Werkz.
+      </action>
+      <action type="update" dev="HLS">
+        Added link to the Jakarta mailing lists page.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-21" due-to="Achim Hügen">
+        Modifed the build scripts to properly include variable info when compiling.
+      </action>
+      <action type="update" dev="HLS">
+        Moved the Ant build scripts to a new directory, hivebuild, in preparation
+        for making hivebuild reusable on new projects.
+      </action>
+      <action type="update" dev="HLS">
+        Added protected method constructRegistry() to HiveMindFilter.
+      </action>
+      <action type="update" dev="HLS">
+        Renamed existing 'object' translator to 'instance', and created
+        a new 'object' translator with great flexibility. Extend BuilderFactory
+        to add a set-object element that leverages the object translator.
+      </action>
+      <action type="update" dev="HLS">
+        Created service-property object translator.
+      </action>
+      <action type="update" dev="HLS" fixes-bug="HIVEMIND-20" due-to="Marcus Brito">
+       Added a version of Registry.getService() that omits the service id
+       (but requires that exactly one service point implements the service interface).
+      </action>
+      <action type="update" dev="HLS" fixes-bug="HIVEMIND-22">
+        Extended the BuilderFactory to autowire services.
+      </action>
+      <action type="add" dev="HLS">
+        Added a new module that contains HiveMind example code.
+      </action>
+      <action type="update" dev="HLS">
+        Fixed some latent bugs related to submodules inside the constructRegistry task.
+        Made some more improvements to the hivebuild scripts.
+      </action> 
+      <action type="update" dev="HLS">
+        Updated the download location for the Forrest distribution.
+      </action>
+      <action type="update" dev="HLS">
+        Added more examples and examples documentation.
+      </action>
+      <action type="add" dev="HLS">
+        Added StrictErrorHandler, an implementation of ErrorHandler that always throws an ApplicationRuntimeException.
+      </action>
+      <action type="update" dev="HLS">
+        Moved the code for the Grabber Ant task into the tree and improve the build scripts to dynamically
+        compile and use it.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-31" due-to="Johan Lindquist">
+        Typo in jar-module.xml causes broken build if junit library is missing
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-35">
+        Made a number of changes to ensure HiveMind compatibility with JDK 1.3.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-26">
+        Changed some unit tests to adapt to platform line endings.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-46" due-to="Johan Lindquist">
+        Fix the HiveDoc XSL to use XML (not SDL) output.
+      </action>
+    </release>
+  
+    <release version="1.0-beta-1" date="Jun 26 2004">
+      <action type="update" dev="HLS">Added change log. </action>
+      <action type="update" dev="HLS">Refactored ClassFab and related classes 
+        for easier reuse outside of HiveMind. Added a new suite of tests 
+        related to ClassFab.</action>
+      <action type="add" dev="HLS">Created two new services in hivemind-lib for 
+        creating default implementations of arbitrary interfaces (<link 
+        href="site:hivemind.lib.DefaultImplementationBuilder">DefaultImplementationBuilder</link>) 
+        and for using that to create placeholder services (<link 
+        href="site:hivemind.lib.PlaceholderFactory">PlaceholderFactory</link>).</action>
+      <action type="add" dev="HLS">Created MessageFormatter class as a wrapper 
+        around ResourceBundle and an easy way for individual packages to gain 
+        access to runtime messages. </action>
+      <action type="update" dev="HLS">Modified the read-attribute rule to allow 
+        a translator to be specified (overriding the translator for the 
+        attribute).</action>
+      <action type="add" dev="HLS">Added the qualified-id and 
+        id-list translators.</action>
+      <action type="add" dev="HLS">Added the <link 
+        href="site:hivemind.lib.PipelineFactory">hivemind.lib.PipelineFactory</link> 
+        and related code, schemas, tests and documentation. </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-4"> Enhance logging of 
+        exceptions when setting a service property to a contribution </action>
+      <action type="add" dev="HLS"> Added service <link 
+        href="site:hivemind.lib.BeanFactoryBuilder">hivemind.lib.BeanFactoryBuilder</link>. 
+        </action>
+      <action type="update" dev="HLS"> Removed the &lt;description&gt; element 
+        from the module descriptor format; descriptions are now provided as 
+        enclosed text for element that support descriptions. </action>
+      <action type="update" dev="HLS"> Changed the MethodMatcher classes to use 
+        a MethodSignature rather than a Method. </action>
+      <action type="update" dev="HLS"> Changed MessageFormatter to 
+        automatically convert Throwables into their message or class name. 
+        </action>
+      <action type="add" dev="HLS"> Added FileResource. </action>
+      <action type="update" dev="HLS"> Extended <link 
+        href="site:hivemind.BuilderFactory">hivemind.BuilderFactory</link> to 
+        be able to set the ClassResolver; for a service 
+        implementation, and to autowire common properties (log, messages, 
+        serviceId, errorHandler, classResolver) if the properties are writeable 
+        and of the correct type. </action>
+      <action type="update" dev="HLS">
+        Added methods newControl(), newMock(),
+        addControl(), replayControls()
+        and verifyControls() to HiveMindTestCase
+        to simplify test cases that use multiple 
+        <link href="http://www.easymock.org">EasyMock</link> mock objects.
+      </action>
+      <action type="update" dev="HLS">
+        Changed HiveMindFilter to log a message after it stores
+        the registry into the servlet context.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-11">
+        Restore the getConfiguration() and expandSymbols()
+        methods to the Registry interface.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-9" 
+        due-to="Dieter Bogdoll"> SimpleDataLanguageParser calls the 
+        ContentHandler with a null namespace argument instead of "". That leads 
+        to some problems if you want to use transformers. </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-7" due-to="Achim Hügen">
+        Fix how certain translator messages are generated to avoid unit test failures.
+      </action>
+      <action type="update" dev="HLS" fixes-bug="HIVEMIND-12">
+        Modify the build files to enable debugging by default.
+      </action>
+      <action type="update" dev="HLS">
+        Added validation of id attributes in module deployment descriptors (using ORO regular expressions).
+      </action>
+      <action type="fix" dev="HLS">
+        Fix some typos in definition of the 
+        <link href="site:hivemind.lib.NameLookup">hivemind.lib.NameLookup</link>
+        service.
+      </action>
+      <action type="fix" dev="HLS" fixes-bug="HIVEMIND-25" due-to="Naresh Sikha">
+      Fix a mistake in the BuilderFactory's set-object element, and add integration tests.
+      </action>
+    </release>
+  </changes>
+</status>

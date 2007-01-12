@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN"
+	"./dtd/document-v12.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>HiveDoc</title>
+	</header>
+	<body>
+		<p>HiveMind includes tools for documentating a HiveMind registry ... the
+			combined information from all modules that are deployed at runtime. At
+			build time, all related HiveMind module deployment descriptors are parsed
+			and the results combined into a single file. The master file (which is
+			only used for this documentation) is then converted into a set of HTML
+			files using XSLT. The end result is much like JavaDoc ... it's fully
+			hyperlinked and allows you to see all services, configuration points,
+			contributions and schemas clearly.</p>
+      
+   <p>
+    Incorporated into the generated documentation is user-supplied descriptions. The
+    &attribute;, &configuration-point;, &element;, &module;, &schema; and
+    &service-point; elements can enclose a description (as character data), i.e.:
+    
+   </p>
+   
+<source><![CDATA[
+<module id="mymodule" version="1.0.0">
+
+  A module for my application with my services, etc.
+</module>]]>
+</source>
+
+      
+      
+		<p>The HiveDoc for the HiveMind framework and library is available <link
+			href="&hivedoc;/index.html">here</link>.</p>
+		<warning>Details on building the documentation will be coming soon.</warning>
+	</body>
+</document>
