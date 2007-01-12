@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY projectroot '../'>
+	<!ENTITY % common-links SYSTEM "../links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>hivemind.Translators Configuration</title>
+	</header>
+	<body>
+		<p>The <link href="&hivedoc;/config/hivemind.Translators.html">Translators</link>
+			configuration defines the translators that may be used with XML conversion
+			rules.</p>
+		<p>Contributions are of the form:</p>
+		<source><![CDATA[
+<translator name="..." class="..." service-id="..."/>]]> </source>
+		<p>Only one of <code>class</code> and <code>service-id</code> attributes should be 
+			specified. The former is the complete name of a class (implementing the 
+			<link href="&apiroot;/schema/Translator.html">Translator</link> interface). It 
+			should have a no-args and/or single String constructor.	The second is used to 
+			contribute a service (which must also implement the interface).</p>
+		<p>Names of translators must be unique; it is not possible to override the
+			existing service model translators. A single translator, <code>class</code>,
+			is hard-coded into HiveMind, the others appear as ordinary contributions.</p>
+	</body>
+</document>

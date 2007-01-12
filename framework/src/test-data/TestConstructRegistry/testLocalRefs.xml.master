@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<registry>
+    <module id="hivemind.test.config" package="hivemind.test.config" version="1.0.0">
+        <service-point
+            id="hivemind.test.config.FactoryDefaultsSymbolSource" interface="org.apache.hivemind.SymbolSource">
+            <invoke-factory model="singleton" service-id="hivemind.test.config.FactoryDefaultsSymbolSource"/>
+            <interceptor service-id="hivemind.test.config.MyService"/>
+        </service-point>
+    </module>
+</registry>

@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>Overriding a Service</title>
+	</header>
+	<body>
+		<p>It is not uncommon to want to override an existing service and replace it
+			with a new implementation. This goes beyond simply intercepting the
+			service ... the goal is to replace the original implementation with a new
+			implementation. This occurs frequently in &Tapestry;
+			where frequently an existing service is replaced with a
+			new implementation that handles application-specific cases (and delegates
+			most cases to the default implementation).</p>
+		<note>Plans are afoot to refactor &Tapestry;
+			3.1 to make considerable use of HiveMind. Many of the ideas represented in
+			HiveMind germinated in earlier Tapestry releases.</note>
+    <p>
+      In HiveMind 1.0, overriding a service required a "trick", involving indirection
+      via a HiveMind symbol. This has changed in HiveMind 1.1, which supports 
+      service overrides directly.
+    </p>
+    
+    <p>
+    In HiveMind 1.1, the service implementation
+    (the &create-instance; or &invoke-factory;) inside the &service-point; is considered
+    the <em>default implementation</em>.  
+    </p>
+    
+    <p>
+    The default implementation may be overriden by contributing an alternate
+    service implementation using the &implementation; element.  This may occur in the same
+    module or in an entirely different module. This new implementation
+    <em>replaces</em> the default implementation.    
+    </p>
+    
+    <p>
+    It is <em>still</em> an error to provide more than one overriding implementation.
+    </p>
+    
+    <p>
+     If you wish your service to not be overridable, you may simply leave the
+     implementation out of the &service-point; and provide an &implementation; element
+     of your own. This will prevent any other module from overriding the service implementation.
+    </p>
+    
+    <p>
+      A service must be visible (i.e., not private) to be overriden.
+    </p>
+      
+		<section>
+			<title>Step One: A service with default implementation</title>
+			<p>To describe this technique, we'll start with a ordinary, every day
+				service. In fact, for discussion purposes, there will be two services:
+				Consumer and Provider. Ultimately, we'll show how to override Provider.
+				Also for discussion purposes, we'll do all of this in a single module,
+				though (of course) you can as easily split it up across many modules.</p>
+			<p>To begin, we'll define the two services, and set Provider as a property
+				of Consumer:</p>
+			<source><![CDATA[
+<module id="ex.default" version="1.0.0" package="ex.override">
+  <service-point id="Provider" interface="Provider">
+    <create-instance class="impl.ProviderImpl"/>
+  </service-point>
+  
+  <service-point id="Consumer" interface="Consumer">
+    <invoke-factory>
+      <construct class="impl.Consumer">
+        <set-service property="provider" service-id="Provider"/>
+    </invoke-factory>
+  </service-point>
+</module>]]> </source>
+		</section>
+		<section>
+			<title>Step Two: Add the override</title>
+			<p>An &implementation; element will override the default implementation from the
+        &service-point;:</p>
+			<source><![CDATA[ 
+<module id="ex.override" version="1.0.0">
+
+  <implementation service-id="ex.default.Provider">
+    <create-instance class="impl.OverrideProviderImpl"/>
+  </implementation>
+</module>
+]]> </source>
+
+<p>
+The Consumer service will get the functionality of the Provider service
+from the OverrideProviderImpl (instead of the original ProviderImpl).  ProviderImpl will never
+be instantiated, just OverrideProviderImpl.
+</p>
+
+		</section>
+	</body>
+</document>

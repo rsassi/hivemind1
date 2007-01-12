@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!-- Defines the new document type that allows source highlighting sections -->
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <public publicId="-//HM//DTD Documentation V1.0//EN"
+    uri="dtd/hm-document.dtd"/>
+</catalog>

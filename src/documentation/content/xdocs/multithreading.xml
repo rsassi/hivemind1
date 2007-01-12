@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+	"http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+	<!ENTITY % common-links SYSTEM "links.ent">
+	%common-links;
+	]>
+<document>
+	<header>
+		<title>HiveMind Multi-Threading</title>
+	</header>
+	<body>
+		<p>HiveMind is specifically targetted for J2EE: deployment in a WAR or EAR,
+			particularly as part of a &Tapestry; 
+			application. Of course, J2EE is not a requirement, and
+			HiveMind is quite useful even in a simple, standalone environment.</p>
+		<p>In the world of J2EE, multi-threading is always an issue. HiveMind
+			services are usually singletons, and must be prepared to operate in a
+			multi-threaded environment. That means services should not have any
+			specific state, much like a servlet.</p>
+		<section>
+			<title>Construction State</title>
+			<p>HiveMind expects that initially, work will progress in a single startup
+				thread. This is the early state, the construction state, where the
+				module deployment descriptors are located and parsed, and the contents
+				used to assemble the registry; this is the domain of &api.RegistryBuilder;
+				.</p>
+			<p>The construction activities are not thread-safe. This includes the
+				parser, and other code (virtually all of which is hidden from your
+				application).</p>
+			<p>The construction state ends when the <code>RegistryBuilder</code> 
+				returns the &api.Registry; from method <code>constructRegistry()</code>.
+				The registry is thread-safe.</p>
+		</section>
+		<section>
+			<title>Runtime State</title>
+			<p>Everything that occurs with the Registry and modules must be
+				thread-safe. Key methods are always synchronized. In particular, the
+				methods that construct a service and construct configuration point
+				elements are thread-safe. Operations such as building the interceptor
+				stack, instantiating core service implementations, and converting XML to
+				Java objects operate in a thread-safe manner. However, different threads
+				may be building different services simultaneously. This means that, for
+				example, an interceptor service implementation must still be
+				thread-safe, since it may be called upon to generate interceptors for
+				two or more different services simultaneously.</p>
+			<p>On the other hand, the Java objects constructed from XML &rules; don't
+				need to be thread-safe, since that construction is synchronized properly
+				... only a single thread will be converting XML to Java objects for any
+				single configuration point.</p>
+		</section>
+		<section>
+			<title>Managing Service State</title>
+			<p>When services simply must maintain state <em>between</em> method
+				invocations, there are several good options:</p>
+			<ul>
+				<li>Store the data in an object passed to or returned from the service</li>
+				<li>Make use of the &hivemind.ThreadLocalStorage; service to store the
+					data in a thread-local map.</li>
+				<li>Make use of the <link href="services.html#Threaded Service Model">
+					threaded</link> or <link href="services.html#Pooled Service Model">
+					pooled</link> service models, which allow a service to keep its state
+					between service method invocations.</li>
+			</ul>
+		</section>
+	</body>
+</document>

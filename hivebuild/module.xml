@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project name="module">
+	<!-- 
+		Imports are computed relative the this file (to the build.xml
+		that imported this file). -->
+	<import file="hivebuild.xml"/>
+	<import file="dependency.xml"/>
+	<import file="forrestdoc.xml"/>
+	<property file="${hivebuild.dir}/module.properties"/>
+	<property name="forrest.report-menu.file" value="${project.forrest.xdocs.dir}/${module.name}/report-menu.ent"/>
+	<!-- The default classpath for compilation is all external package JARs. -->
+	<path id="default.test-compile.classpath">
+		<path refid="default.compile.classpath"/>
+		<path location="${java.classes.dir}"/>
+		<fileset dir="${module.lib.dir}" includes="test/**/*.jar"/>
+	</path>
+	<path id="default.test.classpath">
+		<path refid="default.test-compile.classpath"/>
+		<pathelement location="${test.classes.dir}"/>
+		<fileset dir="${module.lib.dir}" includes="run/**/*.jar"/>
+		<!-- To pick up any classpath resources. -->
+		<path location="${test.src.dir}"/>
+		<!-- To pick up log4j.properties or other runtime resources. -->
+		<pathelement location="${conf.src.dir}"/>
+		<!-- This is pretty specific to HiveMind, but eventually
+				 everything will be a HiveMind module. Pick up
+				 the module deployment descriptor. -->
+		<pathelement location="${descriptor.src.dir}"/>
+		<!-- Pick up the JUnit and XML runtime provided with Ant. -->
+		<fileset dir="${ant.home}/lib">
+			<include name="junit-${module.junit.version}.jar"/>
+			<include name="xml-apis.jar"/>
+			<include name="xercesImpl.jar"/>
+		</fileset>
+	</path>
+	<path id="default.source.path">
+		<pathelement location="${java.src.dir}"/>
+		<pathelement location="${generated-java.src.dir}"/>
+	</path>
+	<macrodef name="copy-source-resources">
+		<attribute name="classes-dir" default="${java.classes.dir}" description="Directory to copy resources to."/>
+		<sequential>
+			<announce message="Copying resources to @{classes-dir} ..."/>
+			<copy todir="@{classes-dir}" includeEmptyDirs="false">
+				<fileset dir="${java.src.dir}">
+					<exclude name="**/*.java"/>
+					<exclude name="**/package.html"/>
+				</fileset>
+			</copy>
+		</sequential>
+	</macrodef>
+	<macrodef name="default-compile">
+		<attribute name="compile-classpath-id" default="default.compile.classpath"
+			description="Reference to a path defining compile-time libraries."/>
+		<attribute name="sourcepath-id" default="default.source.path"
+			description="Referencce to a path of source directories to compile."/>
+		<attribute name="classes-dir" default="${java.classes.dir}" description="Directory to compile classes into."/>
+		<sequential>
+			<antcall target="-compile-init"/>
+			<mkdir dir="@{classes-dir}"/>
+			<!-- Make the directory, before it is referenced via default.compile.classpath.
+				   The javacc.xml module actually puts files into generated Java.  Perhaps
+				   in the future, an XDoclet extension will make use of this as well. -->
+			<announce message="Compiling Java sources to @{classes-dir} ..."/>
+			<javac destdir="@{classes-dir}" classpathref="@{compile-classpath-id}" debug="${module.javac.debug}"
+				debuglevel="${module.javac.debuglevel}" optimize="${module.javac.optimize}"
+				deprecation="${module.javac.deprecation}" target="${module.javac.target}"
+				verbose="${module.javac.verbose}" source="${module.javac.source}" listfiles="${module.javac.listfiles}">
+				<src>
+					<path refid="@{sourcepath-id}"/>
+				</src>
+			</javac>
+			<copy-source-resources classes-dir="@{classes-dir}"/>
+		</sequential>
+	</macrodef>
+	<macrodef name="default-compile-tests">
+		<attribute name="compile-classpath-id" default="default.test-compile.classpath"
+			description="Reference to a path used to compile unit tests."/>
+		<sequential>
+			<ibiblio-dependency artifact="junit" version="3.8.1" group="junit" use="${module.junit.use}"/>
+			<mkdir dir="${test.classes.dir}"/>
+			<announce message="Compiling tests to ${test.classes.dir} ..."/>
+			<javac destdir="${test.classes.dir}" classpathref="@{compile-classpath-id}" srcdir="${test.src.dir}"
+				debug="${module.javac-test.debug}" debuglevel="${module.javac-test.debuglevel}"
+				optimize="${module.javac-test.optimize}" deprecation="${module.javac-test.deprecation}"
+				target="${module.javac-test.target}" verbose="${module.javac-test.verbose}"
+				source="${module.javac-test.source}" listfiles="${module.javac-test.listfiles}"/>
+		</sequential>
+	</macrodef>
+	<available property="junit-available" file="${ant.home}/lib/${module.junit.jar}"/>
+	<target name="-install-junit" unless="junit-available">
+		<copy file="${external.lib.dir}/${module.junit.jar}" todir="${ant.home}/lib"/>
+		<announce message="${module.junit.jar} has been installed to ${ant.home}/lib."/>
+		<announce message="You must restart the build to continue."/>
+		<fail message="You must restart the build to continue."/>
+	</target>
+	<macrodef name="default-run-tests">
+		<attribute name="classpath-id" default="default.test.classpath" description="Reference to path used for tests."/>
+		<attribute name="fork" default="${module.junit.fork}" description="Run the tests in a seperate JVM if on."/>
+		<element name="junit-elements" optional="true" description="Additional elements placed within the junit task."/>
+		<sequential>
+			<antcall target="-install-junit"/>
+			<mkdir dir="${junit.temp.dir}"/>
+			<mkdir dir="${junit.report.dir}"/>
+			<announce message="Running unit tests ..."/>
+			<junit fork="@{fork}" forkmode="${module.junit.forkmode}" haltonfailure="off"
+				failureproperty="junit-failure" tempdir="${junit.temp.dir}">
+				<classpath refid="@{classpath-id}"/>
+				<sysproperty key="PROJECT_ROOT" value="${project.dir}"/>
+				<sysproperty key="BASEDIR" value="${basedir}"/>
+				<jvmarg line="${module.junit.jvmarg}"/>
+				<formatter type="xml"/>
+				<formatter type="brief" usefile="false"/>
+				<formatter type="plain"/>
+				<batchtest todir="${junit.report.dir}">
+					<fileset dir="${test.classes.dir}">
+						<!-- Inner classes cause problems! -->
+						<exclude name="**/*$*.class"/>
+						<!-- Old style naming: TestFoo -->
+						<include name="**/Test*.class"/>
+						<!-- I have seen the light!  FooTest makes more sense -->
+						<include name="**/*Test.class"/>
+					</fileset>
+				</batchtest>
+				<junit-elements/>
+			</junit>
+			<fail if="junit-failure" message="Some tests failed."/>
+		</sequential>
+	</macrodef>
+	<target name="compile-dependencies" description="Overriden to download dependencies as external package.">
+		<!-- Does nothing. This is often overriden, and becomes a series of
+			   calls to macros defined in dependency.xml. -->
+	</target>
+	<target name="-compile-init">
+		<mkdir dir="${generated-java.src.dir}"/>
+	</target>
+	<!-- Usually overriden so that the options used when compiling, especially compile-classpath-id, can be overriden. -->
+	<target name="compile" description="Compile Java source code." depends="compile-dependencies">
+		<default-compile/>
+	</target>
+	<target name="compile-tests" description="Compiles JUnit tests." depends="compile">
+		<default-compile-tests/>
+	</target>
+	<target name="run-tests" description="Runs JUnit tests." depends="compile-tests" unless="hivebuild.skip-tests">
+		<default-run-tests/>
+	</target>
+	<macrodef name="default-javadoc">
+		<attribute name="sourcepath-id" default="default.source.path" description="Reference to source path."/>
+		<attribute name="classpath-id" default="default.compile.classpath"/>
+		<sequential>
+			<mkdir dir="${javadoc.target.dir}"/>
+			<announce message="Generating Javadoc ..."/>
+			<javadoc destdir="${javadoc.target.dir}" classpathref="@{classpath-id}" version="yes" use="yes"
+				splitindex="yes" source="${module.javac.source}" linksource="true"
+				windowtitle="${module.name} - ${project.version} API">
+				<packageset dir="${java.src.dir}"/>
+			</javadoc>
+		</sequential>
+	</macrodef>
+	<target name="javadoc" depends="-compile-init" description="Create JavaDoc from Java source files.">
+		<default-javadoc/>
+	</target>
+	<target name="clean-code" description="Cleans compiled Java code.">
+		<delete dir="${java.classes.dir}" quiet="true"/>
+		<delete dir="${test.classes.dir}" quiet="true"/>
+	</target>
+</project>

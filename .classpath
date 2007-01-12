@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry output="framework/target/eclipse-classes" kind="src" path="framework/src/java"/>
+	<classpathentry output="framework/target/eclipse-test-classes" kind="src" path="framework/src/test"/>
+	<classpathentry output="framework/target/eclipse-classes" kind="src" path="framework/src/descriptor"/>
+	<classpathentry output="framework/target/eclipse-test-classes" kind="src" path="framework/src/conf"/>
+	<classpathentry output="library/target/eclipse-classes" kind="src" path="library/src/java"/>
+	<classpathentry output="library/target/eclipse-test-classes" kind="src" path="library/src/test"/>
+	<classpathentry output="library/target/eclipse-classes" kind="src" path="library/src/descriptor"/>
+	<classpathentry output="jmx/target/eclipse-classes" kind="src" path="jmx/src/java"/>
+	<classpathentry output="jmx/target/eclipse-test-classes" kind="src" path="jmx/src/test"/>
+	<classpathentry output="jmx/target/eclipse-classes" kind="src" path="jmx/src/descriptor"/>
+	<classpathentry output="examples/target/eclipse-classes" kind="src" path="examples/src/java"/>
+	<classpathentry output="examples/target/eclipse-test-classes" kind="src" path="examples/src/test"/>
+	<classpathentry kind="src" path="hivebuild/src/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="ext-package/lib/commons-logging-1.0.3.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/easymock-1.1.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/log4j-1.2.7.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/oro-2.0.6.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/servletapi-2.3.jar"/>
+	<classpathentry kind="var" path="ANT_HOME/lib/xercesImpl.jar"/>
+	<classpathentry kind="var" path="ANT_HOME/lib/xml-apis.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/spring-full-1.0.1.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/junit-3.8.1.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/jboss-j2ee-3.2.1.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/groovy-all-1.0-jsr-03.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/cglib-full-2.0.1.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/easymockclassextension-1.1.jar"/>
+	<classpathentry kind="var" path="ANT_HOME/lib/ant.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/aopalliance-1.0.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/mx4j-2.1.1.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/mx4j-remote-2.1.1.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/mx4j-tools-2.1.1.jar"/>
+	<classpathentry kind="lib" path="ext-package/lib/javassist-3.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

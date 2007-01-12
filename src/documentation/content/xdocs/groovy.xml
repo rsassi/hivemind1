@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN"
+  "http://forrest.apache.org/dtd/document-v13.dtd" [
+  <!ENTITY % common-links SYSTEM "links.ent">
+  %common-links;
+  ]>
+<document>
+  <header>
+    <title>Using Groovy to Define Modules</title>
+  </header>
+  <body>
+    <p>
+		HiveMind's XML format is intentionally designed as a static (with the exception of the Ant style 
+		properties called <em>substitution symbols</em>) descriptive format.  Yet, in some situations it 
+		would be nice to be able to specify the HiveMind module descriptors in more dynamic and expressive 
+		ways.  <link href="http://groovy.codehaus.org/">Groovy</link> to the rescue.
+    </p>
+	<p>
+		In the following we will take a look at how the 
+    <link href="bootstrap.html">calculator example module</link> can be expressed using a 
+		Groovy script.  We will also go through the steps required to get module descriptors defined in 
+		Groovy loaded into the Registry.
+	</p>
+	<section>
+		<title>Module Descriptor in Groovy</title>
+		<source><![CDATA[
+import hivemind.examples.*
+import hivemind.examples.impl.*
+
+def addSimpleServiceWithLogging(id, interfaceClass) {
+	interfaceName = interfaceClass.name
+	processor.servicePoint(id:id, interface:interfaceName) {
+		lastDotIdx = interfaceName.lastIndexOf('.')
+		createInstance(class:interfaceName.substring(0, lastDotIdx) + '.impl' +
+			interfaceName.substring(lastDotIdx) + 'Impl')
+		interceptor(serviceId:'hivemind.LoggingInterceptor')
+	}
+}
+
+processor.module(id:'hivemind.examples', version:'1.0.0') {
+
+	addSimpleServiceWithLogging('Adder', Adder.class)
+	addSimpleServiceWithLogging('Subtracter', Subtracter.class)
+	addSimpleServiceWithLogging('Multiplier', Multiplier.class)
+	addSimpleServiceWithLogging('Divider', Divider.class)
+
+	servicePoint(id:'Calculator', interface:Calculator.class.name) {
+		invokeFactory {
+			construct(class:CalculatorImpl.class.name)
+		}
+		interceptor(serviceId:'hivemind.LoggingInterceptor')
+	}
+}]]></source>
+	<p>
+		At first glance this looks very different from a standard XML module descriptor.  But if you take a 
+		closer look you will notice that the main differences stem from the dynamic aspects which have been 
+		introduced.  Without these the module descriptor would actually look very much alike its XML 
+		equivalent.
+	</p>
+	<p>
+		There are a few important things you should know when writing Groovy module descriptors:
+	</p>
+	<ul>
+		<li>HiveMind binds the variable <code>processor</code> to the script, which is the 
+			<link href="http://groovy.codehaus.org/GroovyMarkup">GroovyMarkup</link> builder.  You can only 
+			use it to define one module descriptor per script.</li>
+		<li>The XML descriptor elements correspond to methods and the element attributes correspond to 
+			method parameters.  Instead of the hyphened element and attribute names we have corresponding 
+			camelCased identifiers (e.g. <code>servicePoint</code> instead of &_service-point;).</li>
+	</ul>
+	</section>
+	<section>
+		<title>Setting up the Registry</title>
+		<source><![CDATA[
+package hivemind.examples;
+
+import java.util.Locale;
+
+import org.apache.hivemind.*;
+import org.apache.hivemind.impl.*;
+import org.apache.hivemind.lib.groovy.GroovyModuleDescriptorProvider;
+import org.apache.hivemind.util.ClasspathResource;
+
+public class Main
+{
+    public static void main(String[] args)
+    {
+        double arg0 = Double.parseDouble(args[0]);
+        double arg1 = Double.parseDouble(args[1]);
+
+        RegistryBuilder builder = new RegistryBuilder();
+
+        // we have to add the default provider to load HiveMind's own modules
+        builder.addDefaultModuleDescriptorProvider();
+
+        ClassResolver resolver = new DefaultClassResolver();
+        
+        Resource groovyScript = new ClasspathResource(resolver,
+                "/META-INF/hivemind.examples.groovy");
+
+        // now we add a Groovy provider to load our Groovy script
+        builder.addModuleDescriptorProvider(new GroovyModuleDescriptorProvider(resolver,
+                groovyScript));
+
+        Registry registry = builder.constructRegistry(Locale.getDefault());
+
+        Calculator calculator = (Calculator) registry.getService(Calculator.class);
+
+        System.out.println("Inputs:   " + arg0 + " and " + arg1);
+        System.out.println("Add:      " + calculator.add(arg0, arg1));
+        System.out.println("Subtract: " + calculator.subtract(arg0, arg1));
+        System.out.println("Multiply: " + calculator.multiply(arg0, arg1));
+        System.out.println("Divide:   " + calculator.divide(arg0, arg1));
+
+        registry.shutdown();
+    }
+}]]></source>
+	<p>
+		As you can see there is slightly more work involved in setting up the Registry when using Groovy 
+		module descriptors.  The &api.RegistryBuilder; must be instantiated manually and the 
+		&api.ModuleDescriptorProvider; instances providing the module descriptors must be registered with it 
+		prior to the Registry can be built.  The Groovy specific provider is initialized with a single 
+		Resource or a List of Resources (see &api.GroovyModuleDescriptorProvider;).
+	</p>
+	</section>
+  </body>
+</document>

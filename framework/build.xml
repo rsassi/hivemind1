@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<project name="HiveMind Framework" default="jar" basedir=".">
+	<property name="module.name" value="hivemind"/>
+  
+    <property name="module.junit.use" value="compile"/>
+  
+	<property name="root.dir" value=".."/>
+    <property file="${root.dir}/build.properties"/>
+	<import file="${root.dir}/hivebuild/jar-module.xml"/>
+	<import file="${hivebuild.dir}/javadoc-report.xml"/>
+	<import file="${hivebuild.dir}/clover-report.xml"/>
+ 	<import file="${hivebuild.dir}/junit-report.xml"/>
+   
+  <target name="compile-dependencies">
+    <ibiblio-dependency artifact="ant" version="1.6.3" group="ant"/>
+    <ibiblio-dependency artifact="commons-logging" version="1.0.3" group="commons-logging"/>
+    <ibiblio-dependency artifact="javassist" version="${javassist.version}" group="javassist"/>
+    <ibiblio-dependency artifact="servletapi" version="2.3" group="servletapi"/>
+    <ibiblio-dependency artifact="oro" version="2.0.6" group="oro"/>
+    <ibiblio-dependency artifact="log4j" version="1.2.7" group="log4j"/>
+    <ibiblio-dependency artifact="easymock" version="1.1" group="easymock"/>
+    <ibiblio-dependency artifact="easymockclassextension" version="1.1" group="easymock"/>
+    <ibiblio-dependency artifact="cglib-full" version="2.0.1" group="cglib" />
+    <ibiblio-dependency artifact="junit" version="3.8.1" group="junit"/>
+    <ibiblio-dependency artifact="xercesImpl" version="2.6.2" group="xerces" />
+  </target>
+  
+	<target name="run-reports">
+    
+    <junit-report/>
+		<javadoc-report/>
+    
+		<default-clover>
+			<clover-junit-elements>
+        <sysproperty key="property-set-for-evaluation-context" value="true"/>          			        
+			</clover-junit-elements>
+		</default-clover>
+		<generate-clover-html/>
+	</target>
+</project>

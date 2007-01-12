@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.3//EN" 
+  "http://xml.apache.org/forrest/dtd/document-v13.dtd" [
+  <!ENTITY projectroot '../'>
+  <!ENTITY % common-links SYSTEM "../links.ent">
+  %common-links;
+  ]>
+<document>
+  <header>
+    <title>Monitor services</title>
+  </header>
+  <body>
+  	<p>
+  	Though creation of jmx monitors is not automated a monitor can 
+  	easily defining as service point using the standard BuilderFactory 
+  	functionality. Such a monitor can watch the attribute of another 
+  	MBean (for example the average execution time of a service method
+  	when using an <link href="site:use.MeasurePerformance">Performance Interceptor</link> 
+  	and send notifications, if a treshold is crossed.
+  	</p>
+		<source><![CDATA[
+<service-point id="CalculatorSumMonitor" 
+      interface="javax.management.monitor.GaugeMonitorMBean">
+  <invoke-factory model="primitive" >
+  
+    <construct class="javax.management.monitor.GaugeMonitor" >
+      <set property="granularityPeriod" value="1000" />
+      <set property="observedObject" 
+        value="HiveMind:module=test.management,type=service,
+           id=Calculator,decorator=PerformanceCollector" />
+      <set property="observedAttribute" 
+        value="add(int) : Average Time" />
+    </construct>	
+    
+  </invoke-factory>  	
+</service-point>]]></source> 
+  </body>
+</document>

@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<!-- 
+   Copyright 2004, 2005 The Apache Software Foundation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<project name="dist">
+	
+	<property file="${hivebuild.dir}/dist.properties"/>
+  <property name="keyfile" value="${user.home}/ssh/id_apache"/>
+  
+	<!-- This will be here until we add some new taskdefs and typedefs to simplify this. -->
+	
+	<target name="dist" description="Build a distribution." depends="clean,install,site,dist-build"/>
+	
+	<target name="-dist-build-setup">
+		<mkdir dir="${dist.dir}"/>
+		
+		<fail unless="dist.name"
+			message="You must provide a value for property property dist.name."/>			
+	</target>
+	
+	<target name="dist-build-distros" description="Constructs final distribution files." depends="-dist-build-setup">
+		<announce message="Assembling binary/src distribution (.tar.gz format) ..."/>
+		
+		<tar destfile="${dist.basefile}.tar.gz"
+			compression="gzip">
+			
+			<tarfileset dir="." prefix="${dist.base.name}" excludes="${dist.project.excludes}">
+				<exclude name="**/target/**"/>
+				
+				<!-- Left around by Forrest -->
+				
+				<exclude name="build/**"/>
+				<exclude name="target/**"/>
+				<exclude name="ext-package/**"/>
+				
+				<!-- These are all related to Eclipse. -->
+				<exclude name="bin/**"/>
+				<exclude name=".*/**"/>
+				
+				<!-- These are left around by PaintShopPro and Windows Explorer -->
+				
+				<exclude name="**/Thumbs.db"/>
+				<exclude name="**/pspbrwse.jbf"/>
+			</tarfileset>
+			
+			<!-- Pick up the packaged libraries. -->
+			
+			<tarfileset dir="${local.target.dir}" prefix="${dist.base.name}">
+				<include name="*.jar"/>
+			</tarfileset>		
+		</tar>
+		
+		<announce message="Assembling binary/src distribution (.zip format) ..."/>
+		
+		<zip destfile="${dist.basefile}.zip">						
+			<zipfileset dir="." prefix="${dist.base.name}/" excludes="${dist.project.excludes}">
+				<exclude name="**/target/**"/>
+				
+				<!-- Sorry about the cut-n-paste.  zip task just doesn't understand the prefix attribute
+					of tarfileset, even though zipfileset has a prefix attribute as well. -->
+				
+				<!-- Left around by Forrest -->
+				
+				<exclude name="build/**"/>
+				<exclude name="target/**"/>
+				<exclude name="ext-package/**"/>
+				
+				<!-- These are all related to Eclipse. -->
+				<exclude name="bin/**"/>
+				<exclude name=".*/**"/>
+				
+				<!-- These are left around by PaintShopPro and Windows Explorer -->
+				
+				<exclude name="**/Thumbs.db"/>
+				<exclude name="**/pspbrwse.jbf"/>
+			</zipfileset>
+			
+			<!-- Pick up the packaged libraries. -->
+			
+			<zipfileset dir="${local.target.dir}" prefix="${dist.base.name}/">
+				<include name="*.jar"/>
+			</zipfileset>			
+		</zip>		
+	</target>
+
+	<target name="dist-build-docs" description="Build documentation distribution" depends="-dist-build-setup">
+		<announce message="Assembling documentation distribution ..."/>
+		
+		<tar destfile="${dist.dir}/${dist.docs.file}" compression="gzip">
+			<tarfileset dir="${project.docs.target.dir}"/>
+		</tar>
+		
+		<checksum fileext=".md5">
+			<fileset dir="${dist.dir}">
+				<include name="*.zip"/>
+				<include name="*.gz"/>
+			</fileset>
+		</checksum>				
+	</target>	
+	
+	<target name="dist-build" description="Constructs final distribution files." depends="dist-build-distros,dist-build-docs">
+    	<announce message="You should sign the release files (in target/dist) using GPG before invoking the install-dist target."/>
+	</target>
+
+	
+	<target name="-check-passphrase" unless="passphrase">
+	
+		<input message="Please provide passphrase for installation:" addproperty="passphrase"/>
+
+	</target>
+  
+	<target name="install-docs" depends="-check-passphrase"
+			description="Copies the documentation to a directory and unpacks it remotely.">
+
+		<!-- TODO: Check for missing properties. -->
+		
+		<announce message="Installing documentation distribution to ${dist.install.docs.dir} ..."/>
+    
+		<scp
+				file="${dist.dir}/${dist.docs.file}" 
+				todir="${dist.install.docs.dir}"
+				passphrase="${passphrase}"
+        keyfile="${keyfile}"
+  			trust="yes"/>
+		
+		<sshexec 
+			username="${dist.install.docs.user}"
+			host="${dist.install.docs.host}"
+			command="cd ${dist.install.docs.path} ; tar xzvf ${dist.docs.file} ; rm ${dist.docs.file}"
+			passphrase="${passphrase}"
+      keyfile="${keyfile}"
+			trust="yes"/>
+
+	</target>
+	
+	<target name="install-dist" depends="-check-passphrase"
+		description="Install current distributions.">
+		
+		<announce message="Installing distributions to ${dist.install.dir} ..."/> 
+    
+		<scp todir="${dist.install.dir}"
+				passphrase="${passphrase}"
+        keyfile="${keyfile}"
+				trust="yes">
+			<fileset dir="${dist.dir}"/>
+      <fileset dir="." includes="KEYS"/>
+		</scp>
+    
+    <announce message="Fixing distribution file permissions ..."/>
+    
+		<sshexec 
+			username="${dist.install.user}"
+			host="${dist.install.host}"
+			command="cd ${dist.install.path} ; chmod ${dist.install.mode} *.gz *.zip *.md5 *.asc"
+			passphrase="${passphrase}"
+      keyfile="${keyfile}"
+			trust="yes"/>  
+    
+	</target>
+  
+  <target name="install-maven" depends="-check-passphrase"
+    description="Install JARs into Maven distribution library.">
+    <announce message="Building MD5 Checksums ..."/>
+    
+    <checksum fileext=".md5">
+      <fileset dir="${local.target.dir}" includes="*.jar"/>
+    </checksum>
+    
+    <announce message="Copying JARs and MD5 Checksums to ${dist.install.maven.dir} ..."/>
+    
+    <scp todir="${dist.install.maven.dir}"
+      passphrase="${passphrase}"
+      keyfile="${keyfile}"
+      trust="yes">
+      <fileset dir="${local.target.dir}">
+        <include name="*.jar"/>
+        <include name="*.md5"/>
+      </fileset>
+    </scp>
+    
+    <announce message="Fixing distribution file permissions ..."/>
+    
+		<sshexec 
+			username="${dist.install.maven.user}"
+			host="${dist.install.maven.host}"
+			command="cd ${dist.install.maven.path} ; chmod ${dist.install.maven.mode} *"
+			passphrase="${passphrase}"
+      keyfile="${keyfile}"
+			trust="yes"/>      
+  </target>
+	
+</project>
