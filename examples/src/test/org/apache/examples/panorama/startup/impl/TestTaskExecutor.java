@@ -14,19 +14,13 @@
 
 package org.apache.examples.panorama.startup.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.logging.Log;
 import org.apache.examples.panorama.startup.Executable;
-import org.apache.examples.panorama.startup.impl.Task;
-import org.apache.examples.panorama.startup.impl.TaskExecutor;
 import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.hivemind.ErrorLog;
 import org.apache.hivemind.Messages;
 import org.apache.hivemind.Resource;
+import org.apache.hivemind.impl.DefaultClassResolver;
 import org.apache.hivemind.impl.MessageFinderImpl;
 import org.apache.hivemind.impl.ModuleMessages;
 import org.apache.hivemind.internal.MessageFinder;
@@ -37,13 +31,18 @@ import org.apache.hivemind.test.ArgumentMatcher;
 import org.apache.hivemind.test.HiveMindTestCase;
 import org.apache.hivemind.test.RegexpMatcher;
 import org.apache.hivemind.test.TypeMatcher;
-import org.apache.hivemind.util.FileResource;
+import org.apache.hivemind.util.ClasspathResource;
 import org.easymock.MockControl;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 
 /**
  * Tests for the {@link org.apache.examples.panorama.startup.impl.TaskExecutor} service.
- * 
+ *
  * @author Howard Lewis Ship
  */
 public class TestTaskExecutor extends HiveMindTestCase
@@ -71,13 +70,9 @@ public class TestTaskExecutor extends HiveMindTestCase
 
     public Messages getMessages()
     {
-        String projectRoot = System.getProperty("PROJECT_ROOT", ".");
-        String path = projectRoot + "/examples/src/descriptor/META-INF/panorama.startup.xml";
-
-        Resource r = new FileResource(path);
+        Resource r = new ClasspathResource(new DefaultClassResolver(), "/META-INF/panorama.startup.xml");
         MessageFinder mf = new MessageFinderImpl(r);
         ThreadLocale tl = new ThreadLocaleImpl(Locale.getDefault());
-
         return new ModuleMessages(mf, tl);
     }
 
@@ -112,7 +107,9 @@ public class TestTaskExecutor extends HiveMindTestCase
 
         e.setErrorLog(errorLog);
         e.setLog(log);
+
         e.setMessages(getMessages());
+
         e.setTasks(tasks);
 
         // Note the ordering; explicitly set, to check that ordering does
@@ -123,13 +120,14 @@ public class TestTaskExecutor extends HiveMindTestCase
         logControl.setMatcher(new RegexpMatcher());
 
         replayControls();
-
         e.run();
 
         assertListsEqual(new String[]
-        { "f2", "f1" }, _tokens);
+                {"f2", "f1"}, _tokens);
 
         verifyControls();
+
+
     }
 
     public void testFailure()
@@ -163,7 +161,7 @@ public class TestTaskExecutor extends HiveMindTestCase
                 null,
                 new ApplicationRuntimeException(""));
         errorLogControl.setMatcher(new AggregateArgumentsMatcher(new ArgumentMatcher[]
-        { null, null, new TypeMatcher() }));
+                {null, null, new TypeMatcher()}));
 
         log.info("Executed one task with one failure \\(in \\d+ milliseconds\\)\\.");
         logControl.setMatcher(new AggregateArgumentsMatcher(new RegexpMatcher()));
