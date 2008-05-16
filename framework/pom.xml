@@ -1,88 +1,91 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.apache.hivemind</groupId>
-    <artifactId>hivemind</artifactId>
-    <packaging>jar</packaging>
-    <version>1.2.1</version>
     <parent>
         <groupId>org.apache.hivemind</groupId>
-        <artifactId>hivemind-project</artifactId>
-        <version>1.2.1</version>
-        <relativePath>../pom.xml</relativePath>
+        <artifactId>hivemind-parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
     </parent>
-    <name>HiveMind core framework</name>
-    <inceptionYear>2003</inceptionYear>
+
+    <artifactId>hivemind</artifactId>
+    <packaging>jar</packaging>
+
+    <name>HiveMind Core Framework</name>
     <dependencies>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jboss</groupId>
-            <artifactId>javassist</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>oro</groupId>
-            <artifactId>oro</artifactId>
-        </dependency>
-        <!-- PROVIDED -->
         <dependency>
             <groupId>ant</groupId>
             <artifactId>ant</artifactId>
             <version>1.6.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>easymock</groupId>
-            <artifactId>easymockclassextension</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <scope>provided</scope>
+            <version>2.6.2</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.8</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>jboss</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>oro</groupId>
+            <artifactId>oro</artifactId>
+            <version>2.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.3</version>
             <scope>provided</scope>
         </dependency>
-        <!-- TEST -->
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-full</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-        </dependency>
+
     </dependencies>
-    <reporting>
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
-    </reporting>
-    <scm>
-        <connection>svn:http://svn.apache.org/repos/asf/jakarta/hivemind/trunk/framework</connection>
-        <url>http://svn.apache.org/viewvc/jakarta/hivemind/trunk/framework</url>
-    </scm>
+    </build>
 </project>

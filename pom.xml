@@ -3,27 +3,30 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.apache.hivemind</groupId>
-    <artifactId>hivemind-project</artifactId>
+    <artifactId>hivemind-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.1</version>
-    <name>HiveMind Project</name>
+    <version>1.2-SNAPSHOT</version>
+    <name>Apache HiveMind</name>
     <inceptionYear>2003</inceptionYear>
+    <organization>
+        <name>Apache Software Foundation</name>
+        <url>http://www.apache.org/</url>
+    </organization>
     <modules>
         <module>framework</module>
         <module>library</module>
         <module>jmx</module>
         <module>examples</module>
     </modules>
-    <url>http://jakarta.apache.org/hivemind/</url>
+    <url>http://hivemind.apache.org/</url>
     <developers>
         <developer>
-            <id>HLS</id>
-            <email>howard@howardlewisship.com</email>
-            <url>http://howardlewisship.com</url>
+            <id>JC</id>
+            <email>jcarman@apache.org</email>
             <roles>
                 <role>dev</role>
             </roles>
-            <timezone>-8</timezone>
+            <timezone>-5</timezone>
         </developer>
     </developers>
     <licenses>
@@ -33,77 +36,10 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.8</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>3.8.1</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>1.1</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>easymock</groupId>
-                <artifactId>easymockclassextension</artifactId>
-                <version>1.1</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xercesImpl</artifactId>
-                <version>2.6.2</version>
-            </dependency>
-            <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib-full</artifactId>
-                <version>2.0.1</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>xml-apis</groupId>
-                <artifactId>xml-apis</artifactId>
-                <version>1.3.02</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>1.0.3</version>
-            </dependency>
-            <dependency>
-                <groupId>jboss</groupId>
-                <artifactId>javassist</artifactId>
-                <version>3.0</version>
-            </dependency>
-            <dependency>
-                <groupId>oro</groupId>
-                <artifactId>oro</artifactId>
-                <version>2.0.8</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>2.3</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hivemind</groupId>
-                <artifactId>hivemind</artifactId>
-                <version>1.2.1</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://issues.apache.org/jira/browse/HIVEMIND</url>
+    </issueManagement>
     <build>
         <sourceDirectory>src/java</sourceDirectory>
         <resources>
@@ -209,13 +145,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <extensions>
-            <!-- Needed to support FTP deployment. -->
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ftp</artifactId>
-            </extension>
-        </extensions>
     </build>
     <!-- Standard reports used in the HiveMind projects. -->
     <reporting>
@@ -234,25 +163,15 @@
         </plugins>
     </reporting>
     <distributionManagement>
-        <!-- Alas, this doesn't work yet -->
         <site>
-            <id>apache.org</id>
-            <url>ssh://cvs.apache.org/jakarta/hivemind/%{pom.artifactId}</url>
+            <id>apache.website</id>
+            <name>Apache Website</name>
+            <url>scp://people.apache.org/www/hivemind.apache.org/</url>
         </site>
-        <repository>
-            <!-- The "maven" login id, specified in settings.xml, ensures that the Maven
-                repository (i.e. http://howardlewisship.com/repository) is accessed. -->
-            <!-- This is temporary, until HiveMind 1.2 is stable. -->
-            <id>howardlewisship.com</id>
-            <url>ftp://howardlewisship.com/repository</url>
-        </repository>
     </distributionManagement>
-    <organization>
-        <name>Apache Software Foundation</name>
-        <url>http://www.apache.org/</url>
-    </organization>
+    
     <scm>
-        <connection>svn:http://svn.apache.org/repos/asf/jakarta/hivemind/trunk/</connection>
-        <url>http://svn.apache.org/viewvc/jakarta/hivemind/trunk/</url>
+        <connection>svn:http://svn.apache.org/repos/asf/hivemind/hivemind/trunk/</connection>
+        <url>http://svn.apache.org/viewvc/hivemind/hivemind1/trunk/</url>
     </scm>
 </project>

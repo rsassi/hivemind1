@@ -21,7 +21,7 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
- * Used to test logging provided by the {@link org.apache.hivemind.impl.LoggingInterceptorFactory}.
+ * Used to test logging provided by the {@link org.apache.hivemind.service.impl.LoggingInterceptorFactory}.
  *
  * @author Howard Lewis Ship
  */
